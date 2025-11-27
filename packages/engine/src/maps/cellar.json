@@ -1,0 +1,69 @@
+{
+  "id": "abandoned-cellar",
+  "name": "The Abandoned Cellar",
+  "seed": "cellar-001",
+  "width": 400,
+  "height": 300,
+  "rooms": [
+    {
+      "id": "entry",
+      "x": 50,
+      "y": 100,
+      "width": 100,
+      "height": 80,
+      "type": "room",
+      "connections": ["storage"],
+      "spawnPoints": [
+        { "x": 100, "y": 140 }
+      ],
+      "items": [],
+      "enemies": []
+    },
+    {
+      "id": "storage",
+      "x": 200,
+      "y": 80,
+      "width": 120,
+      "height": 100,
+      "type": "room",
+      "connections": ["entry", "boss"],
+      "spawnPoints": [
+        { "x": 240, "y": 120 },
+        { "x": 260, "y": 130 }
+      ],
+      "items": [
+        { "id": "health-potion-1", "name": "Health Potion", "type": "consumable" },
+        { "id": "rusty-sword", "name": "Rusty Sword", "type": "weapon" }
+      ],
+      "enemies": [
+        { "id": "rat-1", "name": "Giant Rat", "stats": { "str": 8, "dex": 14, "con": 10, "int": 2, "wis": 10, "cha": 4, "ac": 12, "hp": 8, "maxHp": 8, "attackBonus": 2 } },
+        { "id": "rat-2", "name": "Giant Rat", "stats": { "str": 8, "dex": 14, "con": 10, "int": 2, "wis": 10, "cha": 4, "ac": 12, "hp": 8, "maxHp": 8, "attackBonus": 2 } }
+      ]
+    },
+    {
+      "id": "boss",
+      "x": 350,
+      "y": 50,
+      "width": 50,
+      "height": 200,
+      "type": "boss",
+      "connections": ["storage"],
+      "spawnPoints": [
+        { "x": 375, "y": 150 }
+      ],
+      "items": [
+        { "id": "treasure-chest", "name": "Treasure Chest", "type": "misc" }
+      ],
+      "enemies": [
+        { "id": "cellar-boss", "name": "Skeletal Guardian", "stats": { "str": 16, "dex": 12, "con": 14, "int": 6, "wis": 10, "cha": 8, "ac": 15, "hp": 45, "maxHp": 45, "attackBonus": 5 } }
+      ]
+    }
+  ],
+  "objectives": [
+    {
+      "type": "defeat_boss",
+      "target": "cellar-boss"
+    }
+  ]
+}
+
