@@ -1,5 +1,5 @@
 import { expect } from "chai";
-import { ethers } from "hardhat";
+import { ethers, upgrades } from "hardhat";
 import { GoldToken, Inventory, Adventurer, TavernKeeper } from "../typechain-types";
 
 describe("InnKeeper Contracts", function () {
@@ -13,17 +13,30 @@ describe("InnKeeper Contracts", function () {
     beforeEach(async function () {
         [owner, otherAccount] = await ethers.getSigners();
 
+        // Deploy as UUPS proxies
         const GoldTokenFactory = await ethers.getContractFactory("GoldToken");
-        goldToken = await GoldTokenFactory.deploy();
+        goldToken = await upgrades.deployProxy(GoldTokenFactory, [], {
+            kind: "uups",
+            initializer: "initialize",
+        }) as unknown as GoldToken;
 
         const InventoryFactory = await ethers.getContractFactory("Inventory");
-        inventory = await InventoryFactory.deploy();
+        inventory = await upgrades.deployProxy(InventoryFactory, [owner.address], {
+            kind: "uups",
+            initializer: "initialize",
+        }) as unknown as Inventory;
 
         const AdventurerFactory = await ethers.getContractFactory("Adventurer");
-        adventurer = await AdventurerFactory.deploy();
+        adventurer = await upgrades.deployProxy(AdventurerFactory, [], {
+            kind: "uups",
+            initializer: "initialize",
+        }) as unknown as Adventurer;
 
         const TavernKeeperFactory = await ethers.getContractFactory("TavernKeeper");
-        tavernKeeper = await TavernKeeperFactory.deploy();
+        tavernKeeper = await upgrades.deployProxy(TavernKeeperFactory, [], {
+            kind: "uups",
+            initializer: "initialize",
+        }) as unknown as TavernKeeper;
     });
 
     describe("GoldToken", function () {
@@ -52,6 +65,11 @@ describe("InnKeeper Contracts", function () {
         it("Should allow owner to set URI", async function () {
             await inventory.setURI("https://example.com/item/{id}.json");
             expect(await inventory.uri(1)).to.equal("https://example.com/item/{id}.json");
+        });
+
+        it("Should have fee recipient set", async function () {
+            const feeRecipient = await inventory.feeRecipient();
+            expect(feeRecipient).to.equal(owner.address);
         });
     });
 

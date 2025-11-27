@@ -1,16 +1,28 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155URIStorage.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC1155/extensions/ERC1155URIStorageUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
-contract Inventory is ERC1155, ERC1155URIStorage, Ownable {
+contract Inventory is Initializable, ERC1155Upgradeable, ERC1155URIStorageUpgradeable, OwnableUpgradeable, UUPSUpgradeable {
     address public feeRecipient;
 
     event FeeCollected(address indexed payer, uint256 amount);
 
-    constructor(address _feeRecipient) ERC1155("") Ownable(msg.sender) {
+    /// @custom:oz-upgrades-unsafe-allow constructor
+    constructor() {
+        _disableInitializers();
+    }
+
+    function initialize(address _feeRecipient) public initializer {
+        __ERC1155_init("");
+        __ERC1155URIStorage_init();
+        __Ownable_init(msg.sender);
+        __UUPSUpgradeable_init();
+        require(_feeRecipient != address(0), "Inventory: invalid fee recipient");
         feeRecipient = _feeRecipient;
     }
 
@@ -41,15 +53,20 @@ contract Inventory is ERC1155, ERC1155URIStorage, Ownable {
         _mintBatch(to, ids, amounts, data);
     }
 
-    function safeBatchTransferFrom(
+    /**
+     * @notice Claim loot with fee collection
+     * This function allows transferring items and collecting fees in a single transaction
+     * Use this instead of safeBatchTransferFrom when fees need to be collected
+     */
+    function claimLootWithFee(
         address from,
         address to,
         uint256[] memory ids,
         uint256[] memory amounts,
         bytes memory data
-    ) public payable override {
+    ) public payable {
         _collectFee();
-        super.safeBatchTransferFrom(from, to, ids, amounts, data);
+        _safeBatchTransferFrom(from, to, ids, amounts, data);
     }
 
     function _collectFee() internal {
@@ -60,7 +77,9 @@ contract Inventory is ERC1155, ERC1155URIStorage, Ownable {
         }
     }
 
-    function uri(uint256 tokenId) public view override(ERC1155, ERC1155URIStorage) returns (string memory) {
+    function uri(uint256 tokenId) public view override(ERC1155Upgradeable, ERC1155URIStorageUpgradeable) returns (string memory) {
         return super.uri(tokenId);
     }
+
+    function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
 }

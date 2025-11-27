@@ -109,7 +109,7 @@ test.describe('Party Page (/party)', () => {
     await expect(roster).toBeVisible({ timeout: 5000 });
 
     // Check for agent cards OR empty state message
-    const hasAgents = await page.locator('[class*="agent"], [class*="card"], [class*="hero"]').count() > 0;
+    const hasAgents = await page.locator('.agent-card').count() > 0;
     const hasEmptyState = await page.getByText(/No heroes|No heroes recruited/i).count() > 0;
 
     expect(hasAgents || hasEmptyState).toBeTruthy();
@@ -120,9 +120,7 @@ test.describe('Party Page (/party)', () => {
     await page.waitForLoadState('networkidle');
 
     // Find agent cards
-    const agentCards = page.locator('[class*="agent"], [class*="card"], [class*="hero"]').filter({
-      hasNot: page.getByText(/No heroes|No heroes recruited/i)
-    });
+    const agentCards = page.locator('.agent-card');
 
     const count = await agentCards.count();
 
@@ -159,9 +157,7 @@ test.describe('Party Page (/party)', () => {
     await page.waitForLoadState('networkidle');
 
     // Find agent cards and click one if available
-    const agentCards = page.locator('[class*="agent"], [class*="card"]').filter({
-      hasNot: page.getByText(/No heroes|No heroes recruited/i)
-    });
+    const agentCards = page.locator('.agent-card');
 
     const count = await agentCards.count();
     if (count > 0) {
@@ -199,9 +195,7 @@ test.describe('Party Page (/party)', () => {
     await page.waitForLoadState('networkidle');
 
     // Click an agent if available
-    const agentCards = page.locator('[class*="agent"], [class*="card"]').filter({
-      hasNot: page.getByText(/No heroes/i)
-    });
+    const agentCards = page.locator('.agent-card');
 
     const count = await agentCards.count();
     if (count > 0) {

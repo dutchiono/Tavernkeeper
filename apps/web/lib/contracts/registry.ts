@@ -181,9 +181,22 @@ export const CONTRACT_REGISTRY: Record<string, ContractConfig> = {
           { name: 'amounts', type: 'uint256[]' },
           { name: 'data', type: 'bytes' },
         ],
-        name: 'safeBatchTransferFrom',
+        name: 'claimLootWithFee',
         outputs: [],
         stateMutability: 'payable',
+        type: 'function',
+      },
+      {
+        inputs: [
+          { name: 'from', type: 'address' },
+          { name: 'to', type: 'address' },
+          { name: 'ids', type: 'uint256[]' },
+          { name: 'amounts', type: 'uint256[]' },
+          { name: 'data', type: 'bytes' },
+        ],
+        name: 'safeBatchTransferFrom',
+        outputs: [],
+        stateMutability: 'nonpayable',
         type: 'function',
       },
       {
@@ -218,7 +231,7 @@ export const CONTRACT_REGISTRY: Record<string, ContractConfig> = {
         type: 'function',
       },
     ],
-    requiredFunctions: ['balanceOf', 'safeBatchTransferFrom', 'mint', 'feeRecipient'],
+    requiredFunctions: ['balanceOf', 'claimLootWithFee', 'safeBatchTransferFrom', 'mint', 'feeRecipient'],
   },
   ADVENTURER: {
     name: 'Adventurer (ERC-721)',

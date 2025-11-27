@@ -38,7 +38,7 @@ export default function PartyPage() {
                       key={agent.id}
                       onClick={() => setSelectedAgentId(agent.id)}
                       variant={selectedAgentId === agent.id ? 'paper' : 'wood'}
-                      className={`flex justify-between items-center cursor-pointer ${selectedAgentId === agent.id ? 'ring-2 ring-yellow-400' : ''}`}
+                      className={`agent-card flex justify-between items-center cursor-pointer ${selectedAgentId === agent.id ? 'ring-2 ring-yellow-400' : ''}`}
                     >
                       <div className="flex items-center gap-3">
                         <div className={`w-10 h-10 border border-[#2a1d17] rounded flex items-center justify-center overflow-hidden bg-[#2a1d17]`}>

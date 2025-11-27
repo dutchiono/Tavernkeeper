@@ -19,7 +19,6 @@ export default function RunPage() {
   const [lootClaims, setLootClaims] = useState<LootClaim[]>([]);
   const [showLootModal, setShowLootModal] = useState(false);
   const [loadingLoot, setLoadingLoot] = useState(false);
-
   // Fetch unclaimed loot
   useEffect(() => {
     const fetchLoot = async () => {

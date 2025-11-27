@@ -163,11 +163,9 @@ export async function claimLoot(
     amounts
   );
 
-  // Inventory contract now handles fee collection directly via payable safeBatchTransferFrom
-  // Fee is sent as value in the transaction
+  // Use claimLootWithFee function which handles both transfer and fee collection
   const hash = await walletClient.writeContract({
     account,
-    chain: null,
     address: inventoryContract,
     abi: [
       {
@@ -178,13 +176,13 @@ export async function claimLoot(
           { name: 'amounts', type: 'uint256[]' },
           { name: 'data', type: 'bytes' },
         ],
-        name: 'safeBatchTransferFrom',
+        name: 'claimLootWithFee',
         outputs: [],
         stateMutability: 'payable',
         type: 'function',
       },
     ],
-    functionName: 'safeBatchTransferFrom',
+    functionName: 'claimLootWithFee',
     args: [account, tbaAddress, itemIds, amounts, '0x' as `0x${string}`],
     value: gasEstimate.protocolFee, // Protocol fee sent as value - Inventory contract forwards to fee recipient
     gas: gasEstimate.gasLimit + 30000n, // Add buffer for fee forwarding

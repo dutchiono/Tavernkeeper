@@ -34,9 +34,9 @@ contract GoldToken is ERC20Upgradeable, OwnableUpgradeable, UUPSUpgradeable {
         __UUPSUpgradeable_init();
         _mint(msg.sender, 1000000 * 10 ** decimals());
     }
-    
+
     function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
-    
+
     // ... rest of contract
 }
 ```

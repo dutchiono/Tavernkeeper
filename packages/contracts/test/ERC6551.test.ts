@@ -1,5 +1,5 @@
 import { expect } from "chai";
-import { ethers } from "hardhat";
+import { ethers, upgrades } from "hardhat";
 import {
     ERC6551Registry,
     ERC6551Account,
@@ -19,21 +19,27 @@ describe("ERC-6551 Integration", function () {
     beforeEach(async function () {
         [owner, otherAccount] = await ethers.getSigners();
 
-        // Deploy Registry
+        // Deploy Registry (not upgradeable)
         const RegistryFactory = await ethers.getContractFactory("ERC6551Registry");
         registry = await RegistryFactory.deploy();
 
-        // Deploy Account Implementation
+        // Deploy Account Implementation (not upgradeable)
         const AccountFactory = await ethers.getContractFactory("ERC6551Account");
         accountImpl = await AccountFactory.deploy();
 
-        // Deploy Adventurer NFT
+        // Deploy Adventurer NFT as UUPS proxy
         const AdventurerFactory = await ethers.getContractFactory("Adventurer");
-        adventurer = await AdventurerFactory.deploy();
+        adventurer = await upgrades.deployProxy(AdventurerFactory, [], {
+            kind: "uups",
+            initializer: "initialize",
+        }) as unknown as Adventurer;
 
-        // Deploy GoldToken
+        // Deploy GoldToken as UUPS proxy
         const GoldTokenFactory = await ethers.getContractFactory("GoldToken");
-        goldToken = await GoldTokenFactory.deploy();
+        goldToken = await upgrades.deployProxy(GoldTokenFactory, [], {
+            kind: "uups",
+            initializer: "initialize",
+        }) as unknown as GoldToken;
     });
 
     it("Should create a TBA for an Adventurer", async function () {

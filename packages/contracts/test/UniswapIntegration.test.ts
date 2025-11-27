@@ -1,5 +1,5 @@
 import { expect } from "chai";
-import { ethers, network } from "hardhat";
+import { ethers, network, upgrades } from "hardhat";
 import { GoldToken, UniswapIntegration } from "../typechain-types";
 import { SignerWithAddress } from "@nomicfoundation/hardhat-ethers/signers";
 
@@ -37,9 +37,12 @@ describe("Uniswap V3 Integration (Fork)", function () {
     beforeEach(async function () {
         [owner, otherAccount] = await ethers.getSigners();
 
-        // Deploy GoldToken
+        // Deploy GoldToken as UUPS proxy
         const GoldTokenFactory = await ethers.getContractFactory("GoldToken");
-        goldToken = await GoldTokenFactory.deploy();
+        goldToken = await upgrades.deployProxy(GoldTokenFactory, [], {
+            kind: "uups",
+            initializer: "initialize",
+        }) as unknown as GoldToken;
 
         // Deploy UniswapIntegration
         const UniswapIntegrationFactory = await ethers.getContractFactory("UniswapIntegration");
