@@ -1,0 +1,821 @@
+/**
+ * Contract Registry & Versioning System
+ *
+ * Tracks contract addresses, implementations, versions, and ABIs
+ * to ensure game code stays aligned with deployed contracts.
+ */
+
+import { type Address, isAddress, getAddress } from 'viem';
+import { monad } from '../chains';
+import { CONTRACT_ADDRESSES, IMPLEMENTATION_ADDRESSES } from './addresses';
+
+export interface ContractConfig {
+  name: string;
+  proxyAddress?: Address; // Proxy address (if using proxy pattern)
+  implementationAddress?: Address; // Implementation address (for proxies)
+  directAddress?: Address; // Direct contract address (if not using proxy)
+  version: string; // Semantic version (e.g., "1.0.0")
+  proxyType?: 'UUPS' | 'Transparent' | 'Beacon' | 'Minimal' | 'None';
+  chainId: number;
+  abi: readonly any[]; // Contract ABI
+  requiredFunctions: string[]; // Function signatures that must exist
+  deploymentBlock?: number;
+  lastVerified?: Date;
+}
+
+export interface ProxyInfo {
+  isProxy: boolean;
+  proxyType?: 'UUPS' | 'Transparent' | 'Beacon' | 'Minimal';
+  implementationAddress?: Address;
+  adminAddress?: Address;
+  version?: string;
+}
+
+// Contract registry - defines expected contracts and their configurations
+export const CONTRACT_REGISTRY: Record<string, ContractConfig> = {
+  ERC6551_REGISTRY: {
+    name: 'ERC6551 Registry',
+    directAddress: CONTRACT_ADDRESSES.ERC6551_REGISTRY,
+    version: '1.0.0',
+    proxyType: 'None', // Registry is typically not upgradeable
+    chainId: monad.id,
+    abi: [
+      {
+        inputs: [
+          { name: 'implementation', type: 'address' },
+          { name: 'chainId', type: 'uint256' },
+          { name: 'tokenContract', type: 'address' },
+          { name: 'tokenId', type: 'uint256' },
+          { name: 'salt', type: 'uint256' },
+        ],
+        name: 'account',
+        outputs: [{ name: '', type: 'address' }],
+        stateMutability: 'view',
+        type: 'function',
+      },
+      {
+        inputs: [
+          { name: 'implementation', type: 'address' },
+          { name: 'salt', type: 'bytes32' },
+          { name: 'chainId', type: 'uint256' },
+          { name: 'tokenContract', type: 'address' },
+          { name: 'tokenId', type: 'uint256' },
+        ],
+        name: 'createAccount',
+        outputs: [{ name: 'account', type: 'address' }],
+        stateMutability: 'payable',
+        type: 'function',
+      },
+    ],
+    requiredFunctions: ['account', 'createAccount'],
+  },
+  ERC6551_IMPLEMENTATION: {
+    name: 'ERC6551 Account Implementation',
+    directAddress: CONTRACT_ADDRESSES.ERC6551_IMPLEMENTATION,
+    version: '1.0.0',
+    proxyType: 'None', // Implementation itself is not a proxy
+    chainId: monad.id,
+    abi: [
+      {
+        inputs: [
+          { name: 'to', type: 'address' },
+          { name: 'value', type: 'uint256' },
+          { name: 'data', type: 'bytes' },
+          { name: 'operation', type: 'uint8' },
+        ],
+        name: 'execute',
+        outputs: [{ name: 'result', type: 'bytes' }],
+        stateMutability: 'payable',
+        type: 'function',
+      },
+      {
+        inputs: [],
+        name: 'token',
+        outputs: [
+          { name: 'chainId', type: 'uint256' },
+          { name: 'tokenContract', type: 'address' },
+          { name: 'tokenId', type: 'uint256' },
+        ],
+        stateMutability: 'view',
+        type: 'function',
+      },
+      {
+        inputs: [],
+        name: 'owner',
+        outputs: [{ name: '', type: 'address' }],
+        stateMutability: 'view',
+        type: 'function',
+      },
+    ],
+    requiredFunctions: ['execute', 'token', 'owner'],
+  },
+  KEEP_TOKEN: {
+    name: 'Keep Token (ERC-20)',
+    proxyAddress: CONTRACT_ADDRESSES.KEEP_TOKEN || undefined,
+    implementationAddress: IMPLEMENTATION_ADDRESSES.KEEP_TOKEN || undefined,
+    version: '1.0.0',
+    proxyType: 'UUPS', // Should be upgradeable
+    chainId: monad.id,
+    abi: [
+      {
+        inputs: [],
+        name: 'totalSupply',
+        outputs: [{ name: '', type: 'uint256' }],
+        stateMutability: 'view',
+        type: 'function',
+      },
+      {
+        inputs: [{ name: 'account', type: 'address' }],
+        name: 'balanceOf',
+        outputs: [{ name: '', type: 'uint256' }],
+        stateMutability: 'view',
+        type: 'function',
+      },
+      {
+        inputs: [
+          { name: 'to', type: 'address' },
+          { name: 'amount', type: 'uint256' },
+        ],
+        name: 'mint',
+        outputs: [],
+        stateMutability: 'nonpayable',
+        type: 'function',
+      },
+      {
+        inputs: [
+          { name: 'from', type: 'address' },
+          { name: 'amount', type: 'uint256' },
+        ],
+        name: 'burn',
+        outputs: [],
+        stateMutability: 'nonpayable',
+        type: 'function',
+      },
+      {
+        inputs: [
+          { name: 'owner', type: 'address' },
+          { name: 'spender', type: 'address' },
+        ],
+        name: 'allowance',
+        outputs: [{ name: '', type: 'uint256' }],
+        stateMutability: 'view',
+        type: 'function',
+      },
+      {
+        inputs: [
+          { name: 'spender', type: 'address' },
+          { name: 'amount', type: 'uint256' },
+        ],
+        name: 'approve',
+        outputs: [{ name: '', type: 'bool' }],
+        stateMutability: 'nonpayable',
+        type: 'function',
+      },
+    ],
+    requiredFunctions: ['totalSupply', 'balanceOf', 'mint', 'burn'],
+  },
+  INVENTORY: {
+    name: 'Inventory (ERC-1155)',
+    proxyAddress: CONTRACT_ADDRESSES.INVENTORY,
+    implementationAddress: IMPLEMENTATION_ADDRESSES.INVENTORY,
+    version: '1.0.0',
+    proxyType: 'UUPS', // Should be upgradeable
+    chainId: monad.id,
+    abi: [
+      {
+        inputs: [
+          { name: 'account', type: 'address' },
+          { name: 'id', type: 'uint256' },
+        ],
+        name: 'balanceOf',
+        outputs: [{ name: '', type: 'uint256' }],
+        stateMutability: 'view',
+        type: 'function',
+      },
+      {
+        inputs: [
+          { name: 'from', type: 'address' },
+          { name: 'to', type: 'address' },
+          { name: 'ids', type: 'uint256[]' },
+          { name: 'amounts', type: 'uint256[]' },
+          { name: 'data', type: 'bytes' },
+        ],
+        name: 'claimLootWithFee',
+        outputs: [],
+        stateMutability: 'payable',
+        type: 'function',
+      },
+      {
+        inputs: [
+          { name: 'from', type: 'address' },
+          { name: 'to', type: 'address' },
+          { name: 'ids', type: 'uint256[]' },
+          { name: 'amounts', type: 'uint256[]' },
+          { name: 'data', type: 'bytes' },
+        ],
+        name: 'safeBatchTransferFrom',
+        outputs: [],
+        stateMutability: 'nonpayable',
+        type: 'function',
+      },
+      {
+        inputs: [
+          { name: 'account', type: 'address' },
+          { name: 'id', type: 'uint256' },
+          { name: 'amount', type: 'uint256' },
+          { name: 'data', type: 'bytes' },
+        ],
+        name: 'safeTransferFrom',
+        outputs: [],
+        stateMutability: 'nonpayable',
+        type: 'function',
+      },
+      {
+        inputs: [
+          { name: 'account', type: 'address' },
+          { name: 'id', type: 'uint256' },
+          { name: 'amount', type: 'uint256' },
+          { name: 'data', type: 'bytes' },
+        ],
+        name: 'mint',
+        outputs: [],
+        stateMutability: 'payable',
+        type: 'function',
+      },
+      {
+        inputs: [],
+        name: 'feeRecipient',
+        outputs: [{ name: '', type: 'address' }],
+        stateMutability: 'view',
+        type: 'function',
+      },
+    ],
+    requiredFunctions: ['balanceOf', 'claimLootWithFee', 'safeBatchTransferFrom', 'mint', 'feeRecipient'],
+  },
+  ADVENTURER: {
+    name: 'Adventurer (ERC-721)',
+    proxyAddress: CONTRACT_ADDRESSES.ADVENTURER,
+    implementationAddress: IMPLEMENTATION_ADDRESSES.ADVENTURER,
+    version: '1.0.0',
+    proxyType: 'UUPS', // Should be upgradeable
+    chainId: monad.id,
+    abi: [
+      {
+        inputs: [{ name: 'tokenId', type: 'uint256' }],
+        name: 'ownerOf',
+        outputs: [{ name: '', type: 'address' }],
+        stateMutability: 'view',
+        type: 'function',
+      },
+      {
+        inputs: [
+          { name: 'to', type: 'address' },
+          { name: 'uri', type: 'string' },
+        ],
+        name: 'safeMint',
+        outputs: [{ name: '', type: 'uint256' }],
+        stateMutability: 'nonpayable',
+        type: 'function',
+      },
+      {
+        inputs: [
+          { name: 'tavernKeeperTokenId', type: 'uint256' },
+          { name: 'metadataUri', type: 'string' },
+        ],
+        name: 'claimFreeHero',
+        outputs: [{ name: '', type: 'uint256' }],
+        stateMutability: 'nonpayable',
+        type: 'function',
+      },
+      {
+        inputs: [
+          { name: 'to', type: 'address' },
+          { name: 'metadataUri', type: 'string' },
+        ],
+        name: 'mintHero',
+        outputs: [{ name: '', type: 'uint256' }],
+        stateMutability: 'payable',
+        type: 'function',
+      },
+      {
+        inputs: [{ name: 'tokenId', type: 'uint256' }],
+        name: 'getMintPrice',
+        outputs: [{ name: '', type: 'uint256' }],
+        stateMutability: 'view',
+        type: 'function',
+      },
+      {
+        inputs: [],
+        name: 'tier1Price',
+        outputs: [{ name: '', type: 'uint256' }],
+        stateMutability: 'view',
+        type: 'function',
+      },
+    ],
+    requiredFunctions: ['ownerOf', 'safeMint'],
+  },
+  TAVERNKEEPER: {
+    name: 'TavernKeeper (ERC-721)',
+    proxyAddress: CONTRACT_ADDRESSES.TAVERNKEEPER,
+    implementationAddress: IMPLEMENTATION_ADDRESSES.TAVERNKEEPER,
+    version: '1.0.0',
+    proxyType: 'UUPS', // Should be upgradeable
+    chainId: monad.id,
+    abi: [
+      {
+        inputs: [{ name: 'tokenId', type: 'uint256' }],
+        name: 'ownerOf',
+        outputs: [{ name: '', type: 'address' }],
+        stateMutability: 'view',
+        type: 'function',
+      },
+      {
+        inputs: [
+          { name: 'to', type: 'address' },
+          { name: 'uri', type: 'string' },
+        ],
+        name: 'safeMint',
+        outputs: [{ name: '', type: 'uint256' }],
+        stateMutability: 'nonpayable',
+        type: 'function',
+      },
+      {
+        inputs: [{ name: 'tokenId', type: 'uint256' }],
+        name: 'claimTokens',
+        outputs: [],
+        stateMutability: 'nonpayable',
+        type: 'function',
+      },
+      {
+        inputs: [{ name: 'tokenId', type: 'uint256' }],
+        name: 'calculatePendingTokens',
+        outputs: [{ name: '', type: 'uint256' }],
+        stateMutability: 'view',
+        type: 'function',
+      },
+      // The Office Functions (V2)
+      {
+        inputs: [],
+        name: 'getSlot0',
+        outputs: [
+          {
+            components: [
+              { name: 'locked', type: 'uint8' },
+              { name: 'epochId', type: 'uint16' },
+              { name: 'initPrice', type: 'uint192' },
+              { name: 'startTime', type: 'uint40' },
+              { name: 'dps', type: 'uint256' },
+              { name: 'miner', type: 'address' },
+              { name: 'uri', type: 'string' },
+            ],
+            internalType: 'struct TavernKeeper.Slot0',
+            name: '',
+            type: 'tuple',
+          },
+        ],
+
+        stateMutability: 'view',
+        type: 'function',
+      },
+      {
+        inputs: [],
+        name: 'getPrice',
+        outputs: [{ name: '', type: 'uint256' }],
+        stateMutability: 'view',
+        type: 'function',
+      },
+      {
+        inputs: [],
+        name: 'getDps',
+        outputs: [{ name: '', type: 'uint256' }],
+        stateMutability: 'view',
+        type: 'function',
+      },
+      {
+        inputs: [
+          { name: 'epochId', type: 'uint256' },
+          { name: 'deadline', type: 'uint256' },
+          { name: 'maxPrice', type: 'uint256' },
+          { name: 'uri', type: 'string' },
+        ],
+        name: 'takeOffice',
+        outputs: [{ name: 'price', type: 'uint256' }],
+        stateMutability: 'payable',
+        type: 'function',
+      },
+      {
+        inputs: [{ name: 'uri', type: 'string' }],
+        name: 'mintTavernKeeper',
+        outputs: [{ name: '', type: 'uint256' }],
+        stateMutability: 'payable',
+        type: 'function',
+      },
+      {
+        inputs: [{ name: 'tokenId', type: 'uint256' }],
+        name: 'getMintPrice',
+        outputs: [{ name: '', type: 'uint256' }],
+        stateMutability: 'view',
+        type: 'function',
+      },
+      {
+        inputs: [],
+        name: 'tier1Price',
+        outputs: [{ name: '', type: 'uint256' }],
+        stateMutability: 'view',
+        type: 'function',
+      },
+      {
+        inputs: [],
+        name: 'claimOfficeRewards',
+        outputs: [],
+        stateMutability: 'nonpayable',
+        type: 'function',
+      },
+      {
+        inputs: [],
+        name: 'getPendingOfficeRewards',
+        outputs: [{ name: '', type: 'uint256' }],
+        stateMutability: 'view',
+        type: 'function',
+      },
+    ],
+    requiredFunctions: ['ownerOf', 'safeMint', 'claimTokens', 'calculatePendingTokens', 'takeOffice', 'getSlot0', 'claimOfficeRewards'],
+  },
+  THECELLAR: {
+    name: 'CellarHook (The Cellar)',
+    proxyAddress: CONTRACT_ADDRESSES.THE_CELLAR,
+    version: '1.0.0',
+    proxyType: 'UUPS',
+    chainId: monad.id,
+    abi: [
+      {
+        inputs: [],
+        name: 'slot0',
+        outputs: [
+          {
+            components: [
+              { name: 'locked', type: 'uint8' },
+              { name: 'epochId', type: 'uint16' },
+              { name: 'initPrice', type: 'uint192' },
+              { name: 'startTime', type: 'uint40' },
+            ],
+            internalType: 'struct CellarHook.Slot0',
+            name: '',
+            type: 'tuple',
+          },
+        ],
+        stateMutability: 'view',
+        type: 'function',
+      },
+      {
+        inputs: [],
+        name: 'getAuctionPrice',
+        outputs: [{ name: '', type: 'uint256' }],
+        stateMutability: 'view',
+        type: 'function',
+      },
+      {
+        inputs: [{ name: 'maxPaymentAmount', type: 'uint256' }],
+        name: 'raid',
+        outputs: [{ name: 'paymentAmount', type: 'uint256' }],
+        stateMutability: 'nonpayable',
+        type: 'function',
+      },
+      {
+        inputs: [],
+        name: 'potBalance',
+        outputs: [{ name: '', type: 'uint256' }],
+        stateMutability: 'view',
+        type: 'function',
+      },
+      {
+        inputs: [],
+        name: 'poolManager',
+        outputs: [{ name: '', type: 'address' }],
+
+        stateMutability: 'view',
+        type: 'function',
+      },
+      {
+        inputs: [{ name: 'account', type: 'address' }],
+        name: 'balanceOf',
+        outputs: [{ name: '', type: 'uint256' }],
+        stateMutability: 'view',
+        type: 'function',
+      },
+      {
+        inputs: [
+          { name: 'owner', type: 'address' },
+          { name: 'spender', type: 'address' },
+        ],
+        name: 'allowance',
+        outputs: [{ name: '', type: 'uint256' }],
+        stateMutability: 'view',
+        type: 'function',
+      },
+      {
+        inputs: [
+          { name: 'spender', type: 'address' },
+          { name: 'amount', type: 'uint256' },
+        ],
+        name: 'approve',
+        outputs: [{ name: '', type: 'bool' }],
+        stateMutability: 'nonpayable',
+        type: 'function',
+      },
+    ],
+    requiredFunctions: ['slot0', 'getAuctionPrice', 'raid', 'potBalance', 'poolManager'],
+  },
+  CELLAR_ZAP: {
+    name: 'CellarZap V4',
+    proxyAddress: CONTRACT_ADDRESSES.CELLAR_ZAP,
+    version: '1.0.0',
+    proxyType: 'UUPS',
+    chainId: monad.id,
+    abi: [
+      {
+        inputs: [
+          { name: 'amountMON', type: 'uint256' },
+          { name: 'amountKEEP', type: 'uint256' },
+        ],
+        name: 'mintLP',
+        outputs: [],
+        stateMutability: 'payable',
+        type: 'function',
+      },
+    ],
+
+    requiredFunctions: ['mintLP'],
+  },
+  TAVERN_REGULARS_MANAGER: {
+    name: 'Tavern Regulars Manager',
+    proxyAddress: CONTRACT_ADDRESSES.TAVERN_REGULARS_MANAGER,
+    version: '1.0.0',
+    proxyType: 'UUPS',
+    chainId: monad.id,
+    abi: [
+      {
+        inputs: [{ name: 'groupName', type: 'string' }],
+        name: 'createTavernRegularsGroup',
+        outputs: [{ name: 'groupId', type: 'uint256' }],
+        stateMutability: 'nonpayable',
+        type: 'function',
+      },
+      {
+        inputs: [{ name: 'groupId', type: 'uint256' }],
+        name: 'joinTavernRegularsGroup',
+        outputs: [],
+        stateMutability: 'nonpayable',
+        type: 'function',
+      },
+      {
+        inputs: [
+          { name: 'groupId', type: 'uint256' },
+          { name: 'amountMON', type: 'uint256' },
+          { name: 'amountKEEP', type: 'uint256' },
+        ],
+        name: 'contributeToTavernRegularsGroup',
+        outputs: [{ name: 'lpTokensReceived', type: 'uint256' }],
+        stateMutability: 'payable',
+        type: 'function',
+      },
+      {
+        inputs: [
+          { name: 'groupId', type: 'uint256' },
+          { name: 'lpTokenAmount', type: 'uint256' },
+        ],
+        name: 'withdrawFromTavernRegularsGroup',
+        outputs: [],
+        stateMutability: 'nonpayable',
+        type: 'function',
+      },
+      {
+        inputs: [
+          { name: 'groupId', type: 'uint256' },
+          { name: 'totalFees', type: 'uint256' },
+        ],
+        name: 'distributeGroupFees',
+        outputs: [],
+        stateMutability: 'payable',
+        type: 'function',
+      },
+      {
+        inputs: [{ name: 'groupId', type: 'uint256' }],
+        name: 'claimTavernRegularsFees',
+        outputs: [],
+        stateMutability: 'nonpayable',
+        type: 'function',
+      },
+      {
+        inputs: [{ name: 'groupId', type: 'uint256' }],
+        name: 'getGroupMembers',
+        outputs: [{ name: '', type: 'address[]' }],
+        stateMutability: 'view',
+        type: 'function',
+      },
+      {
+        inputs: [
+          { name: 'groupId', type: 'uint256' },
+          { name: 'member', type: 'address' },
+        ],
+        name: 'getMemberShare',
+        outputs: [{ name: '', type: 'uint256' }],
+        stateMutability: 'view',
+        type: 'function',
+      },
+      {
+        inputs: [
+          { name: 'groupId', type: 'uint256' },
+          { name: 'member', type: 'address' },
+        ],
+        name: 'getPendingFees',
+        outputs: [{ name: '', type: 'uint256' }],
+        stateMutability: 'view',
+        type: 'function',
+      },
+      {
+        inputs: [{ name: 'user', type: 'address' }],
+        name: 'getUserGroups',
+        outputs: [{ name: '', type: 'uint256[]' }],
+        stateMutability: 'view',
+        type: 'function',
+      },
+    ],
+    requiredFunctions: ['createTavernRegularsGroup', 'joinTavernRegularsGroup', 'contributeToTavernRegularsGroup'],
+  },
+  TOWN_POSSE_MANAGER: {
+    name: 'Town Posse Manager',
+    proxyAddress: CONTRACT_ADDRESSES.TOWN_POSSE_MANAGER,
+    version: '1.0.0',
+    proxyType: 'UUPS',
+    chainId: monad.id,
+    abi: [
+      {
+        inputs: [
+          { name: 'name', type: 'string' },
+          { name: 'maxMembers', type: 'uint256' },
+          { name: 'openMembership', type: 'bool' },
+          { name: 'minContribution', type: 'uint256' },
+        ],
+        name: 'createTownPosse',
+        outputs: [{ name: 'posseId', type: 'uint256' }],
+        stateMutability: 'nonpayable',
+        type: 'function',
+      },
+      {
+        inputs: [{ name: 'posseId', type: 'uint256' }],
+        name: 'requestJoinTownPosse',
+        outputs: [],
+        stateMutability: 'nonpayable',
+        type: 'function',
+      },
+      {
+        inputs: [
+          { name: 'posseId', type: 'uint256' },
+          { name: 'member', type: 'address' },
+        ],
+        name: 'approveTownPosseMember',
+        outputs: [],
+        stateMutability: 'nonpayable',
+        type: 'function',
+      },
+      {
+        inputs: [
+          { name: 'posseId', type: 'uint256' },
+          { name: 'amountMON', type: 'uint256' },
+          { name: 'amountKEEP', type: 'uint256' },
+        ],
+        name: 'contributeToTownPosse',
+        outputs: [{ name: 'lpTokensReceived', type: 'uint256' }],
+        stateMutability: 'payable',
+        type: 'function',
+      },
+      {
+        inputs: [
+          { name: 'posseId', type: 'uint256' },
+          { name: 'lpTokenAmount', type: 'uint256' },
+        ],
+        name: 'withdrawFromTownPosse',
+        outputs: [],
+        stateMutability: 'nonpayable',
+        type: 'function',
+      },
+      {
+        inputs: [
+          { name: 'posseId', type: 'uint256' },
+          { name: 'description', type: 'string' },
+          { name: 'data', type: 'bytes' },
+        ],
+        name: 'createTownPosseProposal',
+        outputs: [{ name: 'proposalId', type: 'uint256' }],
+        stateMutability: 'nonpayable',
+        type: 'function',
+      },
+      {
+        inputs: [
+          { name: 'posseId', type: 'uint256' },
+          { name: 'proposalId', type: 'uint256' },
+          { name: 'support', type: 'bool' },
+        ],
+        name: 'voteOnTownPosseProposal',
+        outputs: [],
+        stateMutability: 'nonpayable',
+        type: 'function',
+      },
+      {
+        inputs: [
+          { name: 'posseId', type: 'uint256' },
+          { name: 'proposalId', type: 'uint256' },
+        ],
+        name: 'executeTownPosseProposal',
+        outputs: [],
+        stateMutability: 'nonpayable',
+        type: 'function',
+      },
+      {
+        inputs: [
+          { name: 'posseId', type: 'uint256' },
+          { name: 'totalFees', type: 'uint256' },
+        ],
+        name: 'distributeTownPosseFees',
+        outputs: [],
+        stateMutability: 'payable',
+        type: 'function',
+      },
+      {
+        inputs: [{ name: 'posseId', type: 'uint256' }],
+        name: 'claimTownPosseFees',
+        outputs: [],
+        stateMutability: 'nonpayable',
+        type: 'function',
+      },
+      {
+        inputs: [{ name: 'posseId', type: 'uint256' }],
+        name: 'getPosseMembers',
+        outputs: [{ name: '', type: 'address[]' }],
+        stateMutability: 'view',
+        type: 'function',
+      },
+      {
+        inputs: [
+          { name: 'posseId', type: 'uint256' },
+          { name: 'member', type: 'address' },
+        ],
+        name: 'getMemberTier',
+        outputs: [{ name: '', type: 'uint256' }],
+        stateMutability: 'view',
+        type: 'function',
+      },
+      {
+        inputs: [
+          { name: 'posseId', type: 'uint256' },
+          { name: 'member', type: 'address' },
+        ],
+        name: 'getMemberShare',
+        outputs: [{ name: '', type: 'uint256' }],
+        stateMutability: 'view',
+        type: 'function',
+      },
+      {
+        inputs: [{ name: 'user', type: 'address' }],
+        name: 'getUserPosses',
+        outputs: [{ name: '', type: 'uint256[]' }],
+        stateMutability: 'view',
+        type: 'function',
+      },
+    ],
+    requiredFunctions: ['createTownPosse', 'requestJoinTownPosse', 'contributeToTownPosse'],
+
+  },
+};
+
+/**
+ * Get the fee recipient address (treasury wallet)
+ */
+export function getFeeRecipientAddress(): Address | null {
+  return CONTRACT_ADDRESSES.FEE_RECIPIENT;
+}
+
+/**
+ * Get the active contract address (proxy if exists, otherwise direct)
+ */
+export function getContractAddress(config: ContractConfig): Address | undefined {
+  if (config.proxyAddress) {
+    return config.proxyAddress;
+  }
+  return config.directAddress;
+}
+
+/**
+ * Get all contract addresses that should be configured
+ */
+export function getRequiredContractAddresses(): Record<string, Address | undefined> {
+  const addresses: Record<string, Address | undefined> = {};
+
+  for (const [key, config] of Object.entries(CONTRACT_REGISTRY)) {
+    addresses[key] = getContractAddress(config);
+  }
+
+  return addresses;
+}
+

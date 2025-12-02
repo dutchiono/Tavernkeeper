@@ -1,0 +1,115 @@
+{
+  "id": "goblin-warren",
+  "name": "The Goblin Warren",
+  "seed": "warren-001",
+  "width": 600,
+  "height": 400,
+  "rooms": [
+    {
+      "id": "entrance",
+      "x": 50,
+      "y": 150,
+      "width": 100,
+      "height": 100,
+      "type": "room",
+      "connections": ["side-room-1", "side-room-2"],
+      "spawnPoints": [
+        { "x": 100, "y": 200 }
+      ],
+      "items": [],
+      "enemies": []
+    },
+    {
+      "id": "side-room-1",
+      "x": 200,
+      "y": 100,
+      "width": 80,
+      "height": 80,
+      "type": "room",
+      "connections": ["entrance", "central"],
+      "spawnPoints": [
+        { "x": 220, "y": 130 },
+        { "x": 240, "y": 140 },
+        { "x": 260, "y": 135 }
+      ],
+      "items": [
+        { "id": "goblin-scrap-1", "name": "Goblin Scrap", "type": "misc" }
+      ],
+      "enemies": [
+        { "id": "goblin-1", "name": "Goblin", "stats": { "str": 8, "dex": 14, "con": 10, "int": 10, "wis": 8, "cha": 8, "ac": 15, "hp": 7, "maxHp": 7, "attackBonus": 4 } },
+        { "id": "goblin-2", "name": "Goblin", "stats": { "str": 8, "dex": 14, "con": 10, "int": 10, "wis": 8, "cha": 8, "ac": 15, "hp": 7, "maxHp": 7, "attackBonus": 4 } },
+        { "id": "goblin-3", "name": "Goblin", "stats": { "str": 8, "dex": 14, "con": 10, "int": 10, "wis": 8, "cha": 8, "ac": 15, "hp": 7, "maxHp": 7, "attackBonus": 4 } }
+      ]
+    },
+    {
+      "id": "side-room-2",
+      "x": 200,
+      "y": 220,
+      "width": 80,
+      "height": 80,
+      "type": "room",
+      "connections": ["entrance", "central"],
+      "spawnPoints": [
+        { "x": 220, "y": 250 },
+        { "x": 240, "y": 260 },
+        { "x": 260, "y": 255 }
+      ],
+      "items": [
+        { "id": "goblin-scrap-2", "name": "Goblin Scrap", "type": "misc" }
+      ],
+      "enemies": [
+        { "id": "goblin-4", "name": "Goblin", "stats": { "str": 8, "dex": 14, "con": 10, "int": 10, "wis": 8, "cha": 8, "ac": 15, "hp": 7, "maxHp": 7, "attackBonus": 4 } },
+        { "id": "goblin-5", "name": "Goblin", "stats": { "str": 8, "dex": 14, "con": 10, "int": 10, "wis": 8, "cha": 8, "ac": 15, "hp": 7, "maxHp": 7, "attackBonus": 4 } },
+        { "id": "goblin-6", "name": "Goblin", "stats": { "str": 8, "dex": 14, "con": 10, "int": 10, "wis": 8, "cha": 8, "ac": 15, "hp": 7, "maxHp": 7, "attackBonus": 4 } }
+      ]
+    },
+    {
+      "id": "central",
+      "x": 350,
+      "y": 150,
+      "width": 120,
+      "height": 100,
+      "type": "chamber",
+      "connections": ["side-room-1", "side-room-2", "boss"],
+      "spawnPoints": [
+        { "x": 410, "y": 200 }
+      ],
+      "items": [
+        { "id": "treasure-pile", "name": "Treasure Pile", "type": "misc" },
+        { "id": "health-potion-2", "name": "Health Potion", "type": "consumable" }
+      ],
+      "enemies": [
+        { "id": "goblin-guard", "name": "Goblin Guard", "stats": { "str": 10, "dex": 14, "con": 12, "int": 10, "wis": 10, "cha": 8, "ac": 16, "hp": 12, "maxHp": 12, "attackBonus": 5 } }
+      ]
+    },
+    {
+      "id": "boss",
+      "x": 500,
+      "y": 100,
+      "width": 100,
+      "height": 200,
+      "type": "boss",
+      "connections": ["central"],
+      "spawnPoints": [
+        { "x": 550, "y": 200 },
+        { "x": 530, "y": 180 },
+        { "x": 570, "y": 220 }
+      ],
+      "items": [
+        { "id": "chief-treasure", "name": "Goblin Chief's Treasure", "type": "misc" }
+      ],
+      "enemies": [
+        { "id": "goblin-chief", "name": "Goblin Chief", "stats": { "str": 14, "dex": 16, "con": 14, "int": 12, "wis": 12, "cha": 10, "ac": 17, "hp": 60, "maxHp": 60, "attackBonus": 7 } },
+        { "id": "chief-guard-1", "name": "Chief's Guard", "stats": { "str": 12, "dex": 14, "con": 12, "int": 10, "wis": 10, "cha": 8, "ac": 16, "hp": 15, "maxHp": 15, "attackBonus": 6 } },
+        { "id": "chief-guard-2", "name": "Chief's Guard", "stats": { "str": 12, "dex": 14, "con": 12, "int": 10, "wis": 10, "cha": 8, "ac": 16, "hp": 15, "maxHp": 15, "attackBonus": 6 } }
+      ]
+    }
+  ],
+  "objectives": [
+    {
+      "type": "defeat_boss",
+      "target": "goblin-chief"
+    }
+  ]
+}
+
