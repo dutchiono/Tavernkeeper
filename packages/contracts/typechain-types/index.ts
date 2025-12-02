@@ -196,22 +196,30 @@ export type { Inventory } from "./contracts/Inventory";
 export { Inventory__factory } from "./factories/contracts/Inventory__factory";
 export type { KeepToken } from "./contracts/KeepToken";
 export { KeepToken__factory } from "./factories/contracts/KeepToken__factory";
+<<<<<<< HEAD
 export type { CellarZap } from "./contracts/legacy/CellarZap.sol/CellarZap";
 export { CellarZap__factory } from "./factories/contracts/legacy/CellarZap.sol/CellarZap__factory";
 export type { ITheCellar } from "./contracts/legacy/CellarZap.sol/ITheCellar";
 export { ITheCellar__factory } from "./factories/contracts/legacy/CellarZap.sol/ITheCellar__factory";
 export type { TheCellar } from "./contracts/legacy/TheCellar";
 export { TheCellar__factory } from "./factories/contracts/legacy/TheCellar__factory";
+=======
+>>>>>>> d9c80166f06c3f6075f2ba2e63c2d068690df2ca
 export type { MockERC20 } from "./contracts/MockERC20";
 export { MockERC20__factory } from "./factories/contracts/MockERC20__factory";
 export type { IKeepToken } from "./contracts/TavernKeeper.sol/IKeepToken";
 export { IKeepToken__factory } from "./factories/contracts/TavernKeeper.sol/IKeepToken__factory";
 export type { TavernKeeper } from "./contracts/TavernKeeper.sol/TavernKeeper";
 export { TavernKeeper__factory } from "./factories/contracts/TavernKeeper.sol/TavernKeeper__factory";
+<<<<<<< HEAD
 export type { TavernRegularsManager } from "./contracts/TavernRegularsManager.sol/TavernRegularsManager";
 export { TavernRegularsManager__factory } from "./factories/contracts/TavernRegularsManager.sol/TavernRegularsManager__factory";
 export type { TownPosseManager } from "./contracts/TownPosseManager.sol/TownPosseManager";
 export { TownPosseManager__factory } from "./factories/contracts/TownPosseManager.sol/TownPosseManager__factory";
+=======
+export type { TheCellar } from "./contracts/TheCellar";
+export { TheCellar__factory } from "./factories/contracts/TheCellar__factory";
+>>>>>>> d9c80166f06c3f6075f2ba2e63c2d068690df2ca
 export type { UniswapIntegration } from "./contracts/UniswapIntegration";
 export { UniswapIntegration__factory } from "./factories/contracts/UniswapIntegration__factory";
 export type { V4DependencyHelper } from "./contracts/V4DependencyHelper";

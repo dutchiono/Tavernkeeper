@@ -17,5 +17,9 @@ export { GoldToken__factory } from "./GoldToken__factory";
 export { Inventory__factory } from "./Inventory__factory";
 export { KeepToken__factory } from "./KeepToken__factory";
 export { MockERC20__factory } from "./MockERC20__factory";
+<<<<<<< HEAD
+=======
+export { TheCellar__factory } from "./TheCellar__factory";
+>>>>>>> d9c80166f06c3f6075f2ba2e63c2d068690df2ca
 export { UniswapIntegration__factory } from "./UniswapIntegration__factory";
 export { V4DependencyHelper__factory } from "./V4DependencyHelper__factory";

@@ -16,7 +16,10 @@ export interface OfficeState {
     startTime: number;
     nextDps: string; // formatted string
     initPrice: string; // formatted string
+<<<<<<< HEAD
     error?: string; // Error message if fetch failed
+=======
+>>>>>>> d9c80166f06c3f6075f2ba2e63c2d068690df2ca
 }
 
 export const tavernKeeperService = {
@@ -62,12 +65,15 @@ export const tavernKeeperService = {
                     address: contractAddress,
                     abi: contractConfig.abi,
                     functionName: 'getDps',
+<<<<<<< HEAD
                     args: [],
                 }),
                 publicClient.readContract({
                     address: contractAddress,
                     abi: contractConfig.abi,
                     functionName: 'getPendingOfficeRewards',
+=======
+>>>>>>> d9c80166f06c3f6075f2ba2e63c2d068690df2ca
                     args: [],
                 }),
             ]);
@@ -82,7 +88,10 @@ export const tavernKeeperService = {
             };
             let currentPrice = 0n;
             let nextDps = 0n;
+<<<<<<< HEAD
             let pendingRewards = 0n;
+=======
+>>>>>>> d9c80166f06c3f6075f2ba2e63c2d068690df2ca
 
             if (results[0].status === 'fulfilled') {
                 slot0 = results[0].value;
@@ -93,16 +102,23 @@ export const tavernKeeperService = {
             if (results[2].status === 'fulfilled') {
                 nextDps = results[2].value as bigint;
             }
+<<<<<<< HEAD
             if (results[3].status === 'fulfilled') {
                 pendingRewards = results[3].value as bigint;
             }
+=======
+>>>>>>> d9c80166f06c3f6075f2ba2e63c2d068690df2ca
 
             const currentKing = slot0.miner;
             const kingSince = Number(slot0.startTime);
             const officeRate = slot0.dps;
 
+<<<<<<< HEAD
             // Calculate total earned based on time passed (Legacy/Total view)
             // For UI "Pending Rewards", we use the value from contract
+=======
+            // Calculate total earned based on time passed
+>>>>>>> d9c80166f06c3f6075f2ba2e63c2d068690df2ca
             const duration = BigInt(Math.floor(Date.now() / 1000)) - BigInt(kingSince);
             const earned = duration > 0n ? duration * officeRate : 0n;
 
@@ -113,13 +129,20 @@ export const tavernKeeperService = {
                 officeRate: formatEther(officeRate),
                 officeRateUsd: '$0.00', // TODO: Fetch price
                 priceUsd: '$0.00', // TODO: Fetch price
+<<<<<<< HEAD
                 totalEarned: formatEther(pendingRewards), // Use pending rewards for display
+=======
+                totalEarned: formatEther(earned),
+>>>>>>> d9c80166f06c3f6075f2ba2e63c2d068690df2ca
                 totalEarnedUsd: '$0.00',
                 epochId: Number(slot0.epochId),
                 startTime: kingSince,
                 nextDps: formatEther(nextDps),
                 initPrice: formatEther(slot0.initPrice),
+<<<<<<< HEAD
                 error: undefined
+=======
+>>>>>>> d9c80166f06c3f6075f2ba2e63c2d068690df2ca
             };
 
             // Update Cache
@@ -144,10 +167,16 @@ export const tavernKeeperService = {
                 totalEarned: '0',
                 totalEarnedUsd: '$0.00',
                 epochId: 0,
+<<<<<<< HEAD
                 startTime: 0,
                 nextDps: '0',
                 initPrice: '0',
                 error: "Failed to connect to blockchain"
+=======
+                startTime: Math.floor(Date.now() / 1000),
+                nextDps: '0',
+                initPrice: '0',
+>>>>>>> d9c80166f06c3f6075f2ba2e63c2d068690df2ca
             };
         }
     },
@@ -195,6 +224,7 @@ export const tavernKeeperService = {
             chain: monad,
             account: account,
             args: [epochId, deadline, maxPrice, message],
+<<<<<<< HEAD
         });
 
         return hash;
@@ -222,6 +252,8 @@ export const tavernKeeperService = {
             args: [],
             chain: monad,
             account: account,
+=======
+>>>>>>> d9c80166f06c3f6075f2ba2e63c2d068690df2ca
         });
 
         return hash;

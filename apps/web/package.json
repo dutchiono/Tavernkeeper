@@ -3,7 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+<<<<<<< HEAD
     "dev": "concurrently \"next dev\" \"nodemon --exec tsx workers/index.ts --watch workers --ext ts,js\" --names \"WEB,WORKER\" --prefix-colors \"blue,magenta\"",
+=======
+    "dev": "concurrently \"next dev\" \"tsx watch workers/index.ts\" --names \"WEB,WORKER\" --prefix-colors \"blue,magenta\"",
+>>>>>>> d9c80166f06c3f6075f2ba2e63c2d068690df2ca
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
@@ -51,7 +55,6 @@
     "react-dom": "^19.2.0",
     "thread-stream": "^3.1.0",
     "viem": "^2.40.3",
-    "wagmi": "^3.0.2",
     "zustand": "^4.4.7"
   },
   "devDependencies": {

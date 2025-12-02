@@ -3,8 +3,11 @@
 import { PrivyProvider } from '@privy-io/react-auth';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React from 'react';
+<<<<<<< HEAD
 import { localhost } from 'viem/chains';
 import { createConfig, http, WagmiProvider } from 'wagmi';
+=======
+>>>>>>> d9c80166f06c3f6075f2ba2e63c2d068690df2ca
 import { monad } from '../../lib/chains';
 
 const queryClient = new QueryClient();
@@ -32,6 +35,7 @@ export function Web3Provider({ children }: { children: React.ReactNode }) {
                     theme: 'dark',
                     accentColor: '#676FFF',
                 },
+<<<<<<< HEAD
                 supportedChains: chains,
             }}
         >
@@ -40,6 +44,14 @@ export function Web3Provider({ children }: { children: React.ReactNode }) {
                     {children}
                 </QueryClientProvider>
             </WagmiProvider>
+=======
+                supportedChains: [monad],
+            }}
+        >
+            <QueryClientProvider client={queryClient}>
+                {children}
+            </QueryClientProvider>
+>>>>>>> d9c80166f06c3f6075f2ba2e63c2d068690df2ca
         </PrivyProvider>
     );
 }

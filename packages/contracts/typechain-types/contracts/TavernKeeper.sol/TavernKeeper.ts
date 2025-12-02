@@ -68,8 +68,11 @@ export interface TavernKeeperInterface extends Interface {
       | "PRECISION"
       | "PRICE_MULTIPLIER"
       | "TAIL_DPS"
+<<<<<<< HEAD
       | "TIER1_MAX_ID"
       | "TIER2_MAX_ID"
+=======
+>>>>>>> d9c80166f06c3f6075f2ba2e63c2d068690df2ca
       | "UPGRADE_INTERFACE_VERSION"
       | "approve"
       | "balanceOf"
@@ -78,6 +81,7 @@ export interface TavernKeeperInterface extends Interface {
       | "claimTokens"
       | "getApproved"
       | "getDps"
+<<<<<<< HEAD
       | "getMintPrice"
       | "getPendingOfficeRewards"
       | "getPrice"
@@ -86,6 +90,12 @@ export interface TavernKeeperInterface extends Interface {
       | "initialize"
       | "initializeOfficeV2"
       | "initializeRPG"
+=======
+      | "getPrice"
+      | "getSlot0"
+      | "initialize"
+      | "initializeOfficeV2"
+>>>>>>> d9c80166f06c3f6075f2ba2e63c2d068690df2ca
       | "isApprovedForAll"
       | "keepToken"
       | "lastClaimTime"
@@ -103,17 +113,24 @@ export interface TavernKeeperInterface extends Interface {
       | "safeTransferFrom(address,address,uint256,bytes)"
       | "setApprovalForAll"
       | "setKeepTokenContract"
+<<<<<<< HEAD
       | "setSigner"
       | "setTierPrices"
       | "setTreasury"
       | "signer"
+=======
+      | "setTreasury"
+>>>>>>> d9c80166f06c3f6075f2ba2e63c2d068690df2ca
       | "slot0"
       | "supportsInterface"
       | "symbol"
       | "takeOffice"
+<<<<<<< HEAD
       | "tier1Price"
       | "tier2Price"
       | "tier3Price"
+=======
+>>>>>>> d9c80166f06c3f6075f2ba2e63c2d068690df2ca
       | "tokenURI"
       | "transferFrom"
       | "transferOwnership"
@@ -131,6 +148,7 @@ export interface TavernKeeperInterface extends Interface {
       | "KeepTokenUpdated"
       | "MetadataUpdate"
       | "OfficeEarningsClaimed"
+<<<<<<< HEAD
       | "OfficeRewardsClaimed"
       | "OfficeTaken"
       | "OwnershipTransferred"
@@ -139,6 +157,11 @@ export interface TavernKeeperInterface extends Interface {
       | "TavernKeeperMinted"
       | "TavernKeeperMintedWithSignature"
       | "TierPricesUpdated"
+=======
+      | "OfficeTaken"
+      | "OwnershipTransferred"
+      | "PreviousKingPaid"
+>>>>>>> d9c80166f06c3f6075f2ba2e63c2d068690df2ca
       | "TokensClaimed"
       | "Transfer"
       | "TreasuryFee"
@@ -181,6 +204,7 @@ export interface TavernKeeperInterface extends Interface {
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "TAIL_DPS", values?: undefined): string;
+<<<<<<< HEAD
   encodeFunctionData(
     functionFragment: "TIER1_MAX_ID",
     values?: undefined
@@ -189,6 +213,8 @@ export interface TavernKeeperInterface extends Interface {
     functionFragment: "TIER2_MAX_ID",
     values?: undefined
   ): string;
+=======
+>>>>>>> d9c80166f06c3f6075f2ba2e63c2d068690df2ca
   encodeFunctionData(
     functionFragment: "UPGRADE_INTERFACE_VERSION",
     values?: undefined
@@ -218,6 +244,7 @@ export interface TavernKeeperInterface extends Interface {
     values: [BigNumberish]
   ): string;
   encodeFunctionData(functionFragment: "getDps", values?: undefined): string;
+<<<<<<< HEAD
   encodeFunctionData(
     functionFragment: "getMintPrice",
     values: [BigNumberish]
@@ -232,6 +259,10 @@ export interface TavernKeeperInterface extends Interface {
     functionFragment: "getTokensOfOwner",
     values: [AddressLike]
   ): string;
+=======
+  encodeFunctionData(functionFragment: "getPrice", values?: undefined): string;
+  encodeFunctionData(functionFragment: "getSlot0", values?: undefined): string;
+>>>>>>> d9c80166f06c3f6075f2ba2e63c2d068690df2ca
   encodeFunctionData(
     functionFragment: "initialize",
     values?: undefined
@@ -241,10 +272,13 @@ export interface TavernKeeperInterface extends Interface {
     values: [AddressLike]
   ): string;
   encodeFunctionData(
+<<<<<<< HEAD
     functionFragment: "initializeRPG",
     values?: undefined
   ): string;
   encodeFunctionData(
+=======
+>>>>>>> d9c80166f06c3f6075f2ba2e63c2d068690df2ca
     functionFragment: "isApprovedForAll",
     values: [AddressLike, AddressLike]
   ): string;
@@ -301,6 +335,7 @@ export interface TavernKeeperInterface extends Interface {
     values: [AddressLike]
   ): string;
   encodeFunctionData(
+<<<<<<< HEAD
     functionFragment: "setSigner",
     values: [AddressLike]
   ): string;
@@ -313,6 +348,11 @@ export interface TavernKeeperInterface extends Interface {
     values: [AddressLike]
   ): string;
   encodeFunctionData(functionFragment: "signer", values?: undefined): string;
+=======
+    functionFragment: "setTreasury",
+    values: [AddressLike]
+  ): string;
+>>>>>>> d9c80166f06c3f6075f2ba2e63c2d068690df2ca
   encodeFunctionData(functionFragment: "slot0", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "supportsInterface",
@@ -324,6 +364,7 @@ export interface TavernKeeperInterface extends Interface {
     values: [BigNumberish, BigNumberish, BigNumberish, string]
   ): string;
   encodeFunctionData(
+<<<<<<< HEAD
     functionFragment: "tier1Price",
     values?: undefined
   ): string;
@@ -336,6 +377,8 @@ export interface TavernKeeperInterface extends Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
+=======
+>>>>>>> d9c80166f06c3f6075f2ba2e63c2d068690df2ca
     functionFragment: "tokenURI",
     values: [BigNumberish]
   ): string;
@@ -393,6 +436,7 @@ export interface TavernKeeperInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "TAIL_DPS", data: BytesLike): Result;
+<<<<<<< HEAD
   decodeFunctionResult(
     functionFragment: "TIER1_MAX_ID",
     data: BytesLike
@@ -401,6 +445,8 @@ export interface TavernKeeperInterface extends Interface {
     functionFragment: "TIER2_MAX_ID",
     data: BytesLike
   ): Result;
+=======
+>>>>>>> d9c80166f06c3f6075f2ba2e63c2d068690df2ca
   decodeFunctionResult(
     functionFragment: "UPGRADE_INTERFACE_VERSION",
     data: BytesLike
@@ -424,6 +470,7 @@ export interface TavernKeeperInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "getDps", data: BytesLike): Result;
+<<<<<<< HEAD
   decodeFunctionResult(
     functionFragment: "getMintPrice",
     data: BytesLike
@@ -438,16 +485,23 @@ export interface TavernKeeperInterface extends Interface {
     functionFragment: "getTokensOfOwner",
     data: BytesLike
   ): Result;
+=======
+  decodeFunctionResult(functionFragment: "getPrice", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "getSlot0", data: BytesLike): Result;
+>>>>>>> d9c80166f06c3f6075f2ba2e63c2d068690df2ca
   decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "initializeOfficeV2",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+<<<<<<< HEAD
     functionFragment: "initializeRPG",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+=======
+>>>>>>> d9c80166f06c3f6075f2ba2e63c2d068690df2ca
     functionFragment: "isApprovedForAll",
     data: BytesLike
   ): Result;
@@ -509,14 +563,22 @@ export interface TavernKeeperInterface extends Interface {
   decodeFunctionResult(functionFragment: "signer", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "slot0", data: BytesLike): Result;
   decodeFunctionResult(
+    functionFragment: "setTreasury",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "slot0", data: BytesLike): Result;
+  decodeFunctionResult(
     functionFragment: "supportsInterface",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "symbol", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "takeOffice", data: BytesLike): Result;
+<<<<<<< HEAD
   decodeFunctionResult(functionFragment: "tier1Price", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "tier2Price", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "tier3Price", data: BytesLike): Result;
+=======
+>>>>>>> d9c80166f06c3f6075f2ba2e63c2d068690df2ca
   decodeFunctionResult(functionFragment: "tokenURI", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "transferFrom",
@@ -643,6 +705,7 @@ export namespace OfficeEarningsClaimedEvent {
   export type LogDescription = TypedLogDescription<Event>;
 }
 
+<<<<<<< HEAD
 export namespace OfficeRewardsClaimedEvent {
   export type InputTuple = [king: AddressLike, amount: BigNumberish];
   export type OutputTuple = [king: string, amount: bigint];
@@ -656,6 +719,8 @@ export namespace OfficeRewardsClaimedEvent {
   export type LogDescription = TypedLogDescription<Event>;
 }
 
+=======
+>>>>>>> d9c80166f06c3f6075f2ba2e63c2d068690df2ca
 export namespace OfficeTakenEvent {
   export type InputTuple = [
     newKing: AddressLike,
@@ -707,6 +772,7 @@ export namespace PreviousKingPaidEvent {
   export type LogDescription = TypedLogDescription<Event>;
 }
 
+<<<<<<< HEAD
 export namespace SignerUpdatedEvent {
   export type InputTuple = [newSigner: AddressLike];
   export type OutputTuple = [newSigner: string];
@@ -780,6 +846,8 @@ export namespace TierPricesUpdatedEvent {
   export type LogDescription = TypedLogDescription<Event>;
 }
 
+=======
+>>>>>>> d9c80166f06c3f6075f2ba2e63c2d068690df2ca
 export namespace TokensClaimedEvent {
   export type InputTuple = [tokenId: BigNumberish, amount: BigNumberish];
   export type OutputTuple = [tokenId: bigint, amount: bigint];
@@ -903,10 +971,13 @@ export interface TavernKeeper extends BaseContract {
 
   TAIL_DPS: TypedContractMethod<[], [bigint], "view">;
 
+<<<<<<< HEAD
   TIER1_MAX_ID: TypedContractMethod<[], [bigint], "view">;
 
   TIER2_MAX_ID: TypedContractMethod<[], [bigint], "view">;
 
+=======
+>>>>>>> d9c80166f06c3f6075f2ba2e63c2d068690df2ca
   UPGRADE_INTERFACE_VERSION: TypedContractMethod<[], [string], "view">;
 
   approve: TypedContractMethod<
@@ -935,20 +1006,26 @@ export interface TavernKeeper extends BaseContract {
 
   getDps: TypedContractMethod<[], [bigint], "view">;
 
+<<<<<<< HEAD
   getMintPrice: TypedContractMethod<[tokenId: BigNumberish], [bigint], "view">;
 
   getPendingOfficeRewards: TypedContractMethod<[], [bigint], "view">;
 
+=======
+>>>>>>> d9c80166f06c3f6075f2ba2e63c2d068690df2ca
   getPrice: TypedContractMethod<[], [bigint], "view">;
 
   getSlot0: TypedContractMethod<[], [TavernKeeper.Slot0StructOutput], "view">;
 
+<<<<<<< HEAD
   getTokensOfOwner: TypedContractMethod<
     [owner: AddressLike],
     [bigint[]],
     "view"
   >;
 
+=======
+>>>>>>> d9c80166f06c3f6075f2ba2e63c2d068690df2ca
   initialize: TypedContractMethod<[], [void], "nonpayable">;
 
   initializeOfficeV2: TypedContractMethod<
@@ -957,8 +1034,11 @@ export interface TavernKeeper extends BaseContract {
     "nonpayable"
   >;
 
+<<<<<<< HEAD
   initializeRPG: TypedContractMethod<[], [void], "nonpayable">;
 
+=======
+>>>>>>> d9c80166f06c3f6075f2ba2e63c2d068690df2ca
   isApprovedForAll: TypedContractMethod<
     [owner: AddressLike, operator: AddressLike],
     [boolean],
@@ -1031,6 +1111,7 @@ export interface TavernKeeper extends BaseContract {
     "nonpayable"
   >;
 
+<<<<<<< HEAD
   setSigner: TypedContractMethod<[_signer: AddressLike], [void], "nonpayable">;
 
   setTierPrices: TypedContractMethod<
@@ -1039,6 +1120,8 @@ export interface TavernKeeper extends BaseContract {
     "nonpayable"
   >;
 
+=======
+>>>>>>> d9c80166f06c3f6075f2ba2e63c2d068690df2ca
   setTreasury: TypedContractMethod<
     [_treasury: AddressLike],
     [void],
@@ -1080,12 +1163,15 @@ export interface TavernKeeper extends BaseContract {
     "payable"
   >;
 
+<<<<<<< HEAD
   tier1Price: TypedContractMethod<[], [bigint], "view">;
 
   tier2Price: TypedContractMethod<[], [bigint], "view">;
 
   tier3Price: TypedContractMethod<[], [bigint], "view">;
 
+=======
+>>>>>>> d9c80166f06c3f6075f2ba2e63c2d068690df2ca
   tokenURI: TypedContractMethod<[tokenId: BigNumberish], [string], "view">;
 
   transferFrom: TypedContractMethod<
@@ -1151,12 +1237,15 @@ export interface TavernKeeper extends BaseContract {
     nameOrSignature: "TAIL_DPS"
   ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
+<<<<<<< HEAD
     nameOrSignature: "TIER1_MAX_ID"
   ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
     nameOrSignature: "TIER2_MAX_ID"
   ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
+=======
+>>>>>>> d9c80166f06c3f6075f2ba2e63c2d068690df2ca
     nameOrSignature: "UPGRADE_INTERFACE_VERSION"
   ): TypedContractMethod<[], [string], "view">;
   getFunction(
@@ -1185,30 +1274,39 @@ export interface TavernKeeper extends BaseContract {
     nameOrSignature: "getDps"
   ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
+<<<<<<< HEAD
     nameOrSignature: "getMintPrice"
   ): TypedContractMethod<[tokenId: BigNumberish], [bigint], "view">;
   getFunction(
     nameOrSignature: "getPendingOfficeRewards"
   ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
+=======
+>>>>>>> d9c80166f06c3f6075f2ba2e63c2d068690df2ca
     nameOrSignature: "getPrice"
   ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
     nameOrSignature: "getSlot0"
   ): TypedContractMethod<[], [TavernKeeper.Slot0StructOutput], "view">;
   getFunction(
+<<<<<<< HEAD
     nameOrSignature: "getTokensOfOwner"
   ): TypedContractMethod<[owner: AddressLike], [bigint[]], "view">;
   getFunction(
+=======
+>>>>>>> d9c80166f06c3f6075f2ba2e63c2d068690df2ca
     nameOrSignature: "initialize"
   ): TypedContractMethod<[], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "initializeOfficeV2"
   ): TypedContractMethod<[_treasury: AddressLike], [void], "nonpayable">;
   getFunction(
+<<<<<<< HEAD
     nameOrSignature: "initializeRPG"
   ): TypedContractMethod<[], [void], "nonpayable">;
   getFunction(
+=======
+>>>>>>> d9c80166f06c3f6075f2ba2e63c2d068690df2ca
     nameOrSignature: "isApprovedForAll"
   ): TypedContractMethod<
     [owner: AddressLike, operator: AddressLike],
@@ -1294,6 +1392,7 @@ export interface TavernKeeper extends BaseContract {
     nameOrSignature: "setKeepTokenContract"
   ): TypedContractMethod<[_keepToken: AddressLike], [void], "nonpayable">;
   getFunction(
+<<<<<<< HEAD
     nameOrSignature: "setSigner"
   ): TypedContractMethod<[_signer: AddressLike], [void], "nonpayable">;
   getFunction(
@@ -1310,6 +1409,11 @@ export interface TavernKeeper extends BaseContract {
     nameOrSignature: "signer"
   ): TypedContractMethod<[], [string], "view">;
   getFunction(
+=======
+    nameOrSignature: "setTreasury"
+  ): TypedContractMethod<[_treasury: AddressLike], [void], "nonpayable">;
+  getFunction(
+>>>>>>> d9c80166f06c3f6075f2ba2e63c2d068690df2ca
     nameOrSignature: "slot0"
   ): TypedContractMethod<
     [],
@@ -1345,6 +1449,7 @@ export interface TavernKeeper extends BaseContract {
     "payable"
   >;
   getFunction(
+<<<<<<< HEAD
     nameOrSignature: "tier1Price"
   ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
@@ -1354,6 +1459,8 @@ export interface TavernKeeper extends BaseContract {
     nameOrSignature: "tier3Price"
   ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
+=======
+>>>>>>> d9c80166f06c3f6075f2ba2e63c2d068690df2ca
     nameOrSignature: "tokenURI"
   ): TypedContractMethod<[tokenId: BigNumberish], [string], "view">;
   getFunction(
@@ -1430,6 +1537,7 @@ export interface TavernKeeper extends BaseContract {
     OfficeEarningsClaimedEvent.OutputObject
   >;
   getEvent(
+<<<<<<< HEAD
     key: "OfficeRewardsClaimed"
   ): TypedContractEvent<
     OfficeRewardsClaimedEvent.InputTuple,
@@ -1437,6 +1545,8 @@ export interface TavernKeeper extends BaseContract {
     OfficeRewardsClaimedEvent.OutputObject
   >;
   getEvent(
+=======
+>>>>>>> d9c80166f06c3f6075f2ba2e63c2d068690df2ca
     key: "OfficeTaken"
   ): TypedContractEvent<
     OfficeTakenEvent.InputTuple,
@@ -1458,6 +1568,7 @@ export interface TavernKeeper extends BaseContract {
     PreviousKingPaidEvent.OutputObject
   >;
   getEvent(
+<<<<<<< HEAD
     key: "SignerUpdated"
   ): TypedContractEvent<
     SignerUpdatedEvent.InputTuple,
@@ -1486,6 +1597,8 @@ export interface TavernKeeper extends BaseContract {
     TierPricesUpdatedEvent.OutputObject
   >;
   getEvent(
+=======
+>>>>>>> d9c80166f06c3f6075f2ba2e63c2d068690df2ca
     key: "TokensClaimed"
   ): TypedContractEvent<
     TokensClaimedEvent.InputTuple,
@@ -1592,6 +1705,7 @@ export interface TavernKeeper extends BaseContract {
       OfficeEarningsClaimedEvent.OutputObject
     >;
 
+<<<<<<< HEAD
     "OfficeRewardsClaimed(address,uint256)": TypedContractEvent<
       OfficeRewardsClaimedEvent.InputTuple,
       OfficeRewardsClaimedEvent.OutputTuple,
@@ -1603,6 +1717,8 @@ export interface TavernKeeper extends BaseContract {
       OfficeRewardsClaimedEvent.OutputObject
     >;
 
+=======
+>>>>>>> d9c80166f06c3f6075f2ba2e63c2d068690df2ca
     "OfficeTaken(address,uint256,uint256,string)": TypedContractEvent<
       OfficeTakenEvent.InputTuple,
       OfficeTakenEvent.OutputTuple,
@@ -1636,6 +1752,7 @@ export interface TavernKeeper extends BaseContract {
       PreviousKingPaidEvent.OutputObject
     >;
 
+<<<<<<< HEAD
     "SignerUpdated(address)": TypedContractEvent<
       SignerUpdatedEvent.InputTuple,
       SignerUpdatedEvent.OutputTuple,
@@ -1680,6 +1797,8 @@ export interface TavernKeeper extends BaseContract {
       TierPricesUpdatedEvent.OutputObject
     >;
 
+=======
+>>>>>>> d9c80166f06c3f6075f2ba2e63c2d068690df2ca
     "TokensClaimed(uint256,uint256)": TypedContractEvent<
       TokensClaimedEvent.InputTuple,
       TokensClaimedEvent.OutputTuple,

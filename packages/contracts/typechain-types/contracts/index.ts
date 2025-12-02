@@ -24,5 +24,9 @@ export type { GoldToken } from "./GoldToken";
 export type { Inventory } from "./Inventory";
 export type { KeepToken } from "./KeepToken";
 export type { MockERC20 } from "./MockERC20";
+<<<<<<< HEAD
+=======
+export type { TheCellar } from "./TheCellar";
+>>>>>>> d9c80166f06c3f6075f2ba2e63c2d068690df2ca
 export type { UniswapIntegration } from "./UniswapIntegration";
 export type { V4DependencyHelper } from "./V4DependencyHelper";

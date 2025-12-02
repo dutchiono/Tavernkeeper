@@ -224,8 +224,13 @@ contract TavernKeeper is Initializable, ERC721Upgradeable, ERC721URIStorageUpgra
     uint256 public constant EPOCH_PERIOD = 1 hours;
     uint256 public constant PRICE_MULTIPLIER = 2e18; // 2x (Matched reference)
     uint256 public constant NEW_PRICE_MULTIPLIER = 2e18; // Deprecated/Alias for clarity if needed, but using PRICE_MULTIPLIER in logic
+<<<<<<< HEAD
 
     uint256 public constant MIN_INIT_PRICE = 1 ether; // 1 MON (Matched reference)
+=======
+    
+    uint256 public constant MIN_INIT_PRICE = 0.0001 ether; // 0.0001 MON (Matched reference)
+>>>>>>> d9c80166f06c3f6075f2ba2e63c2d068690df2ca
     uint256 public constant ABS_MAX_INIT_PRICE = type(uint192).max;
 
     uint256 public constant INITIAL_DPS = 4 ether; // 4 KEEP per second (Matched reference)
@@ -257,6 +262,7 @@ contract TavernKeeper is Initializable, ERC721Upgradeable, ERC721URIStorageUpgra
 
     uint256 public v2StartTime;
 
+<<<<<<< HEAD
     // Pricing Tiers (in wei/MON) - Added in V3
     // DEPRECATED: These are kept for storage compatibility but no longer used
     // Pricing now uses signature-based USD pricing
@@ -272,10 +278,13 @@ contract TavernKeeper is Initializable, ERC721Upgradeable, ERC721URIStorageUpgra
     uint256 public lastOfficeClaimTimestamp;
     event OfficeRewardsClaimed(address indexed king, uint256 amount);
 
+=======
+>>>>>>> d9c80166f06c3f6075f2ba2e63c2d068690df2ca
     function initializeOfficeV2(address _treasury) public onlyOwner {
         require(treasury == address(0), "Already initialized V2");
         treasury = _treasury;
         v2StartTime = block.timestamp;
+<<<<<<< HEAD
 
         slot0.initPrice = uint192(MIN_INIT_PRICE);
         slot0.startTime = uint40(block.timestamp);
@@ -287,6 +296,12 @@ contract TavernKeeper is Initializable, ERC721Upgradeable, ERC721URIStorageUpgra
         } else {
             slot0.miner = msg.sender;
         }
+=======
+        
+        slot0.initPrice = uint192(MIN_INIT_PRICE);
+        slot0.startTime = uint40(block.timestamp);
+        slot0.miner = msg.sender; // Initial king is owner
+>>>>>>> d9c80166f06c3f6075f2ba2e63c2d068690df2ca
         slot0.dps = INITIAL_DPS;
         slot0.epochId = 1;
     }
@@ -327,13 +342,18 @@ contract TavernKeeper is Initializable, ERC721Upgradeable, ERC721URIStorageUpgra
         // Refund excess
         uint256 excess = msg.value - price;
         if (excess > 0) {
+<<<<<<< HEAD
             (bool success, ) = payable(msg.sender).call{value: excess}("");
             require(success, "Refund failed");
+=======
+            payable(msg.sender).transfer(excess);
+>>>>>>> d9c80166f06c3f6075f2ba2e63c2d068690df2ca
         }
 
         if (price > 0) {
             uint256 totalFee = price * FEE / DIVISOR; // 20%
             uint256 minerFee = price - totalFee;      // 80%
+<<<<<<< HEAD
 
             // Split totalFee (20%) into Dev (5%) and Cellar (15%)
             uint256 devFee = totalFee / 4;
@@ -358,6 +378,27 @@ contract TavernKeeper is Initializable, ERC721Upgradeable, ERC721URIStorageUpgra
             if (slot0Cache.miner != address(0)) {
                 (bool successMiner, ) = payable(slot0Cache.miner).call{value: minerFee}("");
                 require(successMiner, "Miner payment failed");
+=======
+            
+            // Split totalFee (20%) into Dev (10%) and Cellar (10%)
+            uint256 devFee = totalFee / 2;
+            uint256 cellarFee = totalFee - devFee;
+
+            // Pay Dev (Owner)
+            payable(owner()).transfer(devFee);
+
+            // Pay Cellar (Treasury)
+            if (treasury != address(0)) {
+                payable(treasury).transfer(cellarFee);
+                emit TreasuryFee(treasury, cellarFee);
+            } else {
+                payable(owner()).transfer(cellarFee);
+            }
+
+            // Pay Previous King
+            if (slot0Cache.miner != address(0)) {
+                payable(slot0Cache.miner).transfer(minerFee);
+>>>>>>> d9c80166f06c3f6075f2ba2e63c2d068690df2ca
                 emit PreviousKingPaid(slot0Cache.miner, minerFee);
             }
         }
@@ -372,6 +413,7 @@ contract TavernKeeper is Initializable, ERC721Upgradeable, ERC721URIStorageUpgra
         }
 
         // Mint KEEP rewards for previous king
+<<<<<<< HEAD
         // Use lastOfficeClaimTimestamp if it's later than startTime
         uint256 startTime = slot0Cache.startTime;
         if (lastOfficeClaimTimestamp > startTime) {
@@ -388,6 +430,16 @@ contract TavernKeeper is Initializable, ERC721Upgradeable, ERC721URIStorageUpgra
             }
         }
 
+=======
+        uint256 mineTime = block.timestamp - slot0Cache.startTime;
+        uint256 minedAmount = mineTime * slot0Cache.dps;
+
+        if (keepToken != address(0) && slot0Cache.miner != address(0)) {
+            IKeepToken(keepToken).mint(slot0Cache.miner, minedAmount);
+            emit OfficeEarningsClaimed(slot0Cache.miner, minedAmount);
+        }
+
+>>>>>>> d9c80166f06c3f6075f2ba2e63c2d068690df2ca
         // Update State
         unchecked {
             slot0Cache.epochId++;
@@ -399,11 +451,41 @@ contract TavernKeeper is Initializable, ERC721Upgradeable, ERC721URIStorageUpgra
         slot0Cache.uri = uri;
 
         slot0 = slot0Cache;
+<<<<<<< HEAD
         lastOfficeClaimTimestamp = block.timestamp; // Reset for new king
+=======
+>>>>>>> d9c80166f06c3f6075f2ba2e63c2d068690df2ca
 
         emit OfficeTaken(msg.sender, price, price, uri);
 
         return price;
+<<<<<<< HEAD
+=======
+    }
+
+    function _getPriceFromCache(Slot0 memory slot0Cache) internal view returns (uint256) {
+        uint256 timePassed = block.timestamp - slot0Cache.startTime;
+
+        if (timePassed > EPOCH_PERIOD) {
+            return 0;
+        }
+
+        return slot0Cache.initPrice - slot0Cache.initPrice * timePassed / EPOCH_PERIOD;
+    }
+
+
+
+    function getPrice() external view nonReentrantView returns (uint256) {
+        return _getPriceFromCache(slot0);
+    }
+
+    function getDps() external view nonReentrantView returns (uint256) {
+        return slot0.dps;
+    }
+
+    function getSlot0() external view nonReentrantView returns (Slot0 memory) {
+        return slot0;
+>>>>>>> d9c80166f06c3f6075f2ba2e63c2d068690df2ca
     }
 
     function claimOfficeRewards() public nonReentrant {

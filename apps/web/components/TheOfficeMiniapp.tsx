@@ -1,9 +1,14 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+<<<<<<< HEAD
 import { getContextualWalletClient, getFarcasterWalletAddress, isFarcasterWalletConnected } from '../lib/services/farcasterWallet';
 import { OfficeState, tavernKeeperService } from '../lib/services/tavernKeeperService';
 import { theCellarService } from '../lib/services/theCellarService';
+=======
+import { getContextualWalletClient, isFarcasterWalletConnected, getFarcasterWalletAddress } from '../lib/services/farcasterWallet';
+import { OfficeState, tavernKeeperService } from '../lib/services/tavernKeeperService';
+>>>>>>> d9c80166f06c3f6075f2ba2e63c2d068690df2ca
 import { useGameStore } from '../lib/stores/gameStore';
 import { TheOfficeView } from './TheOfficeView';
 
@@ -17,11 +22,15 @@ export const TheOfficeMiniapp: React.FC<{ children?: React.ReactNode }> = ({ chi
         officeRateUsd: '$0.00',
         priceUsd: '$0.00',
         totalEarned: '0',
+<<<<<<< HEAD
         totalEarnedUsd: '$0.00',
         epochId: 0,
         startTime: Math.floor(Date.now() / 1000),
         nextDps: '0',
         initPrice: '0'
+=======
+        totalEarnedUsd: '$0.00'
+>>>>>>> d9c80166f06c3f6075f2ba2e63c2d068690df2ca
     });
     const [isLoading, setIsLoading] = useState(false);
     const [walletReady, setWalletReady] = useState(false);
@@ -102,6 +111,7 @@ export const TheOfficeMiniapp: React.FC<{ children?: React.ReactNode }> = ({ chi
             const hash = await tavernKeeperService.takeOffice(client, state.currentPrice, clientAddress);
             console.log('Transaction sent:', hash);
             alert('Transaction sent! Waiting for confirmation...');
+<<<<<<< HEAD
 
             // Wait for transaction confirmation and refresh
             try {
@@ -125,6 +135,10 @@ export const TheOfficeMiniapp: React.FC<{ children?: React.ReactNode }> = ({ chi
                     fetchOfficeState();
                 }, 5000);
             }
+=======
+            // Refresh office state after transaction
+            setTimeout(() => fetchOfficeState(), 2000);
+>>>>>>> d9c80166f06c3f6075f2ba2e63c2d068690df2ca
         } catch (error) {
             console.error('Failed to take office:', error);
             const errorMessage = error instanceof Error ? error.message : 'Unknown error';

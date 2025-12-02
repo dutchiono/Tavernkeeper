@@ -4,7 +4,11 @@ import { usePrivy } from '@privy-io/react-auth';
 import { useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useState } from 'react';
 import { ChatOverlay } from '../../components/ChatOverlay';
+<<<<<<< HEAD
 import { PixelButton } from '../../components/PixelComponents';
+=======
+import { PixelBox, PixelButton } from '../../components/PixelComponents';
+>>>>>>> d9c80166f06c3f6075f2ba2e63c2d068690df2ca
 import { BattleScene } from '../../components/scenes/BattleScene';
 import { InnScene } from '../../components/scenes/InnScene';
 import { MapScene } from '../../components/scenes/MapScene';
@@ -13,8 +17,12 @@ import { WelcomeModal } from '../../components/WelcomeModal';
 import { useGameStore } from '../../lib/stores/gameStore';
 import { GameView } from '../../lib/types';
 
+<<<<<<< HEAD
 import { createPublicClient, http } from 'viem';
 import { monad } from '../../lib/chains';
+=======
+import { formatEther } from 'viem';
+>>>>>>> d9c80166f06c3f6075f2ba2e63c2d068690df2ca
 
 import { keepTokenService } from '../../lib/services/keepToken';
 import { isInFarcasterMiniapp } from '../../lib/utils/farcasterDetection';
@@ -59,6 +67,10 @@ function HomeContent() {
                 setKeepBalance(balance);
             } catch (error) {
                 console.error('Failed to fetch KEEP balance:', error);
+<<<<<<< HEAD
+=======
+                // Don't set to 0 on error, keep previous value
+>>>>>>> d9c80166f06c3f6075f2ba2e63c2d068690df2ca
             }
         };
 
@@ -67,6 +79,7 @@ function HomeContent() {
         return () => clearInterval(interval);
     }, [address, setKeepBalance]);
 
+<<<<<<< HEAD
     // Fetch MON Balance
     const [monBalance, setMonBalance] = useState("0");
     useEffect(() => {
@@ -93,6 +106,8 @@ function HomeContent() {
         return () => clearInterval(interval);
     }, [address]);
 
+=======
+>>>>>>> d9c80166f06c3f6075f2ba2e63c2d068690df2ca
     // Initial Greeting
     useEffect(() => {
         const hasGreeted = sessionStorage.getItem('innkeeper_greeted');
@@ -149,6 +164,7 @@ function HomeContent() {
                                 </div>
                             )}
 
+<<<<<<< HEAD
                             {/* DAY - Always visible */}
                             <div className="flex items-center gap-2 px-2 bg-black/30 py-1 rounded border border-white/5">
                                 <div className="text-[10px] text-yellow-400 flex flex-col items-end leading-tight">
@@ -158,6 +174,15 @@ function HomeContent() {
 
                             {/* New Hero Button (Moved from bottom) */}
 
+=======
+                            {/* DAY and KEEP Balance - Always visible */}
+                            <div className="flex items-center gap-2 px-2 bg-black/30 py-1 rounded border border-white/5">
+                                <div className="text-[10px] text-yellow-400 flex flex-col items-end leading-tight">
+                                    <span>DAY 1</span>
+                                    <span className="text-white/50">{parseFloat(formatEther(BigInt(keepBalance))).toFixed(2)} KEEP</span>
+                                </div>
+                            </div>
+>>>>>>> d9c80166f06c3f6075f2ba2e63c2d068690df2ca
                         </div>
                     </div>
 
@@ -185,6 +210,7 @@ function HomeContent() {
                         )}
 
                         {/* TAVERNKEEPER CHAT OVERLAY & THE OFFICE */}
+<<<<<<< HEAD
                         {(currentView === GameView.INN || currentView === GameView.CELLAR) && (
                             <div className="absolute top-2 left-1/2 -translate-x-1/2 w-[95%] h-[calc(100%-0.5rem)] z-30 pointer-events-none flex flex-col gap-4">
 
@@ -194,6 +220,14 @@ function HomeContent() {
                                         monBalance={monBalance}
                                         initialView={currentView === GameView.CELLAR ? 'cellar' : 'office'}
                                     >
+=======
+                        {currentView === GameView.INN && (
+                            <div className="absolute top-20 left-1/2 -translate-x-1/2 w-[95%] h-[calc(100%-5rem)] z-30 pointer-events-none flex flex-col gap-4">
+
+                                {/* The Office (King of the Hill) wrapping the Chat */}
+                                <div className="pointer-events-auto w-full max-w-md mx-auto h-full flex flex-col">
+                                    <TheOffice>
+>>>>>>> d9c80166f06c3f6075f2ba2e63c2d068690df2ca
                                         <ChatOverlay />
                                     </TheOffice>
                                 </div>
@@ -203,7 +237,41 @@ function HomeContent() {
                     </div>
 
                     {/* --- BOTTOM HUD: Party Roster Only --- */}
+<<<<<<< HEAD
 
+=======
+                    <div className="w-full h-40 bg-[#1e1e24] border-t-4 border-slate-800 p-2 flex gap-2 z-20 shadow-[0_-4px_10px_rgba(0,0,0,0.5)] shrink-0">
+
+                        {/* HERO ACTIONS SECTION */}
+                        <PixelBox className="w-full" variant="wood" title="Actions">
+                            <div className="flex gap-4 h-full items-center justify-center px-4">
+                                <PixelButton
+                                    variant="primary"
+                                    onClick={() => window.location.href = '/hero-builder'}
+                                    className="flex items-center gap-2"
+                                >
+                                    <span className="text-lg">⚔️</span>
+                                    <div className="flex flex-col items-start">
+                                        <span className="text-[10px]">NEW HERO</span>
+                                        <span className="text-[8px] text-white/60">Mint NFT</span>
+                                    </div>
+                                </PixelButton>
+
+                                <PixelButton
+                                    variant="secondary"
+                                    onClick={() => window.location.href = '/party'}
+                                    className="flex items-center gap-2"
+                                >
+                                    <span className="text-lg">👥</span>
+                                    <div className="flex flex-col items-start">
+                                        <span className="text-[10px]">PARTY</span>
+                                        <span className="text-[8px] text-white/60">Manage</span>
+                                    </div>
+                                </PixelButton>
+                            </div>
+                        </PixelBox>
+                    </div>
+>>>>>>> d9c80166f06c3f6075f2ba2e63c2d068690df2ca
 
                 </div>
             </main>

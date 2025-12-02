@@ -5,9 +5,14 @@
  * to ensure game code stays aligned with deployed contracts.
  */
 
+<<<<<<< HEAD
 import { type Address } from 'viem';
 import { monad } from '../chains';
 import { CONTRACT_ADDRESSES, IMPLEMENTATION_ADDRESSES } from './addresses';
+=======
+import { type Address, isAddress, getAddress } from 'viem';
+import { monad } from '../chains';
+>>>>>>> d9c80166f06c3f6075f2ba2e63c2d068690df2ca
 
 export interface ContractConfig {
   name: string;
@@ -373,6 +378,7 @@ export const CONTRACT_REGISTRY: Record<string, ContractConfig> = {
             type: 'tuple',
           },
         ],
+<<<<<<< HEAD
         stateMutability: 'view',
         type: 'function',
       },
@@ -491,28 +497,41 @@ export const CONTRACT_REGISTRY: Record<string, ContractConfig> = {
         inputs: [],
         name: 'poolManager',
         outputs: [{ name: '', type: 'address' }],
+=======
+>>>>>>> d9c80166f06c3f6075f2ba2e63c2d068690df2ca
         stateMutability: 'view',
         type: 'function',
       },
       {
+<<<<<<< HEAD
         inputs: [{ name: 'account', type: 'address' }],
         name: 'balanceOf',
+=======
+        inputs: [],
+        name: 'getPrice',
+>>>>>>> d9c80166f06c3f6075f2ba2e63c2d068690df2ca
         outputs: [{ name: '', type: 'uint256' }],
         stateMutability: 'view',
         type: 'function',
       },
       {
+<<<<<<< HEAD
         inputs: [
           { name: 'owner', type: 'address' },
           { name: 'spender', type: 'address' },
         ],
         name: 'allowance',
+=======
+        inputs: [],
+        name: 'getDps',
+>>>>>>> d9c80166f06c3f6075f2ba2e63c2d068690df2ca
         outputs: [{ name: '', type: 'uint256' }],
         stateMutability: 'view',
         type: 'function',
       },
       {
         inputs: [
+<<<<<<< HEAD
           { name: 'spender', type: 'address' },
           { name: 'amount', type: 'uint256' },
         ],
@@ -538,10 +557,20 @@ export const CONTRACT_REGISTRY: Record<string, ContractConfig> = {
         ],
         name: 'mintLP',
         outputs: [],
+=======
+          { name: 'epochId', type: 'uint256' },
+          { name: 'deadline', type: 'uint256' },
+          { name: 'maxPrice', type: 'uint256' },
+          { name: 'uri', type: 'string' },
+        ],
+        name: 'takeOffice',
+        outputs: [{ name: 'price', type: 'uint256' }],
+>>>>>>> d9c80166f06c3f6075f2ba2e63c2d068690df2ca
         stateMutability: 'payable',
         type: 'function',
       },
     ],
+<<<<<<< HEAD
     requiredFunctions: ['mintLP'],
   },
   TAVERN_REGULARS_MANAGER: {
@@ -782,6 +811,9 @@ export const CONTRACT_REGISTRY: Record<string, ContractConfig> = {
       },
     ],
     requiredFunctions: ['createTownPosse', 'requestJoinTownPosse', 'contributeToTownPosse'],
+=======
+    requiredFunctions: ['ownerOf', 'safeMint', 'claimTokens', 'calculatePendingTokens', 'takeOffice', 'getSlot0'],
+>>>>>>> d9c80166f06c3f6075f2ba2e63c2d068690df2ca
   },
 };
 

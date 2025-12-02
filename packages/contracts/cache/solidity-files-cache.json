@@ -1648,8 +1648,13 @@
       ]
     },
     "C:\\Users\\epj33\\Desktop\\InnKeeper\\packages\\contracts\\contracts\\TavernKeeper.sol": {
+<<<<<<< HEAD
       "lastModificationDate": 1764682872748,
       "contentHash": "fc2db551641564403c3cbb0fd0864370",
+=======
+      "lastModificationDate": 1764564066005,
+      "contentHash": "51a502b260dd061bde9c837e9967c365",
+>>>>>>> d9c80166f06c3f6075f2ba2e63c2d068690df2ca
       "sourceName": "contracts/TavernKeeper.sol",
       "solcConfig": {
         "version": "0.8.26",
@@ -2698,6 +2703,7 @@
         "KeepToken"
       ]
     },
+<<<<<<< HEAD
     "C:\\Users\\epj33\\Desktop\\InnKeeper\\packages\\contracts\\contracts\\MockERC20.sol": {
       "lastModificationDate": 1764564921325,
       "contentHash": "ffe0ff9c958c7eae7e3d0a73d53ffed2",
@@ -4960,6 +4966,14 @@
       "sourceName": "contracts/legacy/TheCellar.sol",
       "solcConfig": {
         "version": "0.8.26",
+=======
+    "C:\\Users\\epj33\\Desktop\\InnKeeper\\packages\\contracts\\contracts\\TheCellar.sol": {
+      "lastModificationDate": 1764564003526,
+      "contentHash": "c8b944e2a18c841265e1badb32b2af5f",
+      "sourceName": "contracts/TheCellar.sol",
+      "solcConfig": {
+        "version": "0.8.24",
+>>>>>>> d9c80166f06c3f6075f2ba2e63c2d068690df2ca
         "settings": {
           "optimizer": {
             "enabled": true,
@@ -4994,12 +5008,21 @@
         "TheCellar"
       ]
     },
+<<<<<<< HEAD
     "C:\\Users\\epj33\\Desktop\\InnKeeper\\packages\\contracts\\contracts\\legacy\\CellarZap.sol": {
       "lastModificationDate": 1764644785884,
       "contentHash": "f87c2a4cdb88f1e3c6ef97582a875a2b",
       "sourceName": "contracts/legacy/CellarZap.sol",
       "solcConfig": {
         "version": "0.8.26",
+=======
+    "C:\\Users\\epj33\\Desktop\\InnKeeper\\packages\\contracts\\contracts\\MockERC20.sol": {
+      "lastModificationDate": 1764564108484,
+      "contentHash": "ffe0ff9c958c7eae7e3d0a73d53ffed2",
+      "sourceName": "contracts/MockERC20.sol",
+      "solcConfig": {
+        "version": "0.8.24",
+>>>>>>> d9c80166f06c3f6075f2ba2e63c2d068690df2ca
         "settings": {
           "optimizer": {
             "enabled": true,
@@ -5024,15 +5047,20 @@
         }
       },
       "imports": [
+<<<<<<< HEAD
         "@openzeppelin/contracts/token/ERC20/IERC20.sol",
         "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol",
         "@openzeppelin/contracts/access/Ownable.sol",
         "../interfaces/IUniswapV2Router02.sol"
+=======
+        "@openzeppelin/contracts/token/ERC20/ERC20.sol"
+>>>>>>> d9c80166f06c3f6075f2ba2e63c2d068690df2ca
       ],
       "versionPragmas": [
         "^0.8.20"
       ],
       "artifacts": [
+<<<<<<< HEAD
         "CellarZap",
         "ITheCellar"
       ]
@@ -5172,6 +5200,9 @@
       "artifacts": [
         "ICellarHook",
         "TavernRegularsManager"
+=======
+        "MockERC20"
+>>>>>>> d9c80166f06c3f6075f2ba2e63c2d068690df2ca
       ]
     }
   }

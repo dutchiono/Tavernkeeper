@@ -1,5 +1,6 @@
 'use client';
 
+<<<<<<< HEAD
 import { usePrivy, useWallets } from '@privy-io/react-auth';
 import React, { useEffect, useState } from 'react';
 import { createPublicClient, createWalletClient, custom, http } from 'viem';
@@ -20,6 +21,26 @@ export const TheOffice: React.FC<{ children?: React.ReactNode; monBalance?: stri
     const isConnected = authenticated && !!wallet;
     const chainId = wallet?.chainId ? parseInt(wallet.chainId.split(':')[1]) : undefined;
 
+=======
+import React, { useEffect, useState } from 'react';
+import { usePrivy, useWallets } from '@privy-io/react-auth';
+import { createWalletClient, custom } from 'viem';
+import { OfficeState, tavernKeeperService } from '../lib/services/tavernKeeperService';
+import { useGameStore } from '../lib/stores/gameStore';
+import { monad } from '../lib/chains';
+import { TheOfficeView } from './TheOfficeView';
+
+export const TheOffice: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
+    const { authenticated, user, logout } = usePrivy();
+    const { wallets } = useWallets();
+    const { keepBalance } = useGameStore();
+
+    const wallet = wallets.find((w) => w.address === user?.wallet?.address);
+    const address = user?.wallet?.address;
+    const isConnected = authenticated && !!wallet;
+    const chainId = wallet?.chainId ? parseInt(wallet.chainId.split(':')[1]) : undefined;
+
+>>>>>>> d9c80166f06c3f6075f2ba2e63c2d068690df2ca
     const [state, setState] = useState<OfficeState>({
         currentKing: 'Loading...',
         currentPrice: '0.00',
@@ -73,6 +94,7 @@ export const TheOffice: React.FC<{ children?: React.ReactNode; monBalance?: stri
             setTimeHeld(`${minutes}m ${seconds}s`);
 
             // 2. Interpolate Price (Dutch Auction)
+<<<<<<< HEAD
             // Price decays linearly from initPrice to MIN_INIT_PRICE (1 MON) over 1 hour (3600s)
             // Contract enforces MIN_INIT_PRICE = 1 MON, so price never goes below 1 MON
             const EPOCH_PERIOD = 3600;
@@ -99,6 +121,18 @@ export const TheOffice: React.FC<{ children?: React.ReactNode; monBalance?: stri
                 const fetchedPrice = parseFloat(state.currentPrice || '0');
                 currentPrice = fetchedPrice > 0 ? Math.max(MIN_INIT_PRICE, fetchedPrice) : MIN_INIT_PRICE;
             }
+=======
+            // Price decays linearly from initPrice to 0 over 1 hour (3600s)
+            const EPOCH_PERIOD = 3600;
+            const initPrice = parseFloat(state.initPrice || '0');
+            let currentPrice = 0;
+
+            if (timeSinceStart < EPOCH_PERIOD) {
+                currentPrice = initPrice * (1 - timeSinceStart / EPOCH_PERIOD);
+            }
+            // Ensure non-negative
+            currentPrice = Math.max(0, currentPrice);
+>>>>>>> d9c80166f06c3f6075f2ba2e63c2d068690df2ca
 
             // 3. Interpolate Earnings
             const dps = parseFloat(state.officeRate || '0');
@@ -162,6 +196,7 @@ export const TheOffice: React.FC<{ children?: React.ReactNode; monBalance?: stri
             const hash = await tavernKeeperService.takeOffice(client, interpolatedState.currentPrice, clientAddress);
             console.log('Transaction sent:', hash);
             alert('Transaction sent! Waiting for confirmation...');
+<<<<<<< HEAD
 
             // Wait for transaction confirmation
             const publicClient = createPublicClient({
@@ -173,6 +208,10 @@ export const TheOffice: React.FC<{ children?: React.ReactNode; monBalance?: stri
             // Clear cellar cache and refresh both states
             theCellarService.clearCache();
             fetchOfficeState();
+=======
+            // Refresh office state after transaction
+            setTimeout(() => fetchOfficeState(), 2000);
+>>>>>>> d9c80166f06c3f6075f2ba2e63c2d068690df2ca
         } catch (error) {
             console.error('Failed to take office:', error);
             const errorMessage = error instanceof Error ? error.message : 'Unknown error';
@@ -182,6 +221,7 @@ export const TheOffice: React.FC<{ children?: React.ReactNode; monBalance?: stri
         }
     };
 
+<<<<<<< HEAD
     const handleClaimRewards = async () => {
         if (!address || !isConnected || !wallet) return;
 
@@ -233,18 +273,25 @@ export const TheOffice: React.FC<{ children?: React.ReactNode; monBalance?: stri
     };
 
     const isOfficeManager = address && state.currentKing && address.toLowerCase() === state.currentKing.toLowerCase();
+=======
+    const isKing = address && state.currentKing && address.toLowerCase() === state.currentKing.toLowerCase();
+>>>>>>> d9c80166f06c3f6075f2ba2e63c2d068690df2ca
 
     return (
         <TheOfficeView
             state={interpolatedState}
             timeHeld={timeHeld}
             keepBalance={keepBalance}
+<<<<<<< HEAD
             monBalance={monBalance}
+=======
+>>>>>>> d9c80166f06c3f6075f2ba2e63c2d068690df2ca
             isLoading={isLoading}
             walletReady={isConnected}
             isWalletConnected={isConnected}
             isWrongNetwork={isConnected && chainId !== monad.id}
             onTakeOffice={handleTakeOffice}
+<<<<<<< HEAD
             onClaim={handleClaimRewards}
             onDisconnect={() => logout()}
             pnl={pnl}
@@ -252,6 +299,11 @@ export const TheOffice: React.FC<{ children?: React.ReactNode; monBalance?: stri
             walletAddress={address}
             viewMode={initialView}
             onViewSwitch={handleViewSwitch}
+=======
+            onDisconnect={() => logout()}
+            pnl={pnl}
+            isKing={!!isKing}
+>>>>>>> d9c80166f06c3f6075f2ba2e63c2d068690df2ca
         >
             {children}
         </TheOfficeView>

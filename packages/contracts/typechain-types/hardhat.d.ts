@@ -390,6 +390,7 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.KeepToken__factory>;
     getContractFactory(
+<<<<<<< HEAD
       name: "CellarZap",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.CellarZap__factory>;
@@ -402,6 +403,8 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.TheCellar__factory>;
     getContractFactory(
+=======
+>>>>>>> d9c80166f06c3f6075f2ba2e63c2d068690df2ca
       name: "MockERC20",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.MockERC20__factory>;
@@ -414,6 +417,7 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.TavernKeeper__factory>;
     getContractFactory(
+<<<<<<< HEAD
       name: "ICellarHook",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.ICellarHook__factory>;
@@ -429,6 +433,11 @@ declare module "hardhat/types/runtime" {
       name: "TownPosseManager",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.TownPosseManager__factory>;
+=======
+      name: "TheCellar",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.TheCellar__factory>;
+>>>>>>> d9c80166f06c3f6075f2ba2e63c2d068690df2ca
     getContractFactory(
       name: "UniswapIntegration",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -913,6 +922,7 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.KeepToken>;
     getContractAt(
+<<<<<<< HEAD
       name: "CellarZap",
       address: string | ethers.Addressable,
       signer?: ethers.Signer
@@ -928,6 +938,8 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.TheCellar>;
     getContractAt(
+=======
+>>>>>>> d9c80166f06c3f6075f2ba2e63c2d068690df2ca
       name: "MockERC20",
       address: string | ethers.Addressable,
       signer?: ethers.Signer
@@ -943,6 +955,7 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.TavernKeeper>;
     getContractAt(
+<<<<<<< HEAD
       name: "ICellarHook",
       address: string | ethers.Addressable,
       signer?: ethers.Signer
@@ -962,6 +975,12 @@ declare module "hardhat/types/runtime" {
       address: string | ethers.Addressable,
       signer?: ethers.Signer
     ): Promise<Contracts.TownPosseManager>;
+=======
+      name: "TheCellar",
+      address: string | ethers.Addressable,
+      signer?: ethers.Signer
+    ): Promise<Contracts.TheCellar>;
+>>>>>>> d9c80166f06c3f6075f2ba2e63c2d068690df2ca
     getContractAt(
       name: "UniswapIntegration",
       address: string | ethers.Addressable,
@@ -1355,6 +1374,7 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.KeepToken>;
     deployContract(
+<<<<<<< HEAD
       name: "CellarZap",
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.CellarZap>;
@@ -1367,6 +1387,8 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.TheCellar>;
     deployContract(
+=======
+>>>>>>> d9c80166f06c3f6075f2ba2e63c2d068690df2ca
       name: "MockERC20",
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.MockERC20>;
@@ -1379,6 +1401,7 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.TavernKeeper>;
     deployContract(
+<<<<<<< HEAD
       name: "ICellarHook",
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.ICellarHook>;
@@ -1394,6 +1417,11 @@ declare module "hardhat/types/runtime" {
       name: "TownPosseManager",
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.TownPosseManager>;
+=======
+      name: "TheCellar",
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.TheCellar>;
+>>>>>>> d9c80166f06c3f6075f2ba2e63c2d068690df2ca
     deployContract(
       name: "UniswapIntegration",
       signerOrOptions?: ethers.Signer | DeployContractOptions
@@ -1878,6 +1906,7 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.KeepToken>;
     deployContract(
+<<<<<<< HEAD
       name: "CellarZap",
       args: any[],
       signerOrOptions?: ethers.Signer | DeployContractOptions
@@ -1893,6 +1922,8 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.TheCellar>;
     deployContract(
+=======
+>>>>>>> d9c80166f06c3f6075f2ba2e63c2d068690df2ca
       name: "MockERC20",
       args: any[],
       signerOrOptions?: ethers.Signer | DeployContractOptions
@@ -1908,6 +1939,7 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.TavernKeeper>;
     deployContract(
+<<<<<<< HEAD
       name: "ICellarHook",
       args: any[],
       signerOrOptions?: ethers.Signer | DeployContractOptions
@@ -1927,6 +1959,12 @@ declare module "hardhat/types/runtime" {
       args: any[],
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.TownPosseManager>;
+=======
+      name: "TheCellar",
+      args: any[],
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.TheCellar>;
+>>>>>>> d9c80166f06c3f6075f2ba2e63c2d068690df2ca
     deployContract(
       name: "UniswapIntegration",
       args: any[],

@@ -51,13 +51,38 @@ This file tracks all contract deployments. **ALWAYS** update this file when depl
 - **Deployment Date**: 2025-01-XX
 - **Deployment TX**: See deployment output
 - **Notes**: Successfully deployed as UUPS proxy. Minting controlled by TavernKeeper contract.
+<<<<<<< HEAD
+=======
+
+#### Inventory (ERC-1155)
+- **Status**: ✅ **DEPLOYED** - UUPS upgradeable proxy
+- **Current Type**: UUPS Upgradeable Proxy ✅
+- **Purpose**: ERC-1155 items/inventory contract
+- **Upgradeable**: Yes ✅
+- **Proxy Address**: `0xE75948afaAc46E3C456C1023d4c7F00392a92344`
+- **Implementation Address**: `0xc03bC9D0BD59b98535aEBD2102221AeD87c820A6`
+- **Network**: Monad Testnet
+- **Deployment Date**: 2025-01-XX
+- **Deployment TX**: See deployment output
+- **Fee Recipient**: `0xEC4bc7451B9058D42Ea159464C6dA14a322946fD` (deployer)
+- **Notes**:
+  - Successfully deployed as UUPS proxy
+  - Has fee collection built-in via `claimLootWithFee()`
+  - Fees go back to deployer wallet
+
+>>>>>>> d9c80166f06c3f6075f2ba2e63c2d068690df2ca
 #### Adventurer (ERC-721)
 - **Status**: ✅ **DEPLOYED** - UUPS upgradeable proxy
 - **Current Type**: UUPS Upgradeable Proxy ✅
 - **Purpose**: Adventurer NFT contract
 - **Upgradeable**: Yes ✅
+<<<<<<< HEAD
 - **Proxy Address**: `0x67e27a22B64385e0110e69Dceae7d394D2C87B06`
 - **Implementation Address**: `0xAEc92D70Db9B5516546c27E8fa0Cb309C4660Fe1` (v4.0.0 - Signature-Based Pricing)
+=======
+- **Proxy Address**: `0x3F7BBD9373AF9eDdB6b170FFc86479bEaE548407`
+- **Implementation Address**: `0x582bDC81df3c6c78B85D9409987Ab9885A24A2f6`
+>>>>>>> d9c80166f06c3f6075f2ba2e63c2d068690df2ca
 - **Network**: Monad Testnet
 - **Deployment Date**: 2025-01-XX
 - **Deployment TX**: See deployment output
@@ -68,6 +93,7 @@ This file tracks all contract deployments. **ALWAYS** update this file when depl
 - **Current Type**: UUPS Upgradeable Proxy ✅
 - **Purpose**: TavernKeeper NFT contract
 - **Upgradeable**: Yes ✅
+<<<<<<< HEAD
 - **Proxy Address**: `0x311d8722A5cE11DF157D7a9d414bbeC2640c5Fb2`
 - **Implementation Address**: `0x10ee72aB13747447FE62CE07e2f1fc3d40114Ee7` (v4.0.0 - Signature-Based Pricing)
 - **Network**: Monad Testnet
@@ -106,6 +132,14 @@ This file tracks all contract deployments. **ALWAYS** update this file when depl
   - ✅ Converted from non-upgradeable to UUPS proxy pattern
   - ✅ Initialized with new CellarHook proxy address
   - ✅ Frontend addresses updated automatically
+=======
+- **Proxy Address**: `0x0A773ACfb23f2d6CC919235c134625bAF515c6F8`
+- **Implementation Address**: `0x9A0502c275c807F1B695Ce0266DEabE42b695448`
+- **Network**: Monad Testnet
+- **Deployment Date**: 2025-01-XX
+- **Deployment TX**: See deployment output
+- **Notes**: Successfully deployed as UUPS proxy. Mints KeepToken to office holders.
+>>>>>>> d9c80166f06c3f6075f2ba2e63c2d068690df2ca
 
 ---
 
@@ -164,6 +198,7 @@ This file tracks all contract deployments. **ALWAYS** update this file when depl
 
 | Contract | Type | Address | Deployed | TX Hash | Notes |
 |----------|------|---------|----------|---------|-------|
+<<<<<<< HEAD
 | ERC6551Registry | Direct | `0xF53245E95FAc1286b42Fd2231018fd8e62c4B126` | ✅ 2025-01-XX | See output | |
 | ERC6551Account | Direct | `0x13400f8A9E3Cc2b973538acB6527E3425D2AaF6c` | ✅ 2025-01-XX | See output | |
 | KeepToken | Proxy | `0x1d00b6Dbb2f141cf6A8c1bCf70324ec1907E82B1` | ✅ 2025-12-01 | See output | **USE THIS** |
@@ -180,6 +215,20 @@ This file tracks all contract deployments. **ALWAYS** update this file when depl
 | CellarZapV4 | Proxy | `0xEb2e080453f70637E29C0D78158Ef88B3b20548c` | ✅ 2025-12-01 | See output | **USE THIS** - UUPS Proxy (v2.0.0) |
 | CellarZapV4 | Impl | `0x3c25cCAfDb2448bB5Dc33818b37c3ECD8c10AfC3` | ✅ 2025-12-01 | See output | v2.0.0 - UUPS upgradeable |
 | PoolManager | Contract | `0xa0b790f6A9397c3Fa981CA4443b16C59A920a9da` | ✅ 2025-12-01 | See output | **USE THIS** |
+=======
+| ERC6551Registry | Direct | `0xE8D519d1C3972Fb8833262333D3152739f9e960b` | ✅ 2025-01-XX | See output | |
+| ERC6551Account | Direct | `0x0C829384eDb3E2A79Af1405aE6A43A0292e30548` | ✅ 2025-01-XX | See output | |
+| KeepToken | Proxy | `0x53f7C41787bc45700F2450CAC956F5649f3d986A` | ✅ 2025-01-XX | See output | **USE THIS** |
+| KeepToken | Impl | `0x5EA8Edb99E9a070c8f4358e0904b7cE63e7d5866` | ✅ 2025-01-XX | See output | |
+| Inventory | Proxy | `0xE75948afaAc46E3C456C1023d4c7F00392a92344` | ✅ 2025-01-XX | See output | **USE THIS** |
+| Inventory | Impl | `0xc03bC9D0BD59b98535aEBD2102221AeD87c820A6` | ✅ 2025-01-XX | See output | |
+| Adventurer | Proxy | `0x3F7BBD9373AF9eDdB6b170FFc86479bEaE548407` | ✅ 2025-01-XX | See output | **USE THIS** |
+| Adventurer | Impl | `0x582bDC81df3c6c78B85D9409987Ab9885A24A2f6` | ✅ 2025-01-XX | See output | |
+| TavernKeeper | Proxy | `0x0A773ACfb23f2d6CC919235c134625bAF515c6F8` | ✅ 2025-01-XX | See output | **USE THIS** |
+| TavernKeeper | Impl | `0xb35B41522abb7ff2318772dce24BbE37a5734Ad9` | ✅ 2025-01-XX | See output | Upgraded to V2.2 (Fee Split + Cellar) |
+| The Cellar | Contract | `0x93A9Ee179171b4C6EDB6ecCCFC34a2d0BF66EAAB` | ✅ 2025-01-XX | See output | Treasury / Second Dutch Auction |
+| Mock LP | Contract | `0xC15694058429884Fd97a668cd84a515d407Af8fF` | ✅ 2025-01-XX | See output | Mock KEEP-MON LP |
+>>>>>>> d9c80166f06c3f6075f2ba2e63c2d068690df2ca
 
 ### Monad Mainnet
 
@@ -222,6 +271,7 @@ This file tracks all contract deployments. **ALWAYS** update this file when depl
 ### TavernKeeper
 - **v1.0.0** - `TBD` - Initial deployment
 - **v2.0.0** - `0x5B7d11a5b4EF317c0A3332F9E1452Ad9d790B833` - Ported Donut Miner mechanics (Dutch Auction, Halving)
+<<<<<<< HEAD
 - **v4.0.0** - `0x10ee72aB13747447FE62CE07e2f1fc3d40114Ee7` - Signature-based pricing (USD-based, no hardcoded MON prices)
   - Added `signer` address for price verification
   - Added `nonces` mapping for replay protection
@@ -252,6 +302,8 @@ This file tracks all contract deployments. **ALWAYS** update this file when depl
   - ✅ Initialized with new CellarHook proxy address
   - **Proxy Address**: `0xEb2e080453f70637E29C0D78158Ef88B3b20548c`
   - **Deployment Date**: 2025-12-01
+=======
+>>>>>>> d9c80166f06c3f6075f2ba2e63c2d068690df2ca
 
 ---
 
@@ -345,6 +397,7 @@ NEXT_PUBLIC_FEE_RECIPIENT_ADDRESS=0x...
 
 ## Last Updated
 
+<<<<<<< HEAD
 - **Date**: 2025-12-01
 - **Updated By**: UUPS Conversion Deployment
 - **Reason**: Completed UUPS conversion for CellarHook and CellarZapV4
@@ -362,4 +415,9 @@ NEXT_PUBLIC_FEE_RECIPIENT_ADDRESS=0x...
     - ✅ Implementation: `0x3c25cCAfDb2448bB5Dc33818b37c3ECD8c10AfC3`
   - ✅ Frontend addresses updated automatically
   - ✅ All contracts now upgradeable via UUPS proxy pattern
+=======
+- **Date**: 2025-01-XX
+- **Updated By**: Deployment Script
+- **Reason**: Latest deployment to Monad Testnet - All contracts deployed as UUPS proxies with KeepToken integration
+>>>>>>> d9c80166f06c3f6075f2ba2e63c2d068690df2ca
 
