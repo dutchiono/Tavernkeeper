@@ -2,7 +2,43 @@
 /**
  * Environment Variable Validator
  * Checks for required environment variables and reports missing ones
+ * Also checks for .env file in Render secret files location
  */
+
+import * as fs from 'fs';
+import * as path from 'path';
+
+// Load .env file if it exists (Render Secret Files)
+function loadEnvFile(): void {
+  const envPaths = [
+    '/etc/secrets/.env', // Render secret files location
+    path.join(process.cwd(), '.env'), // App root
+    path.join(__dirname, '../.env'), // Script relative
+  ];
+
+  for (const envPath of envPaths) {
+    if (fs.existsSync(envPath)) {
+      console.log(`📄 Found .env file at: ${envPath}`);
+      const content = fs.readFileSync(envPath, 'utf8');
+      const lines = content.split('\n');
+
+      for (const line of lines) {
+        const trimmed = line.trim();
+        if (trimmed && !trimmed.startsWith('#') && trimmed.includes('=')) {
+          const [key, ...valueParts] = trimmed.split('=');
+          const value = valueParts.join('=').trim();
+          if (key && value && !process.env[key]) {
+            process.env[key] = value;
+          }
+        }
+      }
+      break;
+    }
+  }
+}
+
+// Load .env file before validation
+loadEnvFile();
 
 const requiredEnvVars: Record<string, string[]> = {
   web: [
