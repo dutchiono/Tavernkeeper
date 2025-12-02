@@ -50,6 +50,17 @@ function loadEnvFile(): void {
 // Load .env file before validation
 loadEnvFile();
 
+// Helper function to check if any of the alternative env var names exist
+function hasAnyEnvVar(alternatives: string[]): { found: boolean; name: string; value: string } {
+  for (const varName of alternatives) {
+    const value = process.env[varName];
+    if (value && value.trim() !== '') {
+      return { found: true, name: varName, value };
+    }
+  }
+  return { found: false, name: alternatives[0], value: '' };
+}
+
 const requiredEnvVars: Record<string, string[]> = {
   web: [
     'DATABASE_URL',
@@ -60,15 +71,19 @@ const requiredEnvVars: Record<string, string[]> = {
     'NEXT_PUBLIC_USE_LOCALHOST',
     'NEXT_PUBLIC_MONAD_CHAIN_ID',
     'NEXT_PUBLIC_MONAD_RPC_URL',
-    'NEXT_PUBLIC_SUPABASE_URL',
-    'NEXT_PUBLIC_SUPABASE_ANON_KEY',
+    // Supabase URL - accepts multiple alternatives
+    'SUPABASE_URL_OR_PROJECT_URL',
+    // Supabase Key - accepts multiple alternatives
+    'SUPABASE_ANON_KEY_OR_API_KEY',
   ],
   worker: [
     'DATABASE_URL',
     'REDIS_URL',
     'OPENAI_API_KEY',
-    'NEXT_PUBLIC_SUPABASE_URL',
-    'NEXT_PUBLIC_SUPABASE_ANON_KEY',
+    // Supabase URL - accepts multiple alternatives
+    'SUPABASE_URL_OR_PROJECT_URL',
+    // Supabase Key - accepts multiple alternatives
+    'SUPABASE_ANON_KEY_OR_API_KEY',
   ],
   'discord-bot': [
     'DISCORD_BOT_TOKEN',
@@ -110,6 +125,46 @@ function validateEnv(service: 'web' | 'worker' | 'discord-bot'): boolean {
 
   // Check required vars
   for (const varName of required) {
+    // Special handling for Supabase variables that accept alternatives
+    if (varName === 'SUPABASE_URL_OR_PROJECT_URL') {
+      const alternatives = [
+        'NEXT_PUBLIC_SUPABASE_URL',
+        'SUPABASE_URL',
+        'SUPABASE_PROJECT_URL',
+        'NEXT_PUBLIC_SUPABASE_PROJECT_URL',
+      ];
+      const result = hasAnyEnvVar(alternatives);
+      if (!result.found) {
+        missing.push('SUPABASE_URL (or any alternative)');
+        console.log(`❌ MISSING (REQUIRED): SUPABASE_URL (checked: ${alternatives.join(', ')})`);
+      } else {
+        present.push(result.name);
+        const masked = result.value.substring(0, 20) + '...';
+        console.log(`✅ ${result.name}=${masked}`);
+      }
+      continue;
+    }
+
+    if (varName === 'SUPABASE_ANON_KEY_OR_API_KEY') {
+      const alternatives = [
+        'NEXT_PUBLIC_SUPABASE_ANON_KEY',
+        'SUPABASE_ANON_KEY',
+        'SUPABASE_API_KEY',
+        'NEXT_PUBLIC_SUPABASE_KEY',
+        'NEXT_PUBLIC_SUPABASE_API_KEY',
+      ];
+      const result = hasAnyEnvVar(alternatives);
+      if (!result.found) {
+        missing.push('SUPABASE_ANON_KEY (or any alternative)');
+        console.log(`❌ MISSING (REQUIRED): SUPABASE_ANON_KEY (checked: ${alternatives.join(', ')})`);
+      } else {
+        present.push(result.name);
+        const masked = result.value.substring(0, 4) + '...' + result.value.substring(result.value.length - 4);
+        console.log(`✅ ${result.name}=${masked}`);
+      }
+      continue;
+    }
+
     const value = process.env[varName];
     if (!value || value.trim() === '') {
       missing.push(varName);
