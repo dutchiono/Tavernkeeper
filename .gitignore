@@ -113,6 +113,7 @@ lerna-debug.log*
 *.tsbuildinfo
 .cache/
 *.lock
+!pnpm-lock.yaml
 .pnpm-store/
 
 # Build outputs

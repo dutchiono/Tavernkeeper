@@ -19,8 +19,8 @@ async function main() {
 
     // Get addresses from environment variables
     const deployerAddress = process.env.DEPLOYER_ADDRESS || deployer.address;
-    const feeRecipientAddress = process.env.FEE_RECIPIENT_ADDRESS || deployerAddress;
-    const treasuryAddress = process.env.TREASURY_ADDRESS || deployerAddress;
+    const feeRecipientAddress = process.env.FEE_RECIPIENT_ADDRESS || process.env.NEXT_PUBLIC_FEE_RECIPIENT_ADDRESS || deployerAddress;
+    const treasuryAddress = process.env.TREASURY_ADDRESS || process.env.NEXT_PUBLIC_TREASURY_ADDRESS || deployerAddress;
     const pricingSignerAddress = process.env.NEXT_PUBLIC_PRICING_SIGNER_ADDRESS || deployerAddress;
 
     console.log("\n--- Address Configuration ---");
