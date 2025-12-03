@@ -1,4 +1,4 @@
-=== DEPLOYING TO MONAD ===
+gi=== DEPLOYING TO MONAD ===
 Deployer: 0xD515674a7fE63dFDfd43Fb5647E8B04eEfCEdCAa
 
 --- Address Configuration ---

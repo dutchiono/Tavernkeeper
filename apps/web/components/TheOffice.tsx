@@ -5,6 +5,7 @@ import React, { useEffect, useState } from 'react';
 import { createPublicClient, createWalletClient, custom, http } from 'viem';
 import { monad } from '../lib/chains';
 import { OfficeState, tavernKeeperService } from '../lib/services/tavernKeeperService';
+import { theCellarService } from '../lib/services/theCellarService';
 import { useGameStore } from '../lib/stores/gameStore';
 import { GameView } from '../lib/types';
 import { TheOfficeView } from './TheOfficeView';
@@ -48,10 +49,11 @@ export const TheOffice: React.FC<{ children?: React.ReactNode }> = ({ children }
 
     const [interpolatedState, setInterpolatedState] = useState<OfficeState>(state);
     const [pnl, setPnl] = useState<string>('$0.00');
+    const [refreshKey, setRefreshKey] = useState<number>(0);
 
     // Fetch Office State
-    const fetchOfficeState = async () => {
-        const data = await tavernKeeperService.getOfficeState();
+    const fetchOfficeState = async (forceRefresh = false) => {
+        const data = await tavernKeeperService.getOfficeState(forceRefresh);
 
         // Prevent flashing: If we have valid data and the new data is an error/offline state,
         // ignore the update to keep the UI stable.
@@ -186,8 +188,37 @@ export const TheOffice: React.FC<{ children?: React.ReactNode }> = ({ children }
             const hash = await tavernKeeperService.takeOffice(client, '0', clientAddress);
             console.log('Transaction sent:', hash);
             alert('Transaction sent! Waiting for confirmation...');
-            // Refresh office state after transaction
-            setTimeout(() => fetchOfficeState(), 2000);
+
+            // Wait for transaction confirmation
+            try {
+                const publicClient = createPublicClient({
+                    chain: monad,
+                    transport: http(),
+                });
+                await publicClient.waitForTransactionReceipt({ hash });
+                console.log('Transaction confirmed!');
+
+                // Clear caches and force refresh both states
+                theCellarService.clearCache();
+                tavernKeeperService._cache.data = null;
+                tavernKeeperService._cache.timestamp = 0;
+
+                // Force refresh office state
+                await fetchOfficeState(true);
+
+                // Trigger cellar refresh in TheOfficeView
+                setRefreshKey(prev => prev + 1);
+            } catch (waitError) {
+                console.error('Error waiting for transaction:', waitError);
+                // Still refresh after delay if wait fails
+                setTimeout(async () => {
+                    theCellarService.clearCache();
+                    tavernKeeperService._cache.data = null;
+                    tavernKeeperService._cache.timestamp = 0;
+                    await fetchOfficeState(true);
+                    setRefreshKey(prev => prev + 1);
+                }, 5000);
+            }
         } catch (error) {
             console.error('Failed to take office:', error);
             const errorMessage = error instanceof Error ? error.message : 'Unknown error';
@@ -240,6 +271,7 @@ export const TheOffice: React.FC<{ children?: React.ReactNode }> = ({ children }
             onViewSwitch={setViewMode}
             monBalance={monBalance}
             onClaim={handleClaim}
+            refreshKey={refreshKey}
         >
             {children}
         </TheOfficeView>

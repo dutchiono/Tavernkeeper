@@ -27,6 +27,7 @@ interface TheOfficeViewProps {
     monBalance?: string;
     onClaim?: () => void;
     onViewSwitch?: (mode: 'office' | 'cellar') => void;
+    refreshKey?: number; // Key to trigger refresh when changed
 }
 
 export const TheOfficeView: React.FC<TheOfficeViewProps> = ({
@@ -46,6 +47,7 @@ export const TheOfficeView: React.FC<TheOfficeViewProps> = ({
     monBalance = '0',
     onClaim,
     onViewSwitch,
+    refreshKey,
 }) => {
     const [mounted, setMounted] = React.useState(false);
     const [cellarState, setCellarState] = React.useState<CellarState | null>(propCellarState || null);
@@ -55,8 +57,11 @@ export const TheOfficeView: React.FC<TheOfficeViewProps> = ({
     React.useEffect(() => {
         setMounted(true);
 
-        const fetchCellar = async () => {
+        const fetchCellar = async (forceRefresh = false) => {
             try {
+                if (forceRefresh) {
+                    theCellarService.clearCache();
+                }
                 const data = await theCellarService.getCellarState();
                 setCellarState(data);
             } catch (e) {
@@ -65,9 +70,25 @@ export const TheOfficeView: React.FC<TheOfficeViewProps> = ({
         };
 
         fetchCellar();
-        const interval = setInterval(fetchCellar, 5000);
+        const interval = setInterval(() => fetchCellar(false), 5000);
         return () => clearInterval(interval);
     }, []);
+
+    // Refresh cellar when refreshKey changes
+    React.useEffect(() => {
+        if (refreshKey !== undefined && refreshKey > 0) {
+            const fetchCellar = async () => {
+                try {
+                    theCellarService.clearCache();
+                    const data = await theCellarService.getCellarState();
+                    setCellarState(data);
+                } catch (e) {
+                    console.error("Failed to refresh cellar", e);
+                }
+            };
+            fetchCellar();
+        }
+    }, [refreshKey]);
 
     // Fetch MON price periodically
     useEffect(() => {

@@ -2,6 +2,7 @@
 
 import { Send } from 'lucide-react';
 import React, { useEffect, useRef, useState } from 'react';
+import { chatWithAgent } from '../app/actions/aiActions';
 import { useGameStore } from '../lib/stores/gameStore';
 import { PixelButton } from './PixelComponents';
 
@@ -34,7 +35,7 @@ export const ChatOverlay: React.FC = () => {
 
         // AI Response Logic
         try {
-            // Mock TavernKeeper Agent
+            // TavernKeeper Agent
             const tavernKeeper = {
                 id: 'tavern-keeper',
                 name: 'TavernKeeper',
@@ -54,15 +55,10 @@ export const ChatOverlay: React.FC = () => {
                 timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
             });
 
-            // Simulate network delay
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            // Call actual AI function
+            const response = await chatWithAgent(tavernKeeper as any, userMessage);
 
-            // Mock response since aiActions is removed
-            const response = "I'm just a simple tavern keeper right now. The spirits aren't speaking to me yet.";
-
-            // Remove thinking log and add real response (in a real app we'd update the log, here we just add new one)
-            // Actually, let's just add the new one. The "..." will stay as a "thinking" indicator or we can remove it.
-            // For simplicity, let's just add the response.
+            // Remove thinking log and add real response
             useGameStore.getState().addLog({
                 id: Date.now() + 2,
                 message: response,
@@ -81,10 +77,6 @@ export const ChatOverlay: React.FC = () => {
             });
         }
     };
-
-    // Filter logs to only show chat-relevant ones if needed, or show all
-    // For now, we show all logs but style them differently
-    const chatLogs = [...logs].reverse(); // logs are stored new-to-old, so reverse for display
 
     return (
         <div className="w-full h-full flex flex-col bg-[#1a120b]/80 backdrop-blur-sm rounded-lg border-2 border-[#4a3b32] shadow-xl overflow-hidden relative">
