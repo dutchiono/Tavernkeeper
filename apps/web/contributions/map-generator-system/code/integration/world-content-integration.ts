@@ -75,7 +75,7 @@ export class WorldContentIntegration {
    */
   createWorldContentForEntity(entity: EntityData): WorldContentEntry {
     const worldContentId = entity.worldContentId || `worldcontent-${entity.entityId}`;
-    
+
     const entry: WorldContentEntry = {
       id: worldContentId,
       type: this.mapEntityTypeToWorldContentType(entity.type),
@@ -99,7 +99,7 @@ export class WorldContentIntegration {
    */
   createProvenanceForEntity(entity: EntityData): ProvenanceEntry {
     const worldContentId = entity.worldContentId || `worldcontent-${entity.entityId}`;
-    
+
     const provenanceEntry: ProvenanceEntry = {
       contentId: worldContentId,
       originId: entity.originId || null,
@@ -128,7 +128,7 @@ export class WorldContentIntegration {
    */
   createLoreForEntity(entity: EntityData): LoreEntry {
     const worldContentId = entity.worldContentId || `worldcontent-${entity.entityId}`;
-    
+
     const story = this.generateStory(entity);
     const significance = this.generateSignificance(entity);
     const connections = this.generateConnections(entity);
@@ -234,10 +234,10 @@ export class WorldContentIntegration {
   }
 
   private generateStory(entity: EntityData): string {
-    const creator = entity.creatorId 
-      ? this.entityRegistry.getEntity(entity.creatorId)?.name 
+    const creator = entity.creatorId
+      ? (this.entityRegistry.getEntity(entity.creatorId)?.name ?? null)
       : null;
-    
+
     const stories: Record<string, (entity: EntityData, creator: string | null) => string> = {
       'primordial': (e) => `${e.name} is one of the fundamental forces of existence, existing before all else.`,
       'cosmic_creator': (e, c) => `${e.name} was ${c ? `formed from ${c}` : 'created'} and began shaping the physical world.`,
