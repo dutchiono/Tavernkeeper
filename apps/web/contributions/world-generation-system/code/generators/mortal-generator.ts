@@ -9,8 +9,8 @@ import type { MortalRace, GenerationContext } from '../types/world-generation';
 
 export class MortalGenerator {
   async generate(
-    context: GenerationContext,
-    customRaces?: string[]
+    _context: GenerationContext,
+    _customRaces?: string[]
   ): Promise<MortalRace[]> {
     // Stub implementation - would generate mortal races
     // based on cosmic creators and geography

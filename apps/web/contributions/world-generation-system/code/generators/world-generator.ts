@@ -86,10 +86,7 @@ export class WorldGenerator {
 
     // Level 2: Cosmic Creators
     if (levels.includes(2)) {
-      context.cosmicCreators = await this.cosmicGenerator.generate(
-        context,
-        config.customRaces
-      );
+      context.cosmicCreators = await this.cosmicGenerator.generate(context);
     }
 
     // Level 2.5: Geography

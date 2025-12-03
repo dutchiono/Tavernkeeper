@@ -8,7 +8,7 @@
 import type { FamilyMember, FamilyLineage, GenerationContext } from '../types/world-generation';
 
 export class LineageGenerator {
-  async generate(context: GenerationContext): Promise<{
+  async generate(_context: GenerationContext): Promise<{
     members: FamilyMember[];
     lineages: FamilyLineage[];
   }> {

@@ -17,7 +17,7 @@ export class PrimordialGenerator {
    * Generate primordial beings
    */
   async generate(
-    context: GenerationContext,
+    _context: GenerationContext,
     customTypes?: PrimordialType[]
   ): Promise<PrimordialBeing[]> {
     const types: PrimordialType[] = customTypes || [

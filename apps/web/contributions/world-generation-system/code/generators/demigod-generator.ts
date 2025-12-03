@@ -8,7 +8,7 @@
 import type { DemiGod, GenerationContext } from '../types/world-generation';
 
 export class DemiGodGenerator {
-  async generate(context: GenerationContext): Promise<DemiGod[]> {
+  async generate(_context: GenerationContext): Promise<DemiGod[]> {
     // Stub implementation - would generate demi-gods
     // based on primordials, cosmic creators, and conceptual beings
     return [];

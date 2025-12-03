@@ -8,7 +8,7 @@
 import type { StandoutMortal, GenerationContext } from '../types/world-generation';
 
 export class StandoutGenerator {
-  async generate(context: GenerationContext): Promise<StandoutMortal[]> {
+  async generate(_context: GenerationContext): Promise<StandoutMortal[]> {
     // Stub implementation - would generate standout mortals
     // based on organizations and races
     return [];

@@ -9,7 +9,7 @@ import type { ConceptualBeing, GenerationContext } from '../types/world-generati
 import { NameTemplates, generateName } from '../templates/world-templates';
 
 export class ConceptualGenerator {
-  async generate(context: GenerationContext): Promise<ConceptualBeing[]> {
+  async generate(_context: GenerationContext): Promise<ConceptualBeing[]> {
     // Stub implementation - would generate conceptual beings
     // based on mortal worship patterns
     return [];
