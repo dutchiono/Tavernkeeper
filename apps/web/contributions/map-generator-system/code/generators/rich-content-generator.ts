@@ -283,7 +283,7 @@ export class RichContentGenerator {
 
     // Generate main boss (at deepest level)
     const mainBoss = this.generateBoss(dungeon.maxDepth, dungeon.seed, 'main', rng);
-    
+
     // Generate mid-bosses (at levels 25, 50, 75)
     const midBosses: RichDungeonContent['midBosses'] = [];
     const midBossLevels = [25, 50, 75].filter(level => level < dungeon.maxDepth);
@@ -336,11 +336,11 @@ export class RichContentGenerator {
     seed: string,
     type: 'main' | 'mid',
     rng: () => number
-  ): RichDungeonContent['mainBoss'] {
+  ): NonNullable<RichDungeonContent['mainBoss']> {
     const bossSeed = `${seed}-boss-${level}-${type}`;
     const bossRNG = this.createRNG(bossSeed);
 
-    const bossTypes = type === 'main' 
+    const bossTypes = type === 'main'
       ? ['Lich', 'Ancient Dragon', 'Demon Lord', 'Vampire Lord', 'Dark Archmage']
       : ['Orc Warlord', 'Troll Chieftain', 'Dark Knight', 'Necromancer', 'Giant Spider Queen'];
 
