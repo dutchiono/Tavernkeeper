@@ -1,0 +1,151 @@
+# ERC-6551 Token Bound Accounts
+
+ERC-6551 (Token Bound Accounts) allows NFTs to have their own smart contract wallets. In InnKeeper, each hero has a TBA that can hold items, tokens, and other assets.
+
+## Overview
+
+- **Standard**: ERC-6551
+- **Purpose**: Give NFTs their own wallets
+- **Implementation**: CREATE2 deterministic addresses
+- **Network**: Monad Testnet
+
+## What is ERC-6551?
+
+Token Bound Accounts (TBAs) are smart contract wallets controlled by NFTs:
+- Each NFT can have one or more TBAs
+- TBAs have deterministic addresses (via CREATE2)
+- NFTs control their TBAs (owner = NFT owner)
+- TBAs can hold any ERC-20, ERC-721, ERC-1155 tokens
+
+## How It Works
+
+### Registry
+
+The `ERC6551Registry` contract:
+- Creates TBA accounts on-demand
+- Uses CREATE2 for deterministic addresses
+- Maps NFTs to their account addresses
+
+### Account Implementation
+
+The `ERC6551Account` contract:
+- Standard wallet implementation
+- Executes transactions on behalf of NFT
+- Controlled by NFT owner
+- Can hold assets
+
+### Deterministic Addresses
+
+TBA addresses are computed deterministically:
+```
+address = CREATE2(
+    registry,
+    salt,
+    chainId,
+    nftContract,
+    tokenId
+)
+```
+
+This means:
+- Address is known before deployment
+- Can send assets before TBA exists
+- TBA created lazily when needed
+
+## In InnKeeper
+
+### Hero TBAs
+
+Each Adventurer hero has a TBA:
+- Computed when hero is minted
+- Can hold items (ERC-1155)
+- Can hold KEEP tokens (ERC-20)
+- Controlled by hero owner
+
+### Use Cases
+
+1. **Item Ownership**: Items can be "owned" by heroes
+2. **Loot Distribution**: Loot goes directly to hero's TBA
+3. **Roleplay**: Heroes have their own wallets
+4. **Trading**: Trade heroes with their items
+
+## Functions
+
+### Registry Functions
+
+#### `createAccount(address implementation, bytes32 salt, uint256 chainId, address tokenContract, uint256 tokenId)`
+Create a TBA for an NFT.
+
+**Returns:** `account` - The TBA address
+
+#### `account(address implementation, bytes32 salt, uint256 chainId, address tokenContract, uint256 tokenId)`
+Compute TBA address without creating it.
+
+**Returns:** `account` - The deterministic address
+
+### Account Functions
+
+TBA accounts support standard wallet operations:
+- `execute(address to, uint256 value, bytes data)` - Execute transactions
+- `receive()` - Receive native tokens
+- Standard ERC-165 interface detection
+
+## Integration
+
+### Computing TBA Address
+
+```typescript
+const tbaAddress = await registry.account(
+    accountImplementation,
+    salt, // Usually bytes32(0) for main account
+    chainId,
+    adventurerContract,
+    heroTokenId
+);
+```
+
+### Creating TBA
+
+```typescript
+await registry.createAccount(
+    accountImplementation,
+    salt,
+    chainId,
+    adventurerContract,
+    heroTokenId
+);
+```
+
+### Sending Assets to TBA
+
+You can send assets to TBA address even before it's created:
+```typescript
+// TBA will be created automatically when first used
+await inventory.safeTransferFrom(
+    playerAddress,
+    tbaAddress,
+    itemId,
+    amount,
+    "0x"
+);
+```
+
+## Security
+
+- Only NFT owner can control TBA
+- Deterministic addresses prevent address collisions
+- Standard wallet security practices
+- CREATE2 ensures consistent addresses
+
+## Benefits
+
+1. **Immersive**: Heroes own their items
+2. **Trading**: Trade heroes with equipment
+3. **Organization**: Clear asset ownership
+4. **Composability**: Works with all ERC standards
+
+## See Also
+
+- [Adventurer Contract](/docs/contracts/adventurer)
+- [Inventory Contract](/docs/contracts/inventory)
+- [Game Mechanics: Heroes](/docs/game-mechanics/heroes)

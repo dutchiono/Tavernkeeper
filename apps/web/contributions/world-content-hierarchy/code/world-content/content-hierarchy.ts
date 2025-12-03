@@ -75,8 +75,8 @@ export class ContentHierarchy {
     }
 
     if (
-      relationship === 'located_in' &&
-      (sourceType === 'dungeon' || sourceType === 'room' || sourceType === 'encounter')
+      (relationship === 'located_in' || relationship === 'dwells_in') &&
+      (sourceType === 'dungeon' || sourceType === 'room' || sourceType === 'encounter' || sourceType === 'boss')
     ) {
       return 'strong';
     }
@@ -121,6 +121,8 @@ export class ContentHierarchy {
       influenced_by: `was influenced by`,
       conflicts_with: `conflicts with`,
       allied_with: `is allied with`,
+      dwells_in: `dwells in`,
+      found_in: `was found in`,
     };
 
     return `${sourceType} ${descriptions[relationship]} ${targetType}`;

@@ -1,0 +1,134 @@
+# API Reference
+
+InnKeeper provides REST API endpoints for interacting with the game, contracts, and services. All endpoints are available at `/api/*`.
+
+## Base URL
+
+- **Development**: `http://localhost:3000/api`
+- **Production**: `https://yourdomain.com/api`
+
+## Authentication
+
+Most endpoints require authentication:
+- Wallet connection via Web3
+- Farcaster authentication for miniapp
+- Session-based auth for web app
+
+## Endpoints
+
+### Heroes
+
+- `GET /api/heroes` - List heroes
+- `GET /api/heroes/owned` - Get user's heroes
+- `GET /api/heroes/[tokenId]` - Get hero details
+- `GET /api/heroes/[tokenId]/metadata` - Get hero metadata
+- `POST /api/heroes/mint` - Mint a new hero
+- `POST /api/heroes/builder/preview` - Preview hero builder
+
+### Parties
+
+- `GET /api/parties` - List parties
+- `POST /api/parties` - Create a party
+- `GET /api/parties/[id]` - Get party details
+- `POST /api/parties/[id]/join` - Join a party
+- `POST /api/parties/[id]/leave` - Leave a party
+- `POST /api/parties/[id]/start` - Start a dungeon run
+- `GET /api/parties/[id]/status` - Get party status
+- `POST /api/parties/invite/[code]` - Join via invite code
+
+### Dungeon Runs
+
+- `GET /api/runs` - List runs
+- `GET /api/runs/[id]` - Get run details
+- `GET /api/runs/[id]/events` - Get run events
+- `GET /api/dungeons/[id]/map` - Get dungeon map
+
+### Inventory
+
+- `POST /api/inventory/unequip` - Unequip an item
+
+### Loot
+
+- `POST /api/loot/claim` - Claim loot from a run
+
+### Marketplace
+
+- `GET /api/marketplace/listings` - List marketplace items
+- `POST /api/marketplace/list` - List an item
+- `POST /api/marketplace/buy` - Buy an item
+
+### Pricing
+
+- `POST /api/pricing/sign` - Get signed price for minting
+
+### Agents
+
+- `POST /api/agents/[id]/converse` - Converse with an agent
+- `POST /api/agents/[id]/action` - Get agent action
+
+### Notifications
+
+- `GET /api/notifications` - Get user notifications
+
+## Response Format
+
+### Success Response
+
+```json
+{
+  "success": true,
+  "data": { ... }
+}
+```
+
+### Error Response
+
+```json
+{
+  "success": false,
+  "error": "Error message"
+}
+```
+
+## Rate Limiting
+
+API endpoints may be rate-limited:
+- Standard endpoints: 100 requests/minute
+- Minting endpoints: 10 requests/minute
+- Agent endpoints: 30 requests/minute
+
+## Examples
+
+### Mint a Hero
+
+```typescript
+const response = await fetch('/api/heroes/mint', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    metadataUri: 'ipfs://...',
+    signature: '0x...',
+    amount: '1000000000000000000',
+    deadline: 1234567890
+  })
+});
+```
+
+### Create a Party
+
+```typescript
+const response = await fetch('/api/parties', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    ownerId: 'user-id',
+    dungeonId: 'dungeon-1'
+  })
+});
+```
+
+## See Also
+
+- [Game Mechanics](/docs/game-mechanics/overview)
+- [Smart Contracts](/docs/contracts/overview)
+- [Getting Started](/docs/getting-started/overview)

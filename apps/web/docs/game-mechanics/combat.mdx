@@ -1,0 +1,146 @@
+
+# Combat System
+
+InnKeeper features a turn-based combat system with initiative, attacks, damage calculation, and skill checks. All combat is deterministic based on the dungeon seed.
+
+## Turn-Based Combat
+
+### Initiative
+At the start of combat:
+- All participants roll for initiative
+- Initiative = d20 + DEX modifier
+- Higher initiative acts first
+- Turn order is determined
+
+### Turn Structure
+Each turn consists of:
+1. **Action**: Hero or monster chooses an action
+2. **Resolution**: Action is resolved deterministically
+3. **Effects**: Damage, status effects, etc. are applied
+4. **Next Turn**: Next participant acts
+
+## Actions
+
+### Attack
+- Make a melee or ranged attack
+- Roll to hit: d20 + attack modifier vs. AC
+- On hit: Roll damage dice
+- Damage = base damage + modifiers
+
+### Defend
+- Take a defensive stance
+- Gain AC bonus
+- Reduce incoming damage
+- May grant other defensive benefits
+
+### Use Item
+- Use a consumable item
+- Cast a spell from a scroll
+- Apply a potion or buff
+- Items have various effects
+
+### Skill Check
+- Attempt a skill-based action
+- Roll: d20 + relevant attribute modifier
+- Success based on difficulty (DC)
+- Examples: lockpicking, perception, persuasion
+
+## Damage Calculation
+
+### Base Damage
+- Weapons have base damage dice
+- Roll dice for damage
+- Add strength modifier (melee) or dexterity modifier (ranged)
+
+### Modifiers
+Damage can be modified by:
+- Attribute modifiers (STR/DEX)
+- Weapon bonuses
+- Equipment bonuses
+- Status effects
+- Critical hits
+
+### Critical Hits
+- Natural 20 on attack roll = critical hit
+- Damage is doubled or maximized
+- Additional effects may apply
+
+## Armor Class (AC)
+
+### Calculation
+AC = 10 + DEX modifier + armor bonus + shield bonus
+
+### Defense
+- Higher AC = harder to hit
+- Attacks must beat AC to hit
+- AC can be improved with equipment
+
+## Hit Points (HP)
+
+### Maximum HP
+HP = base HP + (CON modifier × level)
+
+### Damage
+- When HP reaches 0, hero is defeated
+- Negative HP may cause death (future)
+- Healing restores HP
+
+## Status Effects
+
+### Buffs
+- Temporary stat increases
+- Damage bonuses
+- AC bonuses
+- Special abilities
+
+### Debuffs
+- Temporary stat decreases
+- Damage penalties
+- AC penalties
+- Movement restrictions
+
+## Combat Flow
+
+### Encounter Start
+1. Initiative is rolled
+2. Turn order is determined
+3. Combat begins
+
+### During Combat
+1. Each participant takes their turn
+2. Actions are resolved
+3. Effects are applied
+4. Combat continues until one side is defeated
+
+### Encounter End
+- Victory: All enemies defeated
+- Defeat: All heroes defeated
+- Retreat: Party leaves combat (if possible)
+
+## Party Combat
+
+### Coordination
+- Heroes can coordinate attacks
+- Focus fire on specific targets
+- Support each other with buffs/healing
+- Protect weaker party members
+
+### Strategy
+- Tank absorbs damage
+- DPS deals damage
+- Support provides buffs/healing
+- Utility handles special situations
+
+## Deterministic Nature
+
+All combat is deterministic:
+- Same seed = same results
+- Dice rolls are seeded
+- No randomness in outcomes
+- Results are reproducible
+
+## Next Steps
+
+- [Learn About Items](/docs/game-mechanics/items-loot) - Weapons and armor
+- [Explore Dungeon Runs](/docs/game-mechanics/dungeon-runs) - Combat in context
+- [Read About Heroes](/docs/game-mechanics/heroes) - Hero attributes and combat

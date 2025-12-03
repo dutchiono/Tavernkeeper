@@ -3,6 +3,7 @@ import type {
   WorldContentQuery,
   ProvenanceChain,
   Lore,
+  ContentConnection,
 } from '../types/world-content';
 import { WorldManager } from '../world-content/world-manager';
 
@@ -200,12 +201,7 @@ export class WorldContentService {
       actors: string[];
       relatedContentIds: string[];
     }>,
-    newConnections: Array<{
-      targetId: string;
-      relationship: string;
-      strength: 'weak' | 'moderate' | 'strong';
-      description: string;
-    }>
+    newConnections: ContentConnection[]
   ): Promise<Lore | null> {
     return this.worldManager.enrichLore(
       contentId,

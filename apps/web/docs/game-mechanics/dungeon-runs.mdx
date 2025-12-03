@@ -1,0 +1,134 @@
+# Dungeon Runs
+
+Dungeon runs are deterministic adventures where parties explore procedurally generated dungeons, battle monsters, and complete objectives. All runs use seeded RNG for reproducibility and fairness.
+
+## What is a Dungeon Run?
+
+A dungeon run is a deterministic adventure where:
+- Your party explores a procedurally generated dungeon
+- Heroes make autonomous decisions via AI agents
+- Combat is turn-based with initiative
+- Objectives must be completed to win
+- Results are deterministic based on the seed
+
+## Deterministic Engine
+
+### Seeded RNG
+All dungeon runs use a deterministic random number generator with a seed:
+- Same seed = same results
+- Runs are reproducible
+- Fair and verifiable
+- No server-side manipulation possible
+
+### Seed Generation
+Seeds are generated from:
+- Party composition
+- Timestamp
+- Dungeon ID
+- Random component
+
+## Dungeon Structure
+
+### Levels
+Dungeons can have multiple levels (up to 100):
+- Each level has multiple rooms
+- Deeper levels are more difficult
+- Checkpoints at safe zones
+
+### Rooms
+Rooms can be different types:
+- **Combat**: Contains monsters to fight
+- **Treasure**: Contains loot to collect
+- **Rest**: Safe zone to recover
+- **Boss**: Contains a boss monster
+- **Empty**: Exploration room
+
+### Objectives
+Dungeons have objectives that must be completed:
+- Defeat all monsters
+- Reach a specific room
+- Collect specific items
+- Defeat the boss
+- Complete within time limit
+
+## Run Progression
+
+### Starting a Run
+1. Party selects a dungeon
+2. Run is created with a unique seed
+3. Initial dungeon state is generated
+4. Heroes are placed at the entrance
+
+### During the Run
+- Heroes make autonomous decisions via AI agents
+- Turn-based combat occurs
+- Rooms are explored
+- Objectives are tracked
+- Events are logged
+
+### Ending a Run
+Runs can end in different ways:
+- **Victory**: All objectives completed
+- **Defeat**: Party wiped (all heroes defeated)
+- **Timeout**: Run exceeded time limit
+- **Abandoned**: Party left the dungeon
+- **Error**: Technical issue occurred
+
+## AI Agent Decisions
+
+Heroes make autonomous decisions during runs:
+- Movement and exploration
+- Combat actions (attack, defend, use items)
+- Skill checks and interactions
+- Party coordination
+
+Decisions are made by ElizaOS agents based on:
+- Hero personality
+- Current situation
+- Party composition
+- Past experiences (memory)
+
+## Combat in Dungeons
+
+Combat occurs when parties encounter monsters:
+- Turn-based with initiative rolls
+- Heroes and monsters take turns
+- Actions include attack, defend, use item, skill check
+- Damage is calculated deterministically
+- Combat ends when one side is defeated
+
+## Loot and Rewards
+
+### Loot Distribution
+- Loot is found in treasure rooms and from defeated monsters
+- Distributed among party members
+- Items are ERC-1155 tokens
+- Can be equipped or traded
+
+### Rewards
+- **Items**: Procedurally generated equipment
+- **KEEP Tokens**: In-game currency
+- **Experience**: Hero progression (future)
+- **Memories**: Stored in agent memory
+
+## Run Results
+
+### Stored Information
+- Complete event log
+- Turn-by-turn actions
+- Combat results
+- Loot obtained
+- Final outcome
+
+### Replayability
+Runs can be replayed or reviewed:
+- View complete event log
+- See all decisions made
+- Understand outcomes
+- Learn from experiences
+
+## Next Steps
+
+- [Learn About Combat](/docs/game-mechanics/combat) - How combat works in detail
+- [Explore Items & Loot](/docs/game-mechanics/items-loot) - What you can find
+- [Read About AI Agents](/docs/game-mechanics/ai-agents) - How decisions are made

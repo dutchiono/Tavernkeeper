@@ -1,8 +1,8 @@
 'use client';
 
-import { useEffect, useState, Suspense } from 'react';
-import { useSearchParams } from 'next/navigation';
 import sdk from '@farcaster/miniapp-sdk';
+import { useSearchParams } from 'next/navigation';
+import { Suspense, useEffect, useState } from 'react';
 import { formatEther } from 'viem';
 import { ChatOverlay } from '../../../components/ChatOverlay';
 import { PixelBox, PixelButton } from '../../../components/PixelComponents';
@@ -11,10 +11,10 @@ import { InnScene } from '../../../components/scenes/InnScene';
 import { MapScene } from '../../../components/scenes/MapScene';
 import { TheOfficeMiniapp } from '../../../components/TheOfficeMiniapp';
 import { WelcomeModal } from '../../../components/WelcomeModal';
+import { getFarcasterWalletAddress } from '../../../lib/services/farcasterWallet';
+import { keepTokenService } from '../../../lib/services/keepToken';
 import { useGameStore } from '../../../lib/stores/gameStore';
 import { GameView } from '../../../lib/types';
-import { keepTokenService } from '../../../lib/services/keepToken';
-import { getFarcasterWalletAddress } from '../../../lib/services/farcasterWallet';
 
 function SearchParamsHandler({ onViewChange }: { onViewChange: (view: string | null) => void }) {
     const searchParams = useSearchParams();
@@ -102,6 +102,16 @@ function MiniappContent() {
                         </div>
 
                         <div className="flex items-center gap-1 flex-shrink-0 min-w-0">
+                            {/* Help/Docs Link */}
+                            <a
+                                href="/docs"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="px-2 py-1 text-yellow-400 hover:text-yellow-300 transition-colors"
+                                title="Documentation"
+                            >
+                                <span className="text-lg">?</span>
+                            </a>
                             {/* DAY and KEEP Balance - Always visible */}
                             <div className="flex items-center gap-2 px-2 bg-black/30 py-1 rounded border border-white/5">
                                 <div className="text-[10px] text-yellow-400 flex flex-col items-end leading-tight">

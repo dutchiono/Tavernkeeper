@@ -1,0 +1,149 @@
+
+# World Generation
+
+InnKeeper features a hierarchical world generation system that creates a rich, interconnected world from cosmic forces down to individual mortals. The world includes geography, organizations, and lore.
+
+## World Hierarchy
+
+The world is organized in a strict hierarchy:
+
+### Level 1: Primordial Beings
+Fundamental forces of the universe:
+- Space, Time, Light, Dark, Order, Chaos
+- First entities, representing innate properties
+- Exist before the world and shape its nature
+- Examples: The Void (Space), The Eternal (Time), The Radiance (Light)
+
+### Level 2: Cosmic Creators
+Elemental beings that created the world:
+- Rock, Wind, Water, Life, Fire, Earth, Air
+- Sub-divisions of creation
+- Responsible for shaping the physical world
+- Examples: The Stone Shaper (Rock), The Wind Rider (Wind)
+
+### Level 2.5: Geography
+Physical features of the world:
+- Continents, Oceans, Mountain Ranges, Rivers
+- Named in the present, but with ancient origins
+- Created by Cosmic Creators
+- Examples: "The Northern Wastes", "The Endless Sea"
+
+### Level 3: Conceptual Beings
+Born from mortal worship and emotion:
+- Luck, Love, Fertility, Justice, War, Death, Wisdom
+- Emerged from mortal belief
+- Exist because mortals believe in them
+- Examples: Lady Fortune (Luck), The Heart's Desire (Love)
+
+### Level 4: Demi-Gods
+Divine experiments and ancient beings:
+- Half-gods of myth, foulest creatures
+- Bridge between divine and mortal realms
+- Examples: The First Vampire, The Dragon King
+
+### Level 5: Mortal Races
+Variety of life:
+- Humans, Elves, Dwarves, etc.
+- Populate the world
+- Create organizations and civilizations
+
+## World Content Hierarchy
+
+### Regions
+Geographical areas containing:
+- Multiple locations
+- Shared geography and climate
+- Common history and culture
+
+### Locations
+Specific places within regions:
+- Cities, ruins, landmarks
+- Can contain dungeons
+- Have their own history
+
+### Dungeons
+Adventure sites within locations:
+- Multiple rooms
+- Bosses and encounters
+- Loot and rewards
+
+### Rooms
+Sections within dungeons:
+- Combat encounters
+- Treasure rooms
+- Rest areas
+- Boss chambers
+
+### Encounters
+Specific events within rooms:
+- Boss fights
+- Special events
+- Puzzles or challenges
+
+### Loot
+Items found in encounters:
+- Procedurally generated
+- Context-aware
+- Tied to encounter difficulty
+
+## Provenance Tracking
+
+Every element tracks its provenance:
+
+### For a Dungeon
+- **Location**: What region/location is it in?
+- **Builder**: What civilization/entity built it?
+- **Purpose**: Why was it built?
+- **Age**: How old is it?
+- **History**: What events have occurred here?
+
+### For an Item
+- **Material**: What is it made of?
+- **Creator**: Who made it?
+- **Age**: How old is it?
+- **Previous Owners**: Who has owned it?
+- **Origin**: Where did the materials come from?
+
+### For a Boss
+- **Origin**: Where did it come from?
+- **Motivation**: What are its goals?
+- **History**: What events shaped it?
+- **Connections**: What other entities is it connected to?
+
+## Lore Generation
+
+Lore is generated using:
+- World hierarchy relationships
+- Provenance chains
+- Historical events
+- Connections between entities
+
+## Map System
+
+### Surface World
+- 2D infinite grid
+- Cells can contain features of any size
+- Spatial relationships and exploration
+
+### Z-Levels
+- **Surface**: z = 0
+- **Dungeons**: z < 0 (going down, ~100 layers)
+- **Towers**: z > 0 (going up, ~100 levels)
+
+### Feature Placement
+- Features placed deterministically based on seeds
+- Pre-generated features from world generation
+- On-the-fly generation when exploring new areas
+
+## Deterministic Generation
+
+World generation is deterministic:
+- Same seed = same world
+- Reproducible and verifiable
+- Fair and consistent
+
+## Next Steps
+
+- [Learn About Dungeon Runs](/docs/game-mechanics/dungeon-runs) - How dungeons are explored
+- [Explore Items & Loot](/docs/game-mechanics/items-loot) - How world affects loot
+- [Read About Smart Contracts](/docs/contracts/overview) - Technical implementation

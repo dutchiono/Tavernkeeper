@@ -1,0 +1,77 @@
+# Game Overview
+
+InnKeeper is a dungeon crawler game built on the Monad blockchain where players form parties with NFT heroes to explore dungeons, battle monsters, and earn rewards.
+
+## What Makes InnKeeper Unique?
+
+### AI-Driven Gameplay
+
+Unlike traditional games where you control every action, InnKeeper heroes are powered by AI agents (ElizaOS) that make autonomous decisions during dungeon runs. You set up your party, equip your heroes, and send them into dungeons where they make their own choices.
+
+### Deterministic Engine
+
+All dungeon runs use a deterministic game engine with seeded random number generation. This means:
+- Runs are reproducible with the same seed
+- Fair and verifiable gameplay
+- No server-side manipulation possible
+- Results can be verified on-chain
+
+### Blockchain Integration
+
+InnKeeper is fully on-chain:
+- **Heroes**: ERC-721 NFTs (Adventurer contract)
+- **Items**: ERC-1155 tokens (Inventory contract)
+- **Currency**: ERC-20 KEEP tokens
+- **Accounts**: ERC-6551 Token Bound Accounts for each hero
+
+### 8-bit Aesthetic
+
+The game features a retro 8-bit pixel art style reminiscent of classic NES/SNES games, rendered using PixiJS.
+
+## Core Concepts
+
+### Heroes
+
+Heroes are ERC-721 NFTs that represent your adventurers. Each hero has:
+- Unique attributes (strength, dexterity, intelligence, etc.)
+- Equipment slots for items
+- A Token Bound Account (ERC-6551) that can hold assets
+- AI personality and decision-making capabilities
+
+### Parties
+
+Parties consist of up to 5 heroes that can explore dungeons together. Players can:
+- Create parties with their heroes
+- Invite other players to join
+- Start dungeon runs when ready
+
+### Dungeon Runs
+
+Dungeon runs are deterministic adventures where:
+- Your party explores procedurally generated dungeons
+- Heroes make autonomous decisions via AI agents
+- Combat is turn-based with initiative
+- Objectives must be completed to win
+- Results are deterministic based on the seed
+
+### Items & Loot
+
+Items are procedurally generated ERC-1155 tokens that can be:
+- Equipped to heroes
+- Found as loot in dungeons
+- Traded on the marketplace
+- Have various rarities and stats
+
+## Getting Started
+
+Ready to begin? Follow these steps:
+
+1. [Get Your First Hero](/docs/getting-started/first-hero) - Mint or acquire an Adventurer NFT
+2. [Form Your First Party](/docs/getting-started/first-party) - Gather heroes and start exploring
+
+## Next Steps
+
+Once you understand the basics, dive deeper into:
+- [Game Mechanics](/docs/game-mechanics/overview) - Learn how combat, items, and dungeons work
+- [Smart Contracts](/docs/contracts/overview) - Understand the blockchain infrastructure
+- [Groups & Social](/docs/groups/overview) - Join communities and form groups

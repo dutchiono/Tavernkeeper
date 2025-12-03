@@ -1,0 +1,115 @@
+
+# The Cellar Contract
+
+The Cellar is a central pot system that accumulates MON tokens from various game activities. Players can "buy" the pot by burning LP tokens, with prices that decrease over time in epochs.
+
+## Overview
+
+- **Type**: Pot/Auction System
+- **Upgradeable**: No (immutable)
+- **Network**: Monad Testnet
+- **Mechanics**: Epoch-based price decay
+
+## Key Features
+
+### Epoch System
+
+The Cellar operates in epochs:
+- Each epoch has a starting price
+- Price decreases linearly over the epoch period
+- When someone buys, a new epoch starts
+- Price multiplier increases the next epoch's starting price
+
+### Price Decay
+
+Price decreases over time:
+- Starts at `initPrice`
+- Decreases linearly to 0 over `epochPeriod`
+- Formula: `price = initPrice - (initPrice * timePassed / epochPeriod)`
+
+### LP Token Burning
+
+To buy the pot:
+- User burns LP tokens (sent to dead address)
+- Amount burned equals current pot price
+- Pot contents (MON) are sent to buyer
+
+## Functions
+
+### Public Functions
+
+#### `buy(address assetsReceiver, uint256 epochId, uint256 deadline, uint256 maxPaymentTokenAmount)`
+Buy the pot by burning LP tokens.
+
+**Parameters:**
+- `assetsReceiver`: Address to receive the MON
+- `epochId`: Current epoch ID (for validation)
+- `deadline`: Transaction deadline
+- `maxPaymentTokenAmount`: Maximum LP tokens to burn
+
+**Returns:** `paymentAmount` - Actual LP tokens burned
+
+**Mechanics:**
+1. Validates epoch ID matches current epoch
+2. Calculates current price
+3. Transfers LP tokens to payment receiver (burn)
+4. Sends MON to assets receiver
+5. Starts new epoch with higher price
+
+#### `getPrice()`
+Get the current pot price in LP tokens.
+
+**Returns:** Current price (decreases over time)
+
+#### `getSlot0()`
+Get the current slot0 state (epoch ID, init price, start time).
+
+## Configuration
+
+### Constants
+
+- **MIN_EPOCH_PERIOD**: 1 hour
+- **MAX_EPOCH_PERIOD**: 365 days
+- **MIN_PRICE_MULTIPLIER**: 1.1x (110%)
+- **MAX_PRICE_MULTIPLIER**: 3x (300%)
+
+### Immutable Parameters
+
+Set at deployment:
+- `paymentToken`: LP token to burn
+- `paymentReceiver`: Where burned tokens go (dead address)
+- `epochPeriod`: Duration of each epoch
+- `priceMultiplier`: Multiplier for next epoch price
+- `minInitPrice`: Minimum starting price
+
+## Integration
+
+### Contributing to Pot
+
+Groups and contracts can contribute MON to the pot:
+- Via `CellarHook.contributeToPot()`
+- Direct MON transfer (receive function)
+- Increases pot value
+
+### Buying the Pot
+
+1. Query current price with `getPrice()`
+2. Check current epoch with `getSlot0()`
+3. Call `buy()` with appropriate parameters
+4. Receive MON, new epoch starts
+
+## Events
+
+- `Cellar__Buy(address indexed buyer, address indexed assetsReceiver, uint256 paymentAmount)`
+
+## Security
+
+- Reentrancy protection
+- Epoch ID validation prevents stale transactions
+- Deadline checks
+- Immutable configuration (no owner functions)
+
+## See Also
+
+- [Groups Documentation](/docs/groups/overview)
+- [CellarHook Integration](/docs/contracts/tavern-regulars)

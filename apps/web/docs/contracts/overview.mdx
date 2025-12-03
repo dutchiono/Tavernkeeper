@@ -1,0 +1,65 @@
+# Smart Contracts Overview
+
+InnKeeper is built on the Monad blockchain using a suite of smart contracts that handle NFTs, tokens, inventory, groups, and game mechanics. All contracts use the UUPS upgradeable proxy pattern for future updates.
+
+## Contract Architecture
+
+### Core Game Contracts
+
+- **Adventurer** (ERC-721): Hero NFTs that players use in the game
+- **TavernKeeper** (ERC-721): Special NFTs that can claim free heroes
+- **KeepToken** (ERC-20): In-game currency token
+- **Inventory** (ERC-1155): Items and equipment that can be equipped to heroes
+
+### Group Contracts
+
+- **TavernRegularsManager**: Small groups (3-10 members) for LP pooling
+- **TownPosseManager**: Large groups (10-100+ members) with governance
+
+### Utility Contracts
+
+- **TheCellar**: Central pot system with epoch-based mechanics
+- **DungeonGatekeeper**: Controls dungeon access and entry fees
+- **ERC6551Registry**: Registry for Token Bound Accounts
+- **ERC6551Account**: Implementation for hero TBAs
+
+## Upgradeability
+
+All game contracts use the **UUPS (Universal Upgradeable Proxy Standard)** pattern:
+- Contracts can be upgraded without changing addresses
+- Storage layout is preserved
+- Allows bug fixes and feature additions
+- Maintains user trust (same address)
+
+## Network
+
+- **Current Network**: Monad Testnet
+- **Native Token**: MON
+- **Chain ID**: See deployment configuration
+
+## Contract Standards
+
+- **ERC-721**: Non-fungible tokens (heroes, TavernKeepers)
+- **ERC-1155**: Multi-token standard (inventory items)
+- **ERC-20**: Fungible tokens (KEEP tokens)
+- **ERC-6551**: Token Bound Accounts (hero wallets)
+
+## Security Features
+
+- **Ownable**: Owner-only functions for critical operations
+- **ReentrancyGuard**: Protection against reentrancy attacks
+- **Signature Verification**: Signature-based pricing prevents front-running
+- **Nonce System**: Replay protection for transactions
+
+## Contract Addresses
+
+Contract addresses are stored in the contract registry and can be queried from the frontend. See individual contract pages for deployment addresses.
+
+## Next Steps
+
+Explore individual contracts:
+- [Adventurer](/docs/contracts/adventurer) - Hero NFT contract
+- [KeepToken](/docs/contracts/keep-token) - In-game currency
+- [Inventory](/docs/contracts/inventory) - Items and equipment
+- [The Cellar](/docs/contracts/the-cellar) - Pot system
+- [Groups](/docs/groups/overview) - Social group contracts

@@ -1,0 +1,135 @@
+# Town Posse
+
+Town Posse groups are large communities (10-100+ members) with advanced features including governance, tiered membership, and proposal systems. Perfect for organized communities.
+
+## Overview
+
+- **Contract**: TownPosseManager
+- **Group Size**: 10-100+ members
+- **Governance**: Full proposal and voting system
+- **Tiers**: Bronze, Silver, Gold
+- **Complexity**: Advanced
+
+## Creating a Posse
+
+### Step 1: Create the Posse
+
+1. Navigate to the Town Posse page
+2. Click "Create Posse"
+3. Enter:
+   - Posse name
+   - Maximum members (10-100+)
+   - Membership type (open or permissioned)
+4. Posse is created with you as creator (Gold tier)
+
+### Step 2: Invite Members
+
+**Open Membership:**
+- Anyone can join directly
+- No approval needed
+
+**Permissioned Membership:**
+- Members must request to join
+- Creator or approved members can approve
+- Better for exclusive groups
+
+## Tier System
+
+### Tiers
+
+- **Bronze**: Entry level (default for new members)
+- **Silver**: Mid-tier contribution
+- **Gold**: Highest tier (creator starts here)
+
+### Tier Benefits
+
+1. **Voting Power**:
+   - Bronze: 1x
+   - Silver: 2x
+   - Gold: 3x
+
+2. **Fee Distribution**: Tier-weighted shares
+
+3. **Access**: Some features may be tier-gated
+
+### Achieving Tiers
+
+Tiers are based on contribution thresholds:
+- Set by contract owner
+- Automatic promotion when threshold met
+- Can be manually updated by owner
+
+## Governance
+
+### Creating Proposals
+
+Any member can create a proposal:
+
+1. Navigate to governance section
+2. Click "Create Proposal"
+3. Enter:
+   - Description
+   - Target contract address
+   - Calldata (function call)
+4. Proposal is created
+
+### Voting
+
+Members vote during a 7-day period:
+
+1. View active proposals
+2. Vote "For" or "Against"
+3. Voting power based on tier
+4. Can only vote once per proposal
+
+### Execution
+
+If a proposal passes:
+
+1. **Quorum Check**: Must have 50% of total voting power
+2. **Majority**: More "For" than "Against"
+3. **Execution**: Anyone can execute
+4. **Result**: Calldata runs on target contract
+
+### Example Proposals
+
+- Change fee distribution
+- Update treasury address
+- Modify group settings
+- Execute arbitrary contract calls
+
+## Contributing Liquidity
+
+Same mechanics as Tavern Regulars:
+
+1. Approve MON
+2. Contribute with tick range
+3. 1% tax to pot
+4. LP tokens distributed
+5. Fees shared (tier-weighted)
+
+## Fee Distribution
+
+Fees distributed same as Tavern Regulars:
+- 75% to members (tier-weighted)
+- 20% to pot
+- 5% to treasury
+
+Higher tier = larger share of fees.
+
+## Best Practices
+
+1. **Clear Governance**: Establish proposal guidelines
+2. **Active Participation**: Encourage voting
+3. **Tier Progression**: Reward active contributors
+4. **Communication**: Use Discord/Telegram for coordination
+
+## Contract Details
+
+See [Town Posse Manager Contract](/docs/contracts/town-posse) for technical details.
+
+## See Also
+
+- [Tavern Regulars](/docs/groups/tavern-regulars) - For smaller groups
+- [The Cellar](/docs/contracts/the-cellar) - Pot system
+- [Smart Contracts](/docs/contracts/overview) - All contracts

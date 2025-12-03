@@ -1,0 +1,96 @@
+# KeepToken Contract
+
+KeepToken is the in-game currency (ERC-20 token) used throughout InnKeeper. It's minted by the TavernKeeper contract and can be earned through gameplay.
+
+## Overview
+
+- **Standard**: ERC-20 (Fungible Token)
+- **Upgradeable**: Yes (UUPS proxy)
+- **Network**: Monad Testnet
+- **Name**: "Tavern Keeper"
+- **Symbol**: "KEEP"
+- **Decimals**: 18
+
+## Key Features
+
+### Minting Control
+
+Only the TavernKeeper contract can mint KEEP tokens:
+- Prevents unauthorized minting
+- Centralized control over token supply
+- Can be earned through gameplay rewards
+
+### Treasury
+
+The contract maintains a treasury address:
+- Can be updated by owner
+- Used for fee collection and distribution
+
+## Functions
+
+### Public Functions
+
+#### `mint(address to, uint256 amount)`
+Mint KEEP tokens to an address.
+
+**Requirements:**
+- Only callable by TavernKeeper contract
+- `to` cannot be zero address
+
+### Owner Functions
+
+#### `setTreasury(address _treasury)`
+Update the treasury address.
+
+#### `setTavernKeeperContract(address _contract)`
+Update the TavernKeeper contract address (for minting control).
+
+## Events
+
+- `TreasuryUpdated(address indexed oldTreasury, address indexed newTreasury)`
+- `TavernKeeperContractUpdated(address indexed oldContract, address indexed newContract)`
+
+## Usage
+
+### Earning KEEP
+
+KEEP tokens can be earned through:
+- Completing dungeon runs
+- Defeating bosses
+- Participating in group activities
+- Other gameplay rewards
+
+### Spending KEEP
+
+KEEP can be used for:
+- Purchasing items
+- Marketplace transactions
+- Group contributions
+- Other in-game purchases
+
+## Integration
+
+### Checking Balance
+
+```solidity
+uint256 balance = keepToken.balanceOf(userAddress);
+```
+
+### Transferring
+
+Standard ERC-20 transfer functions are available:
+- `transfer(address to, uint256 amount)`
+- `transferFrom(address from, address to, uint256 amount)`
+- `approve(address spender, uint256 amount)`
+
+## Security
+
+- Minting restricted to TavernKeeper contract
+- Owner-only functions for configuration
+- UUPS upgradeable for future improvements
+- Standard ERC-20 security practices
+
+## See Also
+
+- [TavernKeeper Contract](/docs/contracts/tavern-keeper)
+- [Game Mechanics](/docs/game-mechanics/overview)

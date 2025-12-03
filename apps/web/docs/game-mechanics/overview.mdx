@@ -1,0 +1,53 @@
+# Game Mechanics Overview
+
+InnKeeper features a comprehensive set of game mechanics that combine traditional RPG elements with blockchain technology and AI-driven gameplay.
+
+## Core Systems
+
+### Heroes System
+Heroes are ERC-721 NFTs with unique attributes, equipment slots, and Token Bound Accounts. Each hero can make autonomous decisions during dungeon runs using AI agents.
+
+### Party System
+Players form parties of up to 5 heroes to explore dungeons together. Parties can be created, joined via invites, and used to start dungeon runs.
+
+### Dungeon Runs
+Deterministic dungeon exploration using seeded RNG. Runs are reproducible, fair, and verifiable. Heroes make autonomous decisions via AI agents.
+
+### Combat System
+Turn-based combat with initiative rolls, attacks, damage calculation, and skill checks. Combat is deterministic based on the dungeon seed.
+
+### Items & Loot
+Procedurally generated ERC-1155 items with various rarities, stats, and equipment slots. Items can be found as loot, equipped to heroes, or traded.
+
+### World Generation
+Hierarchical world generation system creating a rich, interconnected world from cosmic forces down to individual mortals. Includes geography, organizations, and lore.
+
+### AI Agents
+ElizaOS-powered agents that make autonomous decisions for heroes during dungeon runs. Agents have personalities, memories, and can learn from experiences.
+
+## Deterministic Engine
+
+All game mechanics use a deterministic engine with seeded random number generation. This ensures:
+- Runs are reproducible with the same seed
+- Fair and verifiable gameplay
+- No server-side manipulation
+- Results can be verified on-chain
+
+## Blockchain Integration
+
+Game mechanics are integrated with smart contracts:
+- Heroes: ERC-721 NFTs (Adventurer contract)
+- Items: ERC-1155 tokens (Inventory contract)
+- Currency: ERC-20 KEEP tokens
+- Accounts: ERC-6551 Token Bound Accounts
+
+## Learn More
+
+Explore each system in detail:
+- [Heroes](/docs/game-mechanics/heroes) - Hero attributes, equipment, and TBAs
+- [Parties](/docs/game-mechanics/parties) - Party formation and management
+- [Dungeon Runs](/docs/game-mechanics/dungeon-runs) - How dungeon exploration works
+- [Combat](/docs/game-mechanics/combat) - Turn-based combat mechanics
+- [Items & Loot](/docs/game-mechanics/items-loot) - Item generation and equipment
+- [World Generation](/docs/game-mechanics/world-generation) - Procedural world creation
+- [AI Agents](/docs/game-mechanics/ai-agents) - ElizaOS integration and decision-making

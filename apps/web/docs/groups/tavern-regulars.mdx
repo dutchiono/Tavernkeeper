@@ -1,0 +1,102 @@
+# Tavern Regulars
+
+Tavern Regulars are small, intimate groups (3-10 members) designed for close-knit communities. They offer simple LP pooling without the complexity of governance.
+
+## Overview
+
+- **Contract**: TavernRegularsManager
+- **Group Size**: 3-10 members
+- **Governance**: None
+- **Complexity**: Simple
+
+## Creating a Group
+
+### Step 1: Create the Group
+
+1. Navigate to the Tavern Regulars page
+2. Click "Create Group"
+3. Enter a group name
+4. Group is created with you as the first member
+
+### Step 2: Invite Members
+
+1. Share your group ID with friends
+2. They can join directly (if under 10 members)
+3. No approval needed
+
+## Contributing Liquidity
+
+### How It Works
+
+1. **Approve MON**: Approve MON tokens to the contract
+2. **Contribute**: Call `contributeLiquidity()` with:
+   - Group ID
+   - MON amount
+   - Uniswap V4 tick range
+3. **Tax Applied**: 1% goes to The Cellar pot
+4. **LP Created**: Remaining MON used to create LP position
+5. **Shares Distributed**: LP tokens distributed proportionally
+
+### Example
+
+If you contribute 100 MON:
+- 1 MON goes to pot (1% tax)
+- 99 MON used for LP
+- You receive LP tokens proportional to your contribution
+
+## Fee Distribution
+
+When LP positions earn fees:
+
+1. **Owner Tax** (if set): Applied first
+2. **Remaining Split**:
+   - 75% to members (proportional to LP shares)
+   - 20% to The Cellar pot
+   - 5% to treasury
+
+### Claiming Fees
+
+Members can claim their share:
+1. Navigate to your group
+2. Click "Claim Fees"
+3. Receive MON and KEEP proportional to your share
+
+## Withdrawing
+
+You can withdraw your LP share anytime:
+
+1. Call `withdrawLiquidity()` with LP token amount
+2. Receive MON and KEEP proportional to your share
+3. Your membership remains (can contribute again)
+
+## Group Management
+
+### Member Limits
+
+- **Minimum**: 3 members (recommended for meaningful pooling)
+- **Maximum**: 10 members (hard limit)
+- **Leaving**: Members can leave anytime
+
+### Owner Controls
+
+Group creator (owner) can:
+- Set fee distribution percentages
+- Set owner tax (0-10%)
+- Configure group settings
+
+## Best Practices
+
+1. **Start Small**: Begin with 3-5 trusted members
+2. **Clear Communication**: Coordinate contributions
+3. **Long-term Focus**: 1% tax encourages holding
+4. **Regular Claims**: Claim fees periodically
+
+## Contract Details
+
+See [Tavern Regulars Manager Contract](/docs/contracts/tavern-regulars) for technical details.
+
+## See Also
+
+- [Town Posse](/docs/groups/town-posse) - For larger groups
+- [The Cellar](/docs/contracts/the-cellar) - Pot system
+- [Smart Contracts](/docs/contracts/overview) - All contracts

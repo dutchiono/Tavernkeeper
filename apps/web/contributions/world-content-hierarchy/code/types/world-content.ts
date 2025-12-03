@@ -115,7 +115,9 @@ export type RelationshipType =
   | 'related_to'
   | 'influenced_by'
   | 'conflicts_with'
-  | 'allied_with';
+  | 'allied_with'
+  | 'dwells_in'
+  | 'found_in';
 
 /**
  * Complete world content entry with all information

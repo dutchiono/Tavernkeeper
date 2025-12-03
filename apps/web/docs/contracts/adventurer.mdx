@@ -1,0 +1,115 @@
+# Adventurer Contract
+
+The Adventurer contract is an ERC-721 NFT contract that mints hero tokens for players. Each hero is a unique NFT with metadata, attributes, and an associated Token Bound Account (ERC-6551).
+
+## Overview
+
+- **Standard**: ERC-721 (Non-Fungible Token)
+- **Upgradeable**: Yes (UUPS proxy)
+- **Network**: Monad Testnet
+- **Name**: "InnKeeper Adventurer"
+- **Symbol**: "ADVENTURER"
+
+## Key Features
+
+### Minting
+
+Heroes can be minted in several ways:
+
+1. **Public Minting** (when enabled): Signature-based pricing
+2. **Free Claim**: TavernKeeper NFT holders can claim one free hero
+3. **Owner Minting**: Contract owner can mint directly
+
+### Signature-Based Pricing
+
+All public mints use signature-based pricing:
+- Server signs a price with deadline and nonce
+- Prevents front-running and price manipulation
+- Each user has a nonce for replay protection
+
+### Token Bound Accounts (ERC-6551)
+
+Each hero can have a Token Bound Account:
+- Computed deterministically via CREATE2
+- Can hold assets (items, tokens)
+- Controlled by the NFT owner
+
+## Functions
+
+### Public Functions
+
+#### `mintHero(address to, string metadataUri, uint256 amount, uint256 deadline, bytes signature)`
+Mint a new hero with signature-based pricing.
+
+**Parameters:**
+- `to`: Address to mint to (usually a TBA)
+- `metadataUri`: IPFS or server URL for metadata
+- `amount`: MON amount in wei (from signed price)
+- `deadline`: Signature expiration timestamp
+- `signature`: Server signature authorizing the price
+
+**Returns:** `tokenId` - The minted token ID
+
+#### `claimFreeHero(uint256 tavernKeeperTokenId, string metadataUri)`
+Claim a free hero for a TavernKeeper NFT owner.
+
+**Parameters:**
+- `tavernKeeperTokenId`: Token ID of the TavernKeeper NFT
+- `metadataUri`: Metadata URI for the hero
+
+**Returns:** `tokenId` - The minted token ID
+
+#### `updateTokenURI(uint256 tokenId, string newUri)`
+Update the metadata URI for a hero (e.g., for color changes).
+
+**Requirements:**
+- Only token owner can update
+- URI cannot be empty
+
+### Owner Functions
+
+#### `setPublicMintingEnabled(bool enabled)`
+Enable or disable public minting.
+
+#### `setSigner(address _signer)`
+Set the address that signs pricing signatures.
+
+#### `setContracts(address _tavernKeeper, address _registry, address _accountImpl)`
+Set related contract addresses (TavernKeeper, ERC6551 registry, account implementation).
+
+## Events
+
+- `HeroMinted(address indexed to, uint256 indexed tokenId, string metadataUri)`
+- `HeroMintedWithSignature(address indexed to, uint256 indexed tokenId, uint256 price, uint256 nonce)`
+- `HeroClaimed(uint256 indexed tavernKeeperId, uint256 indexed heroTokenId, address indexed tba)`
+- `MetadataUpdated(uint256 indexed tokenId, string newUri)`
+- `PublicMintingToggled(bool enabled)`
+
+## Integration
+
+### Frontend Integration
+
+1. Request a price signature from the API
+2. Call `mintHero` with the signature
+3. Wait for transaction confirmation
+4. Query token metadata from the URI
+
+### ERC-6551 Integration
+
+To create a TBA for a hero:
+1. Compute TBA address using the registry
+2. Deploy the TBA if needed
+3. Mint hero to the TBA address
+
+## Security
+
+- Signature verification prevents unauthorized minting
+- Nonce system prevents replay attacks
+- Owner-only functions for critical operations
+- UUPS upgradeable for future improvements
+
+## See Also
+
+- [ERC-6551 Documentation](/docs/contracts/erc6551)
+- [Game Mechanics: Heroes](/docs/game-mechanics/heroes)
+- [Getting Started: Your First Hero](/docs/getting-started/first-hero)

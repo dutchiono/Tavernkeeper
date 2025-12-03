@@ -1,0 +1,155 @@
+# Tavern Regulars Manager Contract
+
+The TavernRegularsManager contract handles small groups (3-10 members) that pool liquidity together for shared LP positions. It's designed for close-knit groups with simple mechanics.
+
+## Overview
+
+- **Type**: Group Management Contract
+- **Upgradeable**: Yes (UUPS proxy)
+- **Network**: Monad Testnet
+- **Group Size**: 3-10 members
+- **Max Groups**: Unlimited
+
+## Key Features
+
+### Small Group Focus
+
+Designed for intimate groups:
+- Maximum 10 members per group
+- Simple membership model
+- Direct LP contribution and withdrawal
+- No governance (owner-controlled)
+
+### LP Pooling
+
+Members contribute MON to create LP positions:
+- Contributions are pooled together
+- LP tokens are shared proportionally
+- Fees are distributed to members
+
+### Fee Distribution
+
+Fees from LP positions are split:
+- **75%**: To group members (proportional to shares)
+- **20%**: To The Cellar pot
+- **5%**: To treasury
+
+### Contribution Tax
+
+1% tax on all contributions:
+- Applied when adding liquidity
+- Sent to The Cellar pot
+- Encourages long-term participation
+
+## Functions
+
+### Public Functions
+
+#### `createGroup(string groupName)`
+Create a new Tavern Regulars group.
+
+**Returns:** `groupId` - The new group ID
+
+#### `joinGroup(uint256 groupId)`
+Join an existing group.
+
+**Requirements:**
+- Group must have fewer than 10 members
+- Group must be active
+
+#### `contributeLiquidity(uint256 groupId, uint256 amountMON, int24 tickLower, int24 tickUpper)`
+Add liquidity to the group's LP position.
+
+**Parameters:**
+- `groupId`: Group to contribute to
+- `amountMON`: Amount of MON to contribute
+- `tickLower`: Lower tick for Uniswap V4 position
+- `tickUpper`: Upper tick for Uniswap V4 position
+
+**Mechanics:**
+- 1% tax applied (sent to pot)
+- Remaining MON used for LP
+- LP tokens distributed proportionally
+
+#### `withdrawLiquidity(uint256 groupId, uint256 lpTokenAmount)`
+Withdraw LP tokens from the group.
+
+**Returns:** MON and KEEP tokens proportional to share
+
+#### `claimFees(uint256 groupId)`
+Claim accumulated fees from LP positions.
+
+**Returns:** MON and KEEP tokens based on member share
+
+### Owner Functions
+
+#### `setFeeSplits(uint256 _memberShare, uint256 _flywheelFee, uint256 _treasuryFee)`
+Update fee distribution percentages.
+
+#### `setOwnerTax(uint256 _ownerTaxBps)`
+Set owner tax percentage (0-10%).
+
+## Group Structure
+
+Each group stores:
+- Creator address
+- Member list (max 10)
+- Total contributions
+- Per-member contributions
+- LP token balances
+- Member shares
+- Pending fees
+
+## Fee Mechanics
+
+### Distribution Flow
+
+1. LP position earns fees
+2. Fees collected by contract
+3. Owner tax applied (if set)
+4. Remaining fees split:
+   - 75% to members
+   - 20% to pot
+   - 5% to treasury
+
+### Claiming Fees
+
+Members can claim their share:
+- Proportional to LP token ownership
+- Accumulates over time
+- Can be claimed anytime
+
+## Integration
+
+### Creating a Group
+
+1. Call `createGroup()` with a name
+2. Group ID is returned
+3. Creator is first member
+
+### Contributing
+
+1. Approve MON to contract
+2. Call `contributeLiquidity()`
+3. LP tokens added to member's share
+
+## Events
+
+- `GroupCreated(uint256 indexed groupId, address indexed creator, string groupName)`
+- `MemberJoined(uint256 indexed groupId, address indexed member)`
+- `GroupContributed(uint256 indexed groupId, address indexed member, uint256 amountMON, uint256 lpTokensReceived)`
+- `FeesDistributed(uint256 indexed groupId, uint256 toMembers, uint256 toPot)`
+- `FeesClaimed(uint256 indexed groupId, address indexed member, uint256 amount)`
+
+## Security
+
+- Reentrancy protection
+- Member limit enforcement
+- Owner-only configuration
+- UUPS upgradeable
+
+## See Also
+
+- [Town Posse Manager](/docs/contracts/town-posse)
+- [Groups Overview](/docs/groups/overview)
+- [The Cellar](/docs/contracts/the-cellar)

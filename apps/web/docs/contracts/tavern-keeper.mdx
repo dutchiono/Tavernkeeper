@@ -1,0 +1,119 @@
+# TavernKeeper Contract
+
+The TavernKeeper contract is an ERC-721 NFT that represents special characters in the game. TavernKeeper NFT holders can claim free heroes and earn KEEP tokens over time.
+
+## Overview
+
+- **Standard**: ERC-721 (Non-Fungible Token)
+- **Upgradeable**: Yes (UUPS proxy)
+- **Network**: Monad Testnet
+- **Name**: "InnKeeper TavernKeeper"
+- **Symbol**: "KEEPER"
+
+## Key Features
+
+### Free Hero Claims
+
+Each TavernKeeper NFT can claim one free Adventurer hero:
+- Hero is minted to the TavernKeeper's TBA
+- One-time claim per TavernKeeper
+- No cost to claim
+
+### KEEP Token Minting
+
+TavernKeeper contract controls KEEP token minting:
+- Can mint KEEP tokens
+- Used for gameplay rewards
+- Centralized control over currency supply
+
+### Signature-Based Pricing
+
+Public minting uses signature-based pricing:
+- Server signs prices with deadlines
+- Prevents front-running
+- Nonce-based replay protection
+
+## Functions
+
+### Public Functions
+
+#### `mintTavernKeeper(string uri, uint256 amount, uint256 deadline, bytes signature)`
+Mint a new TavernKeeper NFT with signature-based pricing.
+
+**Parameters:**
+- `uri`: Metadata URI
+- `amount`: MON amount in wei
+- `deadline`: Signature expiration
+- `signature`: Server signature
+
+**Returns:** `tokenId` - The minted token ID
+
+#### `claimTokens(uint256 tokenId)`
+Claim accumulated KEEP tokens for a TavernKeeper NFT.
+
+**Mechanics:**
+- Calculates tokens based on time since last claim
+- Uses minting rate (default: 0.01 KEEP per second)
+- Mints tokens to NFT owner
+
+### Owner Functions
+
+#### `setKeepTokenContract(address _keepToken)`
+Set the KeepToken contract address.
+
+#### `setSigner(address _signer)`
+Set the address that signs pricing signatures.
+
+#### `setMintingRate(uint256 tokenId, uint256 rate)`
+Set the KEEP minting rate for a specific TavernKeeper.
+
+## Token Economics
+
+### Minting Rates
+
+- **Default Rate**: 0.01 KEEP per second
+- **Custom Rates**: Can be set per token
+- **Accumulation**: Tokens accumulate over time
+
+### Pricing Tiers
+
+Historical tiers (now deprecated):
+- **Tier 1**: First 100 tokens
+- **Tier 2**: Tokens 101-1000
+- **Tier 3**: Tokens 1001+
+
+Current pricing uses signature-based system.
+
+## Events
+
+- `TavernKeeperMinted(address indexed to, uint256 indexed tokenId, uint256 price)`
+- `TavernKeeperMintedWithSignature(address indexed to, uint256 indexed tokenId, uint256 price, uint256 nonce)`
+- `TokensClaimed(uint256 indexed tokenId, uint256 amount)`
+- `KeepTokenUpdated(address indexed oldToken, address indexed newToken)`
+
+## Integration
+
+### Claiming Free Hero
+
+1. Owner calls `claimFreeHero` on Adventurer contract
+2. Passes TavernKeeper token ID
+3. Hero is minted to TavernKeeper's TBA
+
+### Earning KEEP
+
+1. Time passes since last claim
+2. Owner calls `claimTokens`
+3. KEEP tokens are minted based on rate
+
+## Security
+
+- Signature verification for minting
+- Nonce-based replay protection
+- Owner-only configuration
+- UUPS upgradeable
+
+## See Also
+
+- [Adventurer Contract](/docs/contracts/adventurer)
+- [KeepToken Contract](/docs/contracts/keep-token)
+- [ERC-6551](/docs/contracts/erc6551)

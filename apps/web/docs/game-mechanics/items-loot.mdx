@@ -1,0 +1,135 @@
+
+# Items & Loot
+
+Items in InnKeeper are procedurally generated ERC-1155 tokens with various rarities, stats, and equipment slots. Items can be found as loot, equipped to heroes, or traded on the marketplace.
+
+## Item System
+
+### ERC-1155 Tokens
+Items are ERC-1155 tokens (Inventory contract):
+- Can be minted in batches
+- Can be transferred between addresses
+- Have unique metadata
+- Can be equipped to heroes
+
+### Procedural Generation
+Items are procedurally generated:
+- Based on seeds for determinism
+- Context-aware (dungeon loot, boss drops, etc.)
+- Level-appropriate stats
+- Class-specific options
+
+## Item Rarities
+
+### Common
+- Basic items with standard stats
+- Most common drop
+- Good for early game
+
+### Uncommon
+- Slightly better than common
+- Moderate drop rate
+- Useful upgrades
+
+### Rare
+- Significant stat improvements
+- Lower drop rate
+- Valuable finds
+
+### Epic
+- Major stat boosts
+- Rare drops
+- Highly sought after
+
+### Legendary
+- Exceptional items
+- Very rare drops
+- Unique and powerful
+
+## Item Types
+
+### Weapons
+- **Main Hand**: Swords, axes, maces, staffs, etc.
+- **Off Hand**: Shields, secondary weapons, spellbooks
+- **Stats**: Damage, attack speed, crit chance
+
+### Armor
+- **Head**: Helmets, hats
+- **Body**: Armor, robes
+- **Hands**: Gloves, gauntlets
+- **Feet**: Boots, shoes
+- **Stats**: Defense, resistance, bonuses
+
+## Item Stats
+
+### Weapon Stats
+- **Damage**: Base damage output
+- **Attack Speed**: How fast attacks are
+- **Crit Chance**: Chance for critical hits
+- **Durability**: Item condition (future)
+
+### Armor Stats
+- **Defense**: Reduces incoming damage
+- **Resistance**: Reduces specific damage types
+- **Bonuses**: Additional stat bonuses
+
+## Item Modifiers
+
+Items can have modifiers that enhance stats:
+- **+X to Attribute**: Increases specific attribute
+- **+X% Damage**: Increases damage output
+- **+X AC**: Increases armor class
+- **Special Effects**: Unique abilities
+
+## Equipment Requirements
+
+Items may have requirements:
+- **Level Requirement**: Minimum hero level
+- **Class Requirement**: Specific hero class (warrior, mage, rogue, cleric)
+- **Attribute Requirement**: Minimum attribute values
+- **Slot Restriction**: Can only be equipped in specific slot
+
+## Loot System
+
+### Sources
+Items can be found from:
+- **Dungeon Loot**: Treasure rooms and chests
+- **Monster Drops**: Defeated monsters drop items
+- **Boss Drops**: Bosses drop guaranteed rare items
+- **Vendor**: Purchase from NPCs (future)
+- **Quest Rewards**: Complete quests for items (future)
+
+### Distribution
+In party runs:
+- Loot is distributed among party members
+- Can be traded between players
+- Equipped items stay with heroes
+
+## Item Generation
+
+### Context-Aware
+Items are generated based on context:
+- **Dungeon Level**: Higher levels = better items
+- **Monster Type**: Different monsters drop different items
+- **Boss Fights**: Bosses drop guaranteed rare/legendary items
+- **Treasure Rooms**: Special rooms with better loot
+
+### Seeded Generation
+Item generation uses seeds:
+- Same seed = same items
+- Deterministic and verifiable
+- Fair distribution
+
+## Marketplace
+
+Items can be traded:
+- List items for sale
+- Set prices in MON or KEEP
+- Browse available items
+- Purchase from other players
+
+## Next Steps
+
+- [Learn About Heroes](/docs/game-mechanics/heroes) - How items are equipped
+- [Explore Dungeon Runs](/docs/game-mechanics/dungeon-runs) - How loot is found
+- [Read About Smart Contracts](/docs/contracts/inventory) - Technical implementation

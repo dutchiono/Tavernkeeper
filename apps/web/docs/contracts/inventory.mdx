@@ -1,0 +1,112 @@
+# Inventory Contract
+
+The Inventory contract is an ERC-1155 multi-token contract that handles all items and equipment in the game. Items can be equipped to heroes, traded, and found as loot.
+
+## Overview
+
+- **Standard**: ERC-1155 (Multi-Token Standard)
+- **Upgradeable**: Yes (UUPS proxy)
+- **Network**: Monad Testnet
+- **Features**: Fee collection, batch operations, URI storage
+
+## Key Features
+
+### Multi-Token Support
+
+ERC-1155 allows:
+- Multiple item types in one contract
+- Batch transfers (efficient gas usage)
+- Both fungible and non-fungible items
+- Custom metadata per token ID
+
+### Fee Collection
+
+Operations can collect fees:
+- Paid in native MON
+- Sent to fee recipient address
+- Configurable by owner
+
+### Loot Claiming
+
+Special function for claiming loot with fees:
+- `claimLootWithFee`: Transfer items and collect fees in one transaction
+
+## Functions
+
+### Public Functions
+
+#### `claimLootWithFee(address from, address to, uint256[] ids, uint256[] amounts, bytes data)`
+Claim loot items and collect fees in a single transaction.
+
+**Parameters:**
+- `from`: Source address
+- `to`: Destination address
+- `ids`: Array of token IDs
+- `amounts`: Array of amounts for each ID
+- `data`: Additional data
+
+**Note:** Sends any attached MON to the fee recipient.
+
+### Owner Functions
+
+#### `mint(address account, uint256 id, uint256 amount, bytes data)`
+Mint items to an address.
+
+**Requirements:**
+- Owner only
+- Collects fees if MON is sent
+
+#### `mintBatch(address to, uint256[] ids, uint256[] amounts, bytes data)`
+Mint multiple item types in one transaction.
+
+#### `setURI(string newuri)`
+Set the base URI for all tokens.
+
+#### `setFeeRecipient(address _feeRecipient)`
+Update the fee recipient address.
+
+## Item Types
+
+Items can represent:
+- **Weapons**: Swords, staffs, bows, etc.
+- **Armor**: Helmets, chestplates, boots, etc.
+- **Accessories**: Rings, amulets, etc.
+- **Consumables**: Potions, scrolls, etc.
+
+## Metadata
+
+Each item has:
+- **Base URI**: Set via `setURI`
+- **Token URI**: Can be overridden per token
+- **Metadata Format**: JSON with name, description, image, attributes
+
+## Integration
+
+### Equipping Items
+
+1. Transfer item from player to hero's TBA
+2. Update hero metadata to reflect equipment
+3. Item is now "owned" by the hero
+
+### Loot Distribution
+
+1. Generate items procedurally
+2. Mint to loot pool or directly to players
+3. Use `claimLootWithFee` for fee collection
+
+## Events
+
+- `FeeCollected(address indexed payer, uint256 amount)`
+- Standard ERC-1155 events (TransferSingle, TransferBatch, etc.)
+
+## Security
+
+- Owner-only minting
+- Fee recipient validation
+- UUPS upgradeable
+- Standard ERC-1155 security
+
+## See Also
+
+- [Game Mechanics: Items & Loot](/docs/game-mechanics/items-loot)
+- [Adventurer Contract](/docs/contracts/adventurer)

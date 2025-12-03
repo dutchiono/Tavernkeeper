@@ -1,5 +1,10 @@
 /** @type {import('next').NextConfig} */
 const path = require('path');
+const withNextra = require('nextra')({
+  theme: 'nextra-theme-docs',
+  themeConfig: './docs/theme.config.tsx',
+});
+
 require('dotenv').config({ path: path.resolve(__dirname, '../../.env') });
 
 const nextConfig = {
@@ -21,5 +26,5 @@ const nextConfig = {
   turbopack: {}, // Empty config to silence Turbopack warning when using webpack config
 };
 
-module.exports = nextConfig;
+module.exports = withNextra(nextConfig);
 

@@ -1,0 +1,127 @@
+
+# Dungeon Gatekeeper Contract
+
+The DungeonGatekeeper contract controls access to dungeons by collecting entry fees. It uses signature-based pricing to prevent front-running and ensure fair pricing.
+
+## Overview
+
+- **Type**: Access Control & Fee Collection
+- **Upgradeable**: Yes (UUPS proxy)
+- **Network**: Monad Testnet
+- **Mechanics**: Signature-based entry fees
+
+## Key Features
+
+### Signature-Based Pricing
+
+Entry fees use server-signed prices:
+- Server signs price with deadline and nonce
+- Prevents front-running
+- Fair pricing for all players
+- Nonce prevents replay attacks
+
+### Flexible Payment
+
+Supports multiple payment methods:
+- Native MON (ETH)
+- ERC-20 tokens (configurable)
+
+### Treasury Collection
+
+All fees go to treasury:
+- Configurable treasury address
+- Owner can update
+- Used for game operations
+
+## Functions
+
+### Public Functions
+
+#### `enterDungeon(address token, uint256 amount, uint256 deadline, bytes signature)`
+Enter a dungeon by paying the signed entry fee.
+
+**Parameters:**
+- `token`: Payment token address (address(0) for native MON)
+- `amount`: Amount to pay (from signature)
+- `deadline`: Signature expiration timestamp
+- `signature`: Server signature authorizing the price
+
+**Mechanics:**
+1. Verifies signature matches signer
+2. Checks deadline hasn't passed
+3. Increments nonce (replay protection)
+4. Collects payment (MON or ERC-20)
+5. Sends to treasury
+6. Emits event
+
+### Owner Functions
+
+#### `setSigner(address _signer)`
+Update the address that signs entry prices.
+
+#### `setTreasury(address _treasury)`
+Update the treasury address where fees are sent.
+
+## Integration
+
+### Frontend Flow
+
+1. Player wants to enter dungeon
+2. Frontend requests price signature from API
+3. API signs price with deadline and nonce
+4. Frontend calls `enterDungeon()` with signature
+5. Payment collected, player gains access
+
+### Signature Format
+
+Server signs:
+```
+keccak256(
+    userAddress,
+    tokenAddress,
+    amount,
+    nonce,
+    deadline,
+    chainId,
+    contractAddress
+)
+```
+
+## Security
+
+- Signature verification prevents unauthorized access
+- Nonce system prevents replay attacks
+- Deadline validation prevents stale signatures
+- Owner-only configuration
+- UUPS upgradeable
+
+## Events
+
+- `DungeonEntered(address indexed user, address token, uint256 amount, uint256 nonce)`
+- `SignerUpdated(address newSigner)`
+- `TreasuryUpdated(address newTreasury)`
+
+## Usage Example
+
+```solidity
+// Enter dungeon with native MON
+dungeonGatekeeper.enterDungeon{value: amount}(
+    address(0), // Native token
+    amount,
+    deadline,
+    signature
+);
+
+// Enter dungeon with ERC-20 token
+dungeonGatekeeper.enterDungeon(
+    tokenAddress,
+    amount,
+    deadline,
+    signature
+);
+```
+
+## See Also
+
+- [Game Mechanics: Dungeon Runs](/docs/game-mechanics/dungeon-runs)
+- [Getting Started: Your First Party](/docs/getting-started/first-party)

@@ -1,0 +1,104 @@
+
+# Heroes
+
+Heroes are ERC-721 NFTs that represent your adventurers in InnKeeper. Each hero has unique attributes, can equip items, and makes autonomous decisions during dungeon runs.
+
+## Hero Attributes
+
+Each hero has six core attributes that affect gameplay:
+
+### Strength (STR)
+- Affects physical damage output
+- Influences carrying capacity
+- Used for melee attacks
+
+### Dexterity (DEX)
+- Affects accuracy and dodge chance
+- Influences initiative in combat
+- Used for ranged attacks and agility checks
+
+### Intelligence (INT)
+- Affects magical damage output
+- Influences skill checks requiring knowledge
+- Used for spellcasting and problem-solving
+
+### Wisdom (WIS)
+- Affects perception and insight
+- Influences magical defense
+- Used for awareness and detection checks
+
+### Constitution (CON)
+- Affects hit points (HP)
+- Influences resistance to damage and status effects
+- Determines survivability
+
+### Charisma (CHA)
+- Affects social interactions
+- Influences party coordination
+- Used for persuasion and leadership
+
+## Equipment System
+
+Heroes can equip items in various slots:
+
+### Equipment Slots
+- **Main Hand**: Primary weapons (swords, staffs, axes, etc.)
+- **Off Hand**: Secondary weapons, shields, or spellbooks
+- **Head**: Helmets, hats, and headgear
+- **Body**: Armor, robes, and chest pieces
+- **Hands**: Gloves, gauntlets, and handwear
+- **Feet**: Boots, shoes, and footwear
+
+### Item Requirements
+Items may have:
+- Level requirements
+- Class requirements (warrior, mage, rogue, cleric)
+- Attribute requirements
+- Slot restrictions
+
+## Token Bound Accounts (ERC-6551)
+
+Each hero has a Token Bound Account (TBA) - a smart contract wallet controlled by the NFT. This enables:
+
+### Features
+- Heroes can hold their own assets (items, tokens)
+- Items can be "owned" by heroes rather than players
+- More immersive roleplay mechanics
+- Heroes can interact with contracts directly
+
+### Benefits
+- Items stored in hero's TBA are tied to that hero
+- Heroes can accumulate wealth independently
+- Enables hero-specific progression and identity
+
+## AI Personality
+
+Heroes use ElizaOS agents to make autonomous decisions during dungeon runs. Each hero has:
+- A personality profile
+- Decision-making capabilities
+- Memory of past experiences
+- Ability to learn and adapt
+
+## Hero Progression
+
+Heroes can progress through:
+- **Experience**: Gained from dungeon runs and combat
+- **Equipment**: Better items improve hero effectiveness
+- **Memories**: Heroes remember past runs and experiences
+- **Attributes**: May be improved through gameplay (future feature)
+
+## Hero Metadata
+
+Each hero NFT contains metadata including:
+- Visual appearance (sprite, colors)
+- Attribute values
+- Equipment currently worn
+- History and achievements
+- TBA address
+
+## Next Steps
+
+- [Learn About Parties](/docs/game-mechanics/parties) - How heroes work together
+- [Explore Dungeon Runs](/docs/game-mechanics/dungeon-runs) - How heroes explore dungeons
+- [Read About Combat](/docs/game-mechanics/combat) - How heroes fight
+- [See Smart Contracts](/docs/contracts/adventurer) - Technical implementation
