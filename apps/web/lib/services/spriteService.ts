@@ -25,36 +25,104 @@ export const DEFAULT_COLORS: HeroColors = {
 const getSpriteSize = (map: string[]) => map.length;
 
 /**
- * Darkens or Lightens a hex color.
+ * Convert hex to HSL
+ */
+const hexToHsl = (hex: string): { h: number; s: number; l: number } => {
+    const r = parseInt(hex.slice(1, 3), 16) / 255;
+    const g = parseInt(hex.slice(3, 5), 16) / 255;
+    const b = parseInt(hex.slice(5, 7), 16) / 255;
+
+    const max = Math.max(r, g, b);
+    const min = Math.min(r, g, b);
+    let h = 0, s = 0;
+    const l = (max + min) / 2;
+
+    if (max !== min) {
+        const d = max - min;
+        s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+        switch (max) {
+            case r: h = ((g - b) / d + (g < b ? 6 : 0)) / 6; break;
+            case g: h = ((b - r) / d + 2) / 6; break;
+            case b: h = ((r - g) / d + 4) / 6; break;
+        }
+    }
+
+    return { h: h * 360, s: s * 100, l: l * 100 };
+};
+
+/**
+ * Convert HSL to hex
+ */
+const hslToHex = (h: number, s: number, l: number): string => {
+    l /= 100;
+    const a = s * Math.min(l, 1 - l) / 100;
+    const f = (n: number) => {
+        const k = (n + h / 30) % 12;
+        const color = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
+        return Math.round(255 * color).toString(16).padStart(2, '0');
+    };
+    return `#${f(0)}${f(8)}${f(4)}`;
+};
+
+/**
+ * Generate 5-level shade palette from a base color using HSL
+ * Preserves color character better than RGB manipulation
+ */
+const generateShadeLevels = (color: string) => {
+    const hsl = hexToHsl(color);
+    return {
+        darkest: hslToHex(hsl.h, hsl.s, Math.max(5, hsl.l - 40)),   // Deep shadow
+        dark: hslToHex(hsl.h, hsl.s, Math.max(10, hsl.l - 20)),     // Shadow
+        base: color,                                                  // Base color
+        light: hslToHex(hsl.h, hsl.s, Math.min(95, hsl.l + 15)),     // Highlight
+        lightest: hslToHex(hsl.h, hsl.s, Math.min(98, hsl.l + 30)),  // Bright highlight
+    };
+};
+
+/**
+ * Legacy shadeColor for backward compatibility (now uses HSL)
  */
 const shadeColor = (color: string, percent: number) => {
-    const f = parseInt(color.slice(1), 16);
-    const t = percent < 0 ? 0 : 255;
-    const p = percent < 0 ? percent * -1 : percent;
-    const R = f >> 16;
-    const G = (f >> 8) & 0x00FF;
-    const B = f & 0x0000FF;
-    return "#" + (0x1000000 + (Math.round((t - R) * p) + R) * 0x10000 + (Math.round((t - G) * p) + G) * 0x100 + (Math.round((t - B) * p) + B)).toString(16).slice(1);
+    const hsl = hexToHsl(color);
+    const newL = Math.max(5, Math.min(95, hsl.l + (percent * 100)));
+    return hslToHex(hsl.h, hsl.s, newL);
 };
 
 // --- V5 HIGH-FIDELITY MAPS (STARDEW PROPORTIONS) ---
 // 64x64 Grid
 
-// LEGEND:
+// LEGEND (Enhanced with 5-level shading):
 // . = Transparent
 // X = Outline (Black/Dark)
-// S = Skin Base, s = Skin Shadow, Y = Skin Highlight
-// H = Hair Base, h = Hair Shadow, Z = Hair Highlight
-// C = Clothing Base, c = Clothing Shadow, K = Clothing Highlight
-// A = Accent Base, a = Accent Shadow, W = White/Silver/Trim
-// M = Metal/Grey Base, m = Metal Shadow, L = Metal Highlight
-// l = Leather/Brown Base, d = Leather Dark
+// 
+// SKIN (5 levels):
+// S = Skin Base, s = Skin Dark, s1 = Skin Darkest, Y = Skin Light, Y1 = Skin Lightest
+//
+// HAIR (5 levels):
+// H = Hair Base, h = Hair Dark, h1 = Hair Darkest, Z = Hair Light, Z1 = Hair Lightest
+//
+// CLOTHING (5 levels):
+// C = Clothing Base, c = Clothing Dark, c1 = Clothing Darkest, c2 = Clothing Medium Dark
+// K = Clothing Light, K1 = Clothing Lightest, K2 = Clothing Medium Light
+//
+// ACCENT (5 levels):
+// A = Accent Base, a = Accent Dark, a1 = Accent Darkest, A1 = Accent Light, A2 = Accent Lightest
+//
+// METAL (5 levels):
+// M = Metal Base, m = Metal Dark, m1 = Metal Darkest, L = Metal Light, L1 = Metal Lightest
+//
+// LEATHER (3 levels):
+// l = Leather Base, d = Leather Dark, d1 = Leather Darkest
+//
+// DETAILS:
+// W = White/Silver/Trim
+// G = Gold/Yellow (Hardcoded for trims)
 // E = Eye Pupil (Black/Dark)
 // w = Eye White
 // F = Foam (White)
 // B = Beer (Amber)
 // r = Mouth/Rose
-// G = Gold/Yellow (Hardcoded for trims)
+// R = Red/Plume
 
 const WARRIOR_MAP = [
     "................................................................",
@@ -63,59 +131,59 @@ const WARRIOR_MAP = [
     ".........................XXRRRRRRRRXX...........................",
     ".........................XRRRRRRRRRRX...........................",
     "........................XXMMMMMMMMMMXX..........................",
-    ".......................XMMLLMMLLMMLLMMX.........................",
-    ".......................XMMLLMMLLMMLLMMX.........................",
-    ".......................XMMMMMMMMMMMMMMX.........................",
-    ".......................XMMMMXXXXXXMMMMX.........................",
-    ".......................XMMMX......XMMMX.........................",
-    ".......................XMMMX......XMMMX.........................",
-    ".......................XMMMMXXXXXXMMMMX.........................",
-    ".......................XMMMMMMMMMMMMMMX.........................",
-    ".......................XMMMMMMMMMMMMMMX.........................",
-    "......................XXMMMMMMMMMMMMMMXX........................",
-    ".....................XMMMMMMMMMMMMMMMMMMX.......................",
-    "....................XMMMMMMMMMMMMMMMMMMMMX......................",
-    "..................XXMMMMMMMMMMMMMMMMMMMMMMXX....................",
-    ".................XLLMMMMMMMMMMMMMMMMMMMMMMLLX...................",
-    "................XLLLMMMMMMMMMMMMMMMMMMMMMMLLLX..................",
-    "................XLLLMMMMMMMMMMMMMMMMMMMMMMLLLX..................",
-    "...............XLLLLMMMMMMMMMMMMMMMMMMMMMMLLLLX.................",
-    "...............XLLLLXXXXXXMMMMMMMMMMXXXXXXLLLLX.................",
-    "...............XMMMMXCCCCCXXXXXXXXXXCCCCCXMMMMX.................",
-    "...............XXXXXXCCCCCCCCCCCCCCCCCCCCXXXXXX.................",
-    "....................XCCCCCCCCCCCCCCCCCCCCX......................",
-    "....................XCCCCCCCCCCCCCCCCCCCCX......................",
-    "....................XCCKKCCCCCCCCCCCCKKCCX......................",
-    "....................XCCKKCCCCCCCCCCCCKKCCX......................",
-    "....................XCCKKCCCCCCCCCCCCKKCCX......................",
-    "....................XCCKKCCCCCCCCCCCCKKCCX......................",
-    "....................XCCKKCCCCCCCCCCCCKKCCX......................",
-    "....................XCCKKCCCCCCCCCCCCKKCCX......................",
-    "....................XCCKKCCCCCCCCCCCCKKCCX......XXX.............",
-    "....................XCCKKCCCCCCCCCCCCKKCCX.....XGGX.............",
-    "...................XllXXXXXXXXXXXXXXXXXXllX....XGGX.............",
-    "...................XllllllllllllllllllllllX...XXllXX............",
-    "...................XllXGGXllllllllllXGGXllX...XllllX............",
-    "...................XXXXGGXXXXXXXXXXXXGGXXXX...XllllX............",
-    "....................XMMMMMMMMMMMMMMMMMMMMX....XllllX............",
-    "....................XMMMMMMMMMMMMMMMMMMMMX....XXMMXX............",
+    ".......................XMMLLLMMLLLMMLLLMMX.......................",
+    ".......................XMMLLLMMLLLMMLLLMMX.......................",
+    ".......................XMMLLLMMLLLMMLLLMMX.......................",
+    ".......................XMMMMMMMMMMMMMMMLLX.......................",
+    ".......................XMMMMXXXXXXMMMMLLX.......................",
+    ".......................XMMMXwwEEwwXMMMLLX.......................",
+    ".......................XMMMXwwEEwwXMMMLLX.......................",
+    ".......................XMMMMXXXXXXMMMMLLX.......................",
+    ".......................XMMMMMMMMMMMMMMMLLX.......................",
+    "......................XXMMMMMMMMMMMMMMMLLXX......................",
+    ".....................XMMMMMMMMMMMMMMMMMMMLLX....................",
+    "....................XMMMMMMMMMMMMMMMMMMMMMLLX....................",
+    "..................XXMMMMMMMMMMMMMMMMMMMMMMLLXX..................",
+    ".................XLLMMMMMMMMMMMMMMMMMMMMMMMLLX.................",
+    "................XLLLMMMMMMMMMMMMMMMMMMMMMMMLLLX................",
+    "................XLLLMMMMMMMMMMMMMMMMMMMMMMMLLLX................",
+    "...............XLLLLMMMMMMMMMMMMMMMMMMMMMMMLLLLX...............",
+    "...............XLLLLXXXXXXMMMMMMMMMMXXXXXXLLLLX...............",
+    "...............XMMMMXCCCCCCXXXXXXXXXXCCCCCCXMMMMX..............",
+    "...............XXXXXXCCCCCCCCCCCCCCCCCCCCCCXXXXXX..............",
+    "....................XCCCCCCCCCCCCCCCCCCCCCCX...................",
+    "....................XCCCCCCCCCCCCCCCCCCCCCCX...................",
+    "....................XCCc1CCCCCCCCCCCCCCc1CCX...................",
+    "....................XCCc1CCCCCCCCCCCCCCc1CCX...................",
+    "....................XCCc1cCCCCCCCCCCCCc1cCCX...................",
+    "....................XCCc1cCCCCCCCCCCCCc1cCCX...................",
+    "....................XCCc1cCCCCCCCCCCCCc1cCCX...................",
+    "....................XCCc1cCCCCCCCCCCCCc1cCCX...................",
+    "....................XCCc1cCCCCCCCCCCCCc1cCCX......XXX..........",
+    "....................XCCc1cCCCCCCCCCCCCc1cCCX.....XGGX.........",
+    "...................XllXXXXXXXXXXXXXXXXXXllX....XGGX.........",
+    "...................XllllllllllllllllllllllX...XXllXX..........",
+    "...................XllXGGXllllllllllXGGXllX...XllllX..........",
+    "...................XXXXGGXXXXXXXXXXXXGGXXXX...XllllX..........",
+    "....................XMMMMMMMMMMMMMMMMMMMMX....XllllX..........",
+    "....................XMMMMMMMMMMMMMMMMMMMMX....XXMMXX...........",
     "....................XMMMMMMMMMMMMMMMMMMMMX...XMMMMMMX...........",
     "....................XMMMMMMMMMMMMMMMMMMMMX...XMMMMMMX...........",
-    "....................XMMMMMMMMMMMMMMMMMMMMX....XLLLLX............",
-    "....................XMMMMMMMMMMMMMMMMMMMMX....XLLLLX............",
-    "....................XMMMMMMMMMMMMMMMMMMMMX....XLLLLX............",
-    "....................XMMMMMMMMMMMMMMMMMMMMX....XLLLLX............",
-    "....................XMMMMMMXXXXXXXXMMMMMMX....XLLLLX............",
-    "....................XMMMMMX........XMMMMMX....XLLLLX............",
-    "....................XMMMMMX........XMMMMMX....XLLLLX............",
-    "....................XMMMMMX........XMMMMMX....XLLLLX............",
-    "....................XMMMMMX........XMMMMMX....XLLLLX............",
-    "....................XMMMMMX........XMMMMMX....XLLLLX............",
-    "...................XMMMMMMX........XMMMMMMX...XLLLLX............",
-    "...................XMMMMMMX........XMMMMMMX...XLLLLX............",
-    "...................XMMMMMMX........XMMMMMMX...XLLLLX............",
-    "...................XMMMMMMX........XMMMMMMX...XXLLXX............",
-    "..................XMMMMMMMMX......XMMMMMMMMX....XX..............",
+    "....................XMMMMMMMMMMMMMMMMMMMMX....XLLLLX...........",
+    "....................XMMMMMMMMMMMMMMMMMMMMX....XLLLLX...........",
+    "....................XMMMMMMMMMMMMMMMMMMMMX....XLLLLX...........",
+    "....................XMMMMMMMMMMMMMMMMMMMMX....XLLLLX...........",
+    "....................XMMMMMMXXXXXXXXMMMMMMX....XLLLLX...........",
+    "....................XMMMMMX........XMMMMMX....XLLLLX...........",
+    "....................XMMMMMX........XMMMMMX....XLLLLX...........",
+    "....................XMMMMMX........XMMMMMX....XLLLLX...........",
+    "....................XMMMMMX........XMMMMMX....XLLLLX...........",
+    "....................XMMMMMX........XMMMMMX....XLLLLX...........",
+    "...................XMMMMMMX........XMMMMMMX...XLLLLX...........",
+    "...................XMMMMMMX........XMMMMMMX...XLLLLX...........",
+    "...................XMMMMMMX........XMMMMMMX...XLLLLX...........",
+    "...................XMMMMMMX........XMMMMMMX...XXLLXX...........",
+    "..................XMMMMMMMMX......XMMMMMMMMX....XX.............",
     ".................XMMMMMMMMMMX....XMMMMMMMMMMX...................",
     ".................XXXXXXXXXXXX....XXXXXXXXXXXX...................",
     "................................................................"
@@ -189,7 +257,7 @@ const MAGE_MAP = [
 const ROGUE_MAP = [
     "................................................................",
     "...........................XXXXXXXXXX...........................",
-    ".........................XXXccccccccXXX.........................",
+    ".........................XXXcccccc1ccXXX........................",
     "........................XccccccccccccccX........................",
     ".......................XccccccccccccccccX.......................",
     "......................XcccccXXXXXXcccccccX......................",
@@ -695,40 +763,67 @@ export const drawSpriteFrame = (
   const map = frames[frameIndex % frames.length];
   const size = getSpriteSize(map);
 
-  // Advanced Palette Generation (Base, Shadow, Highlight)
+  // Enhanced 5-Level Palette Generation with HSL-based shading
+  const skinShades = generateShadeLevels(colors.skin);
+  const hairShades = generateShadeLevels(colors.hair);
+  const clothingShades = generateShadeLevels(colors.clothing);
+  const accentShades = generateShadeLevels(colors.accent);
+  
+  // Metal shades (high contrast for metallic look)
+  const metalBase = '#9ca3af';
+  const metalShades = generateShadeLevels(metalBase);
+  
+  // Leather shades
+  const leatherBase = '#5c3a1e';
+  const leatherShades = generateShadeLevels(leatherBase);
+
   const palette: Record<string, string | null> = {
-      // Skin
-      S: colors.skin,
-      s: shadeColor(colors.skin, -0.2),
-      Y: shadeColor(colors.skin, 0.15),
+      // Skin (5 levels)
+      S: skinShades.base,
+      s: skinShades.dark,
+      s1: skinShades.darkest,
+      Y: skinShades.light,
+      Y1: skinShades.lightest,
 
-      // Hair
-      H: colors.hair,
-      h: shadeColor(colors.hair, -0.25),
-      Z: shadeColor(colors.hair, 0.3),
+      // Hair (5 levels)
+      H: hairShades.base,
+      h: hairShades.dark,
+      h1: hairShades.darkest,
+      Z: hairShades.light,
+      Z1: hairShades.lightest,
 
-      // Clothing (Primary)
-      C: colors.clothing,
-      c: shadeColor(colors.clothing, -0.3),
-      K: shadeColor(colors.clothing, 0.25),
+      // Clothing (5 levels)
+      C: clothingShades.base,
+      c: clothingShades.dark,
+      c1: clothingShades.darkest,
+      c2: shadeColor(colors.clothing, -0.15), // Medium dark
+      K: clothingShades.light,
+      K1: clothingShades.lightest,
+      K2: shadeColor(colors.clothing, 0.12), // Medium light
 
-      // Accent / Secondary
-      A: colors.accent,
-      a: shadeColor(colors.accent, -0.25),
-      W: '#e5e7eb', // Silver/White for details
-      G: '#fbbf24', // Gold trim
+      // Accent (5 levels)
+      A: accentShades.base,
+      a: accentShades.dark,
+      a1: accentShades.darkest,
+      A1: accentShades.light,
+      A2: accentShades.lightest,
 
-      // Metal / Greys
-      M: '#9ca3af',
-      m: '#4b5563',
-      L: '#f3f4f6',
+      // Metal (5 levels - high contrast)
+      M: metalShades.base,
+      m: metalShades.dark,
+      m1: metalShades.darkest,
+      L: metalShades.light,
+      L1: metalShades.lightest,
       R: '#dc2626', // Plume Red
 
-      // Leather / Boots
-      l: '#5c3a1e',
-      d: '#3e2613',
+      // Leather (3 levels)
+      l: leatherShades.base,
+      d: leatherShades.dark,
+      d1: leatherShades.darkest,
 
       // Details
+      W: '#e5e7eb', // Silver/White for details
+      G: '#fbbf24', // Gold trim
       X: '#0f0f10', // Outline (Almost Black)
       E: '#09090b', // Eye Pupil
       w: '#ffffff', // Eye White
