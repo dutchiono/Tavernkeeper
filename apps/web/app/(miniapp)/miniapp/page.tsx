@@ -160,38 +160,7 @@ function MiniappContent() {
 
                     </div>
 
-                    {/* --- BOTTOM HUD: Party Roster Only --- */}
-                    <div className="w-full h-40 bg-[#1e1e24] border-t-4 border-slate-800 p-2 flex gap-2 z-20 shadow-[0_-4px_10px_rgba(0,0,0,0.5)] shrink-0">
 
-                        {/* HERO ACTIONS SECTION */}
-                        <PixelBox className="w-full" variant="wood" title="Actions">
-                            <div className="flex gap-4 h-full items-center justify-center px-4">
-                                <PixelButton
-                                    variant="primary"
-                                    onClick={() => window.location.href = '/hero-builder'}
-                                    className="flex items-center gap-2"
-                                >
-                                    <span className="text-lg">⚔️</span>
-                                    <div className="flex flex-col items-start">
-                                        <span className="text-[10px]">NEW HERO</span>
-                                        <span className="text-[8px] text-white/60">Mint NFT</span>
-                                    </div>
-                                </PixelButton>
-
-                                <PixelButton
-                                    variant="secondary"
-                                    onClick={() => window.location.href = '/party'}
-                                    className="flex items-center gap-2"
-                                >
-                                    <span className="text-lg">👥</span>
-                                    <div className="flex flex-col items-start">
-                                        <span className="text-[10px]">PARTY</span>
-                                        <span className="text-[8px] text-white/60">Manage</span>
-                                    </div>
-                                </PixelButton>
-                            </div>
-                        </PixelBox>
-                    </div>
 
                 </div>
             </main>
