@@ -70,7 +70,7 @@ export class ItemGenerator {
    * Search for "SCARCITY" in this file to find all related code.
    * ============================================================================
    */
-  
+
   // SCARCITY SYSTEM: Storage interface (implement based on your storage system)
   // TO REMOVE: Delete this if removing scarcity system
   private itemCounts: ItemCounts | null = null;
@@ -90,7 +90,7 @@ export class ItemGenerator {
     if (this.itemCounts) {
       return this.itemCounts;
     }
-    
+
     return {
       // Weapons
       'Longsword': 0,
@@ -343,7 +343,7 @@ export class ItemGenerator {
 
     // Select weapon based on weighted random
     const totalWeight = weightedWeapons.reduce((sum, w) => sum + w.weight, 0);
-    let weapon: { type: string; damage: number; isMagic: boolean; requiredClass: PlayerClass };
+    let weapon: { type: string; damage: number; isMagic: boolean; requiredClass: PlayerClass } | undefined = undefined;
     if (totalWeight === 0) {
       // All weapons are at cap, select randomly
       weapon = this.rng.choice(candidateWeapons);
