@@ -14,6 +14,11 @@ const CONFIGS = {
         NEXT_PUBLIC_MONAD_RPC_URL: 'https://testnet-rpc.monad.xyz',
         NEXT_PUBLIC_MONAD_CHAIN_ID: '10143',
         NEXT_PUBLIC_USE_LOCALHOST: 'false'
+    },
+    mainnet: {
+        NEXT_PUBLIC_MONAD_RPC_URL: 'https://rpc.monad.xyz',
+        NEXT_PUBLIC_MONAD_CHAIN_ID: '143',
+        NEXT_PUBLIC_USE_LOCALHOST: 'false'
     }
 };
 

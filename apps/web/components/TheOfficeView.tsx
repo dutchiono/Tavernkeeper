@@ -148,20 +148,15 @@ export const TheOfficeView: React.FC<TheOfficeViewProps> = ({
     return (
         <div className="w-full h-full flex flex-col font-pixel relative">
             {/* Visual Area (Chat or Cellar) */}
-            <div className="flex-1 relative bg-[#1a120b] overflow-hidden">
-                {/* Background Image */}
+            <div className="flex-1 relative bg-[#1a120b] overflow-hidden flex flex-col gap-2">
+                {/* Background Image - Absolute to fill container */}
                 <div
-                    className="absolute inset-0 bg-cover bg-center opacity-40"
+                    className="absolute inset-0 bg-cover bg-center opacity-40 pointer-events-none"
                     style={{ backgroundImage: "url('/sprites/office_bg.png')" }}
                 />
 
-                {/* Content Overlay - Chat positioned between header and bottom panel */}
-                <div className={`absolute inset-0 z-30 p-4 pb-24 transition-all duration-300 ${isHeaderMinimized ? 'pt-20' : 'pt-[8.5rem]'}`}>
-                    {children}
-                </div>
-
-                {/* Top Header - Protocol Info (Office & Cellar) - Highest z-index to stay on top */}
-                <div className="absolute top-0 left-0 right-0 bg-[#3e2b22] border-b-4 border-[#2a1d17] p-1.5 z-40 shadow-md flex flex-col gap-1.5">
+                {/* Top Header - Protocol Info (Office & Cellar) - Relative to push content down */}
+                <div className="relative bg-[#3e2b22] border-b-4 border-[#2a1d17] p-1.5 z-40 shadow-md flex flex-col gap-1.5 shrink-0">
 
                     {/* Error Banner */}
                     {state.error && (
@@ -265,6 +260,11 @@ export const TheOfficeView: React.FC<TheOfficeViewProps> = ({
                             </div>
                         </div>
                     )}
+                </div>
+
+                {/* Content Overlay - Chat positioned below header */}
+                <div className="flex-1 relative z-30 p-4 overflow-y-auto">
+                    {children}
                 </div>
             </div>
 
