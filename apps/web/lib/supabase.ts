@@ -5,12 +5,14 @@ const getSupabaseConfig = () => {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL ||
     process.env.SUPABASE_URL ||
     process.env.SUPABASE_PROJECT_URL ||
+    process.env.NEXT_PUBLIC_SUPABASE_PROJECT_URL ||
     '';
 
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
     process.env.SUPABASE_ANON_KEY ||
     process.env.SUPABASE_API_KEY ||
     process.env.NEXT_PUBLIC_SUPABASE_KEY ||
+    process.env.NEXT_PUBLIC_SUPABASE_API_KEY ||
     '';
 
   return { url, key };
@@ -49,7 +51,7 @@ async function supabaseRequest<T>(
 
   if (!baseUrl || !key) {
     console.error('Supabase Env Vars Missing');
-    return { data: null, error: { message: 'Missing Supabase Configuration' } };
+    return { data: null, error: { message: 'Missing Supabase Configuration. Please check your environment variables.' } };
   }
 
   const url = new URL(`${baseUrl}/rest/v1/${table}`);
