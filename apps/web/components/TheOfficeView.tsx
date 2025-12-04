@@ -481,12 +481,14 @@ export const TheOfficeView: React.FC<TheOfficeViewProps> = ({
                                         </div>
                                     )}
                                     <div className="mt-3 pt-3 border-t border-[#5c4033]">
-                                        <div className="flex justify-between items-center mb-1">
-                                            <span className="text-zinc-400 text-xs">You'll Receive (80%):</span>
-                                            <span className="text-yellow-400 text-sm font-semibold">
-                                                {(Math.max(1.0, parseFloat(state.currentPrice || '1.0')) * 0.8).toFixed(4)} MON
-                                            </span>
-                                        </div>
+                                        {state.currentKing && state.currentKing !== '0x0000000000000000000000000000000000000000' && (
+                                            <div className="flex justify-between items-center mb-1">
+                                                <span className="text-zinc-400 text-xs">Previous Owner Will Receive (80%):</span>
+                                                <span className="text-yellow-400 text-sm font-semibold">
+                                                    {(Math.max(1.0, parseFloat(state.currentPrice || '1.0')) * 0.8).toFixed(4)} MON
+                                                </span>
+                                            </div>
+                                        )}
                                         <div className="flex justify-between items-center">
                                             <span className="text-zinc-400 text-xs">Office Rate:</span>
                                             <span className="text-[#fbbf24] text-sm font-semibold">
