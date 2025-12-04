@@ -40,12 +40,14 @@ export const BottomNav: React.FC = () => {
 
             <button
                 onClick={() => handleNavigation(GameView.CELLAR)}
-                className="flex flex-col items-center gap-1 p-2 group"
+                disabled={true}
+                className="flex flex-col items-center gap-1 p-2 group opacity-50 cursor-not-allowed"
+                title="Cellar temporarily disabled - fixing liquidity calculation issue"
             >
-                <div className={`w-10 h-10 border-2 rounded-sm flex items-center justify-center text-xl shadow-md transition-all group-hover:-translate-y-1 ${isActive(GameView.CELLAR) ? 'bg-[#5c4b40] border-[#eaddcf]' : 'bg-[#4a3b32] border-[#855e42] group-hover:border-[#eaddcf] group-hover:bg-[#5c4b40]'}`}>
+                <div className={`w-10 h-10 border-2 rounded-sm flex items-center justify-center text-xl shadow-md transition-all ${isActive(GameView.CELLAR) ? 'bg-[#5c4b40] border-[#eaddcf]' : 'bg-[#4a3b32] border-[#855e42]'}`}>
                     🪜
                 </div>
-                <span className={`text-[8px] uppercase font-bold tracking-widest drop-shadow-md ${isActive(GameView.CELLAR) ? 'text-white' : 'text-[#eaddcf] group-hover:text-white'}`}>Cellar</span>
+                <span className={`text-[8px] uppercase font-bold tracking-widest drop-shadow-md ${isActive(GameView.CELLAR) ? 'text-white' : 'text-[#eaddcf]'}`}>Cellar</span>
             </button>
 
             <button

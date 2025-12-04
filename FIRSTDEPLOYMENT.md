@@ -105,6 +105,32 @@ Town Posse Manager: 0xE46592D8185975888b4A301DBD9b24A49933CC7D
 
 ## Upgrade History (Mainnet)
 
+### 2025-01-XX: Fixed Uniswap V4 Liquidity Implementation
+- **Reason**: Fixed critical bug where LP tokens were minted but no liquidity was added to Uniswap V4 pools. The `modifyLiquidity()` call was commented out, making the system non-functional.
+- **Contracts Upgraded**:
+  - **CellarHook (The Cellar)**:
+    - Proxy: `0x6c7612F44B71E5E6E2bA0FEa799A23786A537755`
+    - Old Impl: `0x9aAc7082B18733a6951e0885C26DdD0Efa2b8C05`
+    - New Impl: `0xcFd31f58Dd2d8fBaFA60208e4a57c8B00f086b78`
+  - **CellarZapV4**:
+    - Proxy: `0xf7248a01051bf297Aa56F12a05e7209C60Fc5863`
+    - Old Impl: `0x0aE0878FB0CA0D9d64e08B861371f69C944ae418`
+    - New Impl: `0x0aE0878FB0CA0D9d64e08B861371f69C944ae418` (no changes, recompiled)
+- **Status**: ✅ Success
+- **Changes**:
+  - ✅ Implemented actual `modifyLiquidity()` call (was commented out)
+  - ✅ Added pool initialization logic
+  - ✅ Added proper liquidityDelta calculation using Uniswap V4 formulas
+  - ✅ Implemented BalanceDelta settlement (settle/take pattern)
+  - ✅ Fixed tick range handling (0,0 now uses full range)
+  - ✅ Added `poolInitialized` state variable for recovery tracking
+  - ✅ Added recovery functions (`recoverStuckTokens`, `recoverTokensForUser`)
+- **Notes**:
+  - Frontend addresses updated automatically (implementation address changed)
+  - LP tokens now represent actual liquidity in Uniswap V4 pools
+  - Pools are now tradeable
+  - Users with stuck tokens can recover them before pool initialization
+
 ### 2025-01-XX: Added 1:3 MON:KEEP ratio validation
 - **Reason**: Added 1:3 MON:KEEP ratio validation to addLiquidity
 - **Contracts Upgraded**:

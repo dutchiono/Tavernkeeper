@@ -443,9 +443,11 @@ export const TheOfficeView: React.FC<TheOfficeViewProps> = ({
                                 <PixelButton
                                     onClick={() => onViewSwitch?.('cellar')}
                                     variant="secondary"
-                                    className="flex-1 !py-2 !text-xs shadow-lg flex items-center justify-center"
+                                    disabled={true}
+                                    className="flex-1 !py-2 !text-xs shadow-lg flex items-center justify-center opacity-50 cursor-not-allowed"
+                                    title="Cellar temporarily disabled"
                                 >
-                                    RAID CELLAR
+                                    RAID CELLAR (DISABLED)
                                 </PixelButton>
                             </div>
                         ) : (

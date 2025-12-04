@@ -13,6 +13,6 @@
         "buttonTitle": "Play InnKeeper",
         "splashImageUrl": "https://tavernkeeper.xyz/splash.png",
         "splashBackgroundColor": "#2a1d17",
-        "webhookUrl": "https://tavernkeeper.xyz/api/webhook"
+        "webhookUrl": "https://api.neynar.com/f/app/85c825e6-14ef-4884-8014-900d0c2bb4b2/event"
     }
 }

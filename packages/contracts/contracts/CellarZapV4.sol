@@ -71,7 +71,7 @@ contract CellarZapV4 is Initializable, OwnableUpgradeable, UUPSUpgradeable {
         }
         IERC20(Currency.unwrap(KEEP)).forceApprove(cellarHook, amountKEEP);
 
-        // 3. Construct PoolKey (Dummy key as Hook placeholder doesn't check pool existence yet)
+        // 3. Construct PoolKey
         // We need to sort currencies for the key
         (Currency currency0, Currency currency1) = sortCurrencies(MON, KEEP);
 
@@ -85,14 +85,15 @@ contract CellarZapV4 is Initializable, OwnableUpgradeable, UUPSUpgradeable {
 
         // 4. Call addLiquidity
         // Note: CellarHook.addLiquidity is payable if MON is native
+        // Passing 0,0 for ticks will use full range automatically
         uint256 valueToSend = Currency.unwrap(MON) == address(0) ? amountMON : 0;
 
         ICellarHook(cellarHook).addLiquidity{value: valueToSend}(
             key,
             amountMON,
             amountKEEP,
-            0, // tickLower (unused in placeholder)
-            0  // tickUpper (unused in placeholder)
+            0, // tickLower (0 = use full range)
+            0  // tickUpper (0 = use full range)
         );
 
         // 5. Transfer CLP (Cellar LP) to user

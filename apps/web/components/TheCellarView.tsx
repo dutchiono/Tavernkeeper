@@ -15,6 +15,9 @@ interface TheCellarViewProps {
     keepBalance?: string;
 }
 
+// TEMPORARILY DISABLED - Cellar functionality disabled due to liquidity calculation overflow issue
+const CELLAR_DISABLED = true;
+
 export default function TheCellarView({ onBackToOffice, monBalance = "0", keepBalance = "0" }: TheCellarViewProps = {}) {
     const { authenticated, user } = usePrivy();
     const { wallets } = useWallets();
@@ -152,6 +155,37 @@ export default function TheCellarView({ onBackToOffice, monBalance = "0", keepBa
     const isPotEmpty = parseFloat(state.potSize) === 0;
     const currentPriceWei = state ? parseEther(state.currentPrice) : 0n;
     const hasEnoughLP = lpBalance >= currentPriceWei;
+
+    // Show disabled message if cellar is disabled
+    if (CELLAR_DISABLED) {
+        return (
+            <div className="flex flex-col gap-4 p-4 text-white font-pixel h-full justify-center items-center">
+                <div className="flex items-center justify-center gap-2 mb-2">
+                    <Flame className="w-6 h-6 text-orange-500 animate-pulse" />
+                    <h2 className="text-xl font-bold text-orange-400">THE CELLAR</h2>
+                </div>
+                <PixelBox variant="dark" className="p-6 max-w-md text-center">
+                    <div className="text-red-400 font-bold text-lg mb-2">⚠️ TEMPORARILY DISABLED</div>
+                    <div className="text-sm text-zinc-400 mb-4">
+                        The Cellar is currently disabled due to a liquidity calculation issue.
+                    </div>
+                    <div className="text-xs text-zinc-500">
+                        We're working on fixing an arithmetic overflow error in the liquidity addition function.
+                        The Cellar will be re-enabled once the fix is deployed.
+                    </div>
+                    {onBackToOffice && (
+                        <PixelButton
+                            onClick={onBackToOffice}
+                            variant="default"
+                            className="mt-4 w-full"
+                        >
+                            Back to Office
+                        </PixelButton>
+                    )}
+                </PixelBox>
+            </div>
+        );
+    }
 
     return (
         <div className="flex flex-col gap-4 p-4 text-white font-pixel h-full justify-center">

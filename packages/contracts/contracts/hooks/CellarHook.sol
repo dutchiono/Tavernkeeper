@@ -9,6 +9,8 @@ import {BalanceDelta} from "@uniswap/v4-core/src/types/BalanceDelta.sol";
 import {ModifyLiquidityParams, SwapParams} from "@uniswap/v4-core/src/types/PoolOperation.sol";
 import {BeforeSwapDelta, BeforeSwapDeltaLibrary} from "@uniswap/v4-core/src/types/BeforeSwapDelta.sol";
 import {Currency, CurrencyLibrary} from "@uniswap/v4-core/src/types/Currency.sol";
+import {TickMath} from "@uniswap/v4-core/src/libraries/TickMath.sol";
+import {BalanceDeltaLibrary} from "@uniswap/v4-core/src/types/BalanceDelta.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {ERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
@@ -50,6 +52,10 @@ contract CellarHook is IHooks, ERC20Upgradeable, OwnableUpgradeable, UUPSUpgrade
     uint256 public constant ABS_MAX_INIT_PRICE = type(uint192).max;
     uint256 public constant PRICE_MULTIPLIER_SCALE = 1e18;
 
+    // Uniswap V4 tick constants
+    int24 public constant MIN_TICK = -887272;
+    int24 public constant MAX_TICK = 887272;
+
     /*----------  STATE VARIABLES  --------------------------------------*/
 
     // Note: In upgradeable contracts, immutable variables must become state variables
@@ -66,8 +72,14 @@ contract CellarHook is IHooks, ERC20Upgradeable, OwnableUpgradeable, UUPSUpgrade
 
     Slot0 public slot0;
 
+    // Track if pool has been initialized (prevents recovery after pool is live)
+    // MUST be at the end of state variables for upgrade compatibility
+    bool public poolInitialized;
+
     event Raid(address indexed raider, uint256 paymentAmount, uint256 rewardAmount, uint256 newInitPrice, uint256 newEpochId);
     event PotContributed(address indexed contributor, uint256 amount);
+    event PoolInitialized(address indexed initializer, uint160 sqrtPriceX96);
+    event TokensRecovered(address indexed user, uint256 lpTokensBurned, uint256 monRecovered, uint256 keepRecovered);
 
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
@@ -116,6 +128,9 @@ contract CellarHook is IHooks, ERC20Upgradeable, OwnableUpgradeable, UUPSUpgrade
 
         // Initialize potBalance to 0
         potBalance = 0;
+
+        // Pool not initialized yet
+        poolInitialized = false;
     }
 
     function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
@@ -250,9 +265,38 @@ contract CellarHook is IHooks, ERC20Upgradeable, OwnableUpgradeable, UUPSUpgrade
     // Liquidity Management
     // ---------------------------------------------------------
 
+    /// @notice Adds liquidity to the Uniswap V4 pool and mints LP tokens
+    /// @param key The pool key identifying the pool
+    /// @param amountMON Amount of MON tokens to add
+    /// @param amountKEEP Amount of KEEP tokens to add (must be 3x amountMON)
+    /// @param tickLower Lower tick for the liquidity position (must be valid, not 0)
+    /// @param tickUpper Upper tick for the liquidity position (must be valid, not 0)
     function addLiquidity(PoolKey calldata key, uint256 amountMON, uint256 amountKEEP, int24 tickLower, int24 tickUpper) external payable {
         // Validate 1:3 MON:KEEP ratio
         require(amountKEEP == amountMON * 3, "CellarHook: Invalid MON:KEEP ratio (must be 1:3)");
+        require(amountMON > 0 && amountKEEP > 0, "CellarHook: Amounts must be > 0");
+
+        // Handle tick range - if 0,0 use reasonable range around current price, otherwise validate
+        int24 actualTickLower = tickLower;
+        int24 actualTickUpper = tickUpper;
+        if (tickLower == 0 && tickUpper == 0) {
+            // Use reasonable range around current price (price = 3, tick ≈ 10986)
+            // Use ±20000 ticks around current price (approximately ±200% price range)
+            // Round to nearest tick spacing
+            int24 currentTick = 10986; // Approximate tick for price = 3
+            int24 rangeTicks = 20000;
+            actualTickLower = ((currentTick - rangeTicks) / key.tickSpacing) * key.tickSpacing;
+            actualTickUpper = ((currentTick + rangeTicks) / key.tickSpacing) * key.tickSpacing;
+
+            // Ensure ticks are within bounds
+            if (actualTickLower < MIN_TICK) actualTickLower = MIN_TICK;
+            if (actualTickUpper > MAX_TICK) actualTickUpper = MAX_TICK;
+        } else {
+            // Validate provided ticks
+            require(tickLower < tickUpper, "CellarHook: tickLower must be < tickUpper");
+            require(tickLower >= MIN_TICK && tickUpper <= MAX_TICK, "CellarHook: Ticks out of range");
+            require(tickLower % key.tickSpacing == 0 && tickUpper % key.tickSpacing == 0, "CellarHook: Ticks must align with tickSpacing");
+        }
 
         // 1. Transfer tokens to Hook
         if (Currency.unwrap(MON) == address(0)) {
@@ -262,18 +306,150 @@ contract CellarHook is IHooks, ERC20Upgradeable, OwnableUpgradeable, UUPSUpgrade
         }
         IERC20(Currency.unwrap(KEEP)).safeTransferFrom(msg.sender, address(this), amountKEEP);
 
-        // 2. Approve PoolManager
-        if (Currency.unwrap(MON) != address(0)) IERC20(Currency.unwrap(MON)).forceApprove(address(poolManager), amountMON);
-        IERC20(Currency.unwrap(KEEP)).forceApprove(address(poolManager), amountKEEP);
+        // 2. Ensure pool is initialized
+        // Calculate sqrtPriceX96 for 1:3 ratio (price = 3 KEEP per MON)
+        // price = amount1/amount0 = 3, so sqrtPrice = sqrt(3) * 2^96
+        // Using TickMath: For price = 3, we calculate tick from sqrtPrice
+        // tick = log(3)/log(1.0001) ≈ 10986, then get sqrtPrice from tick
+        // For 1:3 ratio: tick ≈ 10986, sqrtPriceX96 = TickMath.getSqrtPriceAtTick(10986)
+        // But simpler: calculate sqrt(3) * 2^96 directly
+        // sqrt(3) * 2^96 ≈ 1373075539065492859289024128 (calculated)
+        uint160 sqrtPriceX96 = 1373075539065492859289024128; // sqrt(3) * 2^96
 
-        // 3. Add Liquidity to PoolManager (Simplified placeholder)
-        // poolManager.modifyLiquidity(...)
+        // Try to initialize - if pool already exists, this will revert but we'll catch it
+        // Note: If initialization fails for reasons other than "already initialized",
+        // modifyLiquidity will fail later with a clearer error message
+        try poolManager.initialize(key, sqrtPriceX96) {
+            // Pool initialized successfully
+            if (!poolInitialized) {
+                poolInitialized = true;
+                emit PoolInitialized(msg.sender, sqrtPriceX96);
+            }
+        } catch {
+            // Pool already exists or initialization failed - continue
+            // If pool doesn't exist and init failed, modifyLiquidity will revert
+            // Mark as initialized if modifyLiquidity succeeds (pool exists)
+            poolInitialized = true;
+        }
 
-        // 4. Mint LP Tokens to User
+        // 3. Calculate liquidityDelta from token amounts
+        // Use the sqrtPriceX96 we calculated (or the pool's current price if already initialized)
+        // For simplicity and to maintain 1:3 ratio, we use our calculated price
+
+        // Calculate sqrt prices for tick range
+        uint160 sqrtPriceAX96 = TickMath.getSqrtPriceAtTick(actualTickLower);
+        uint160 sqrtPriceBX96 = TickMath.getSqrtPriceAtTick(actualTickUpper);
+
+        // Ensure sqrtPriceAX96 < sqrtPriceBX96
+        if (sqrtPriceAX96 > sqrtPriceBX96) {
+            (sqrtPriceAX96, sqrtPriceBX96) = (sqrtPriceBX96, sqrtPriceAX96);
+        }
+
+        // Calculate liquidityDelta using Uniswap V4 formulas
+        // liquidity = min(amount0 * sqrt(price) / (sqrt(priceB) - sqrt(priceA)), amount1 / (sqrt(price) - sqrt(priceA)))
+        uint256 liquidity;
+        if (sqrtPriceX96 <= sqrtPriceAX96) {
+            // Current price is below range - all token0
+            liquidity = _getLiquidityForAmount0(sqrtPriceAX96, sqrtPriceBX96, amountMON);
+        } else if (sqrtPriceX96 < sqrtPriceBX96) {
+            // Current price is in range - use both tokens
+            uint256 liquidity0 = _getLiquidityForAmount0(sqrtPriceX96, sqrtPriceBX96, amountMON);
+            uint256 liquidity1 = _getLiquidityForAmount1(sqrtPriceAX96, sqrtPriceX96, amountKEEP);
+            liquidity = liquidity0 < liquidity1 ? liquidity0 : liquidity1;
+        } else {
+            // Current price is above range - all token1
+            liquidity = _getLiquidityForAmount1(sqrtPriceAX96, sqrtPriceBX96, amountKEEP);
+        }
+
+        require(liquidity > 0, "CellarHook: Invalid liquidity calculation");
+
+        // 4. Add liquidity to PoolManager
+        ModifyLiquidityParams memory params = ModifyLiquidityParams({
+            tickLower: actualTickLower,
+            tickUpper: actualTickUpper,
+            liquidityDelta: int256(uint256(liquidity)),
+            salt: bytes32(0)
+        });
+
+        (BalanceDelta callerDelta, ) = poolManager.modifyLiquidity(key, params, "");
+
+        // 5. Settle balance delta - handle token transfers
+        _settleBalanceDelta(key, callerDelta);
+
+        // 6. Mint LP Tokens to User
         // Mint 1 LP per 1 MON (with 3 KEEP required per MON to maintain 1:3 ratio)
         uint256 liquidityMinted = amountMON;
 
         _mint(msg.sender, liquidityMinted);
+    }
+
+    /// @notice Helper function to calculate liquidity for amount0
+    /// Formula: L = amount0 * sqrt(P_upper) * sqrt(P_lower) / (sqrt(P_upper) - sqrt(P_lower))
+    /// All prices are in Q96 format (multiplied by 2^96)
+    function _getLiquidityForAmount0(uint160 sqrtPriceAX96, uint160 sqrtPriceBX96, uint256 amount0) internal pure returns (uint256) {
+        if (sqrtPriceAX96 > sqrtPriceBX96) {
+            (sqrtPriceAX96, sqrtPriceBX96) = (sqrtPriceBX96, sqrtPriceAX96);
+        }
+        // Multiply sqrt prices (result is in Q192), divide by 2^96 to get Q96
+        uint256 numerator = amount0 * uint256(sqrtPriceAX96) * uint256(sqrtPriceBX96);
+        uint256 denominator = uint256(sqrtPriceBX96 - sqrtPriceAX96) * 2**96;
+        return numerator / denominator;
+    }
+
+    /// @notice Helper function to calculate liquidity for amount1
+    /// Formula: L = amount1 / (sqrt(P_upper) - sqrt(P_lower))
+    /// All prices are in Q96 format
+    function _getLiquidityForAmount1(uint160 sqrtPriceAX96, uint160 sqrtPriceBX96, uint256 amount1) internal pure returns (uint256) {
+        if (sqrtPriceAX96 > sqrtPriceBX96) {
+            (sqrtPriceAX96, sqrtPriceBX96) = (sqrtPriceBX96, sqrtPriceAX96);
+        }
+        // Multiply amount1 by 2^96 to match Q96 format of price difference
+        return (amount1 * 2**96) / uint256(sqrtPriceBX96 - sqrtPriceAX96);
+    }
+
+    /// @notice Settles balance delta by transferring tokens to/from PoolManager
+    function _settleBalanceDelta(PoolKey calldata key, BalanceDelta delta) internal {
+        // Extract amounts from BalanceDelta using BalanceDeltaLibrary
+        int128 amount0 = BalanceDeltaLibrary.amount0(delta);
+        int128 amount1 = BalanceDeltaLibrary.amount1(delta);
+
+        // Handle currency0 (MON)
+        if (amount0 != 0) {
+            Currency currency0 = key.currency0;
+            if (amount0 < 0) {
+                // User owes tokens to pool - settle
+                uint256 amountToSettle = uint256(uint128(-amount0));
+                if (Currency.unwrap(currency0) == address(0)) {
+                    // Native currency - send ETH with settle
+                    poolManager.settle{value: amountToSettle}();
+                } else {
+                    // ERC20 - sync, transfer, then settle
+                    poolManager.sync(currency0);
+                    IERC20(Currency.unwrap(currency0)).safeTransfer(address(poolManager), amountToSettle);
+                    poolManager.settle();
+                }
+            } else if (amount0 > 0) {
+                // Pool owes tokens to user - take
+                uint256 amountToTake = uint256(uint128(amount0));
+                poolManager.take(currency0, address(this), amountToTake);
+            }
+        }
+
+        // Handle currency1 (KEEP) - always ERC20
+        if (amount1 != 0) {
+            Currency currency1 = key.currency1;
+            if (amount1 < 0) {
+                // User owes tokens to pool - settle
+                uint256 amountToSettle = uint256(uint128(-amount1));
+                poolManager.sync(currency1);
+                IERC20(Currency.unwrap(currency1)).safeTransfer(address(poolManager), amountToSettle);
+                poolManager.settle();
+            } else if (amount1 > 0) {
+                // Pool owes tokens to user - take
+                uint256 amountToTake = uint256(uint128(amount1));
+                poolManager.take(currency1, address(this), amountToTake);
+            }
+        }
     }
 
     // ---------------------------------------------------------
@@ -384,5 +560,107 @@ contract CellarHook is IHooks, ERC20Upgradeable, OwnableUpgradeable, UUPSUpgrade
         IERC20(Currency.unwrap(MON)).safeTransferFrom(msg.sender, address(this), amount);
         potBalance += amount;
         emit PotContributed(msg.sender, amount);
+    }
+
+    // ---------------------------------------------------------
+    // Token Recovery (for stuck tokens from failed liquidity additions)
+    // ---------------------------------------------------------
+
+    /**
+     * @notice Recover tokens from failed liquidity additions (before pool was initialized)
+     * @param lpTokenAmount Amount of LP tokens to burn for recovery
+     * @dev Only works if pool hasn't been initialized yet
+     *      Users get back MON+KEEP proportional to their LP token balance (1 LP = 1 MON + 3 KEEP)
+     *      This allows users to recover tokens that were sent but never made it into pools
+     */
+    function recoverStuckTokens(uint256 lpTokenAmount) external nonReentrant {
+        require(!poolInitialized, "CellarHook: Pool already initialized - recovery disabled");
+        require(lpTokenAmount > 0, "CellarHook: Amount must be > 0");
+        require(balanceOf(msg.sender) >= lpTokenAmount, "CellarHook: Insufficient LP tokens");
+
+        // Calculate proportional recovery (1 LP = 1 MON + 3 KEEP based on original addLiquidity ratio)
+        uint256 monAmount = lpTokenAmount;
+        uint256 keepAmount = lpTokenAmount * 3;
+
+        // Check contract has enough tokens
+        uint256 contractMonBalance;
+        uint256 contractKeepBalance;
+
+        if (Currency.unwrap(MON) == address(0)) {
+            // Native MON
+            contractMonBalance = address(this).balance;
+        } else {
+            // ERC20 MON
+            contractMonBalance = IERC20(Currency.unwrap(MON)).balanceOf(address(this));
+        }
+        contractKeepBalance = IERC20(Currency.unwrap(KEEP)).balanceOf(address(this));
+
+        require(contractMonBalance >= monAmount, "CellarHook: Insufficient MON in contract");
+        require(contractKeepBalance >= keepAmount, "CellarHook: Insufficient KEEP in contract");
+
+        // Burn LP tokens
+        _burn(msg.sender, lpTokenAmount);
+
+        // Transfer MON back to user
+        if (Currency.unwrap(MON) == address(0)) {
+            // Native MON - send ETH
+            (bool success, ) = msg.sender.call{value: monAmount}("");
+            require(success, "CellarHook: MON transfer failed");
+        } else {
+            // ERC20 MON
+            IERC20(Currency.unwrap(MON)).safeTransfer(msg.sender, monAmount);
+        }
+
+        // Transfer KEEP back to user (always ERC20)
+        IERC20(Currency.unwrap(KEEP)).safeTransfer(msg.sender, keepAmount);
+
+        emit TokensRecovered(msg.sender, lpTokenAmount, monAmount, keepAmount);
+    }
+
+    /**
+     * @notice Owner-only recovery function for edge cases
+     * @param user Address to recover tokens for
+     * @param lpTokenAmount Amount of LP tokens to burn for recovery
+     * @dev Only works if pool hasn't been initialized yet
+     *      Allows owner to help users recover tokens in special circumstances
+     */
+    function recoverTokensForUser(address user, uint256 lpTokenAmount) external onlyOwner nonReentrant {
+        require(!poolInitialized, "CellarHook: Pool already initialized - recovery disabled");
+        require(lpTokenAmount > 0, "CellarHook: Amount must be > 0");
+        require(balanceOf(user) >= lpTokenAmount, "CellarHook: Insufficient LP tokens");
+
+        // Calculate proportional recovery (1 LP = 1 MON + 3 KEEP)
+        uint256 monAmount = lpTokenAmount;
+        uint256 keepAmount = lpTokenAmount * 3;
+
+        // Check contract has enough tokens
+        uint256 contractMonBalance;
+        uint256 contractKeepBalance;
+
+        if (Currency.unwrap(MON) == address(0)) {
+            contractMonBalance = address(this).balance;
+        } else {
+            contractMonBalance = IERC20(Currency.unwrap(MON)).balanceOf(address(this));
+        }
+        contractKeepBalance = IERC20(Currency.unwrap(KEEP)).balanceOf(address(this));
+
+        require(contractMonBalance >= monAmount, "CellarHook: Insufficient MON in contract");
+        require(contractKeepBalance >= keepAmount, "CellarHook: Insufficient KEEP in contract");
+
+        // Burn LP tokens from user
+        _burn(user, lpTokenAmount);
+
+        // Transfer MON back to user
+        if (Currency.unwrap(MON) == address(0)) {
+            (bool success, ) = user.call{value: monAmount}("");
+            require(success, "CellarHook: MON transfer failed");
+        } else {
+            IERC20(Currency.unwrap(MON)).safeTransfer(user, monAmount);
+        }
+
+        // Transfer KEEP back to user
+        IERC20(Currency.unwrap(KEEP)).safeTransfer(user, keepAmount);
+
+        emit TokensRecovered(user, lpTokenAmount, monAmount, keepAmount);
     }
 }

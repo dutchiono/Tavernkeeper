@@ -1,7 +1,7 @@
 'use client';
 
 import sdk from '@farcaster/miniapp-sdk';
-import { useSearchParams } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useRef, useState } from 'react';
 import { formatEther } from 'viem';
 import { useAccount, useConnect } from 'wagmi';
@@ -39,6 +39,7 @@ function SearchParamsHandler({ onViewChange }: { onViewChange: (view: string | n
 
 function MiniappContent() {
     const { currentView, switchView, party, keepBalance, setKeepBalance } = useGameStore();
+    const pathname = usePathname();
     const readyRef = useRef(false);
     const autoConnectAttempted = useRef(false);
     const [context, setContext] = useState<MiniAppContext | null>(null);
@@ -80,6 +81,20 @@ function MiniappContent() {
     const { connectors, connectAsync, isPending: isConnecting } = useConnect();
     const primaryConnector = connectors[0];
 
+    // Reset autoConnectAttempted when connection is lost
+    useEffect(() => {
+        if (!isConnected && autoConnectAttempted.current) {
+            autoConnectAttempted.current = false;
+        }
+    }, [isConnected]);
+
+    // Reset autoConnectAttempted when navigating back to miniapp page and not connected
+    useEffect(() => {
+        if (pathname === '/miniapp' && !isConnected && autoConnectAttempted.current) {
+            autoConnectAttempted.current = false;
+        }
+    }, [pathname, isConnected]);
+
     // Auto-connect when connector is available
     useEffect(() => {
         if (
@@ -95,7 +110,8 @@ function MiniappContent() {
             connector: primaryConnector,
             chainId: monad.id,
         }).catch(() => {
-            // Ignore auto-connect failures; user can connect manually.
+            // Reset on connection failure so we can retry
+            autoConnectAttempted.current = false;
         });
     }, [connectAsync, isConnected, isConnecting, primaryConnector]);
 
@@ -170,6 +186,9 @@ function MiniappContent() {
                     {/* --- MAIN SCENE AREA --- */}
                     <div className="flex-1 relative bg-black overflow-hidden">
                         {currentView === GameView.INN && (
+                            <InnScene />
+                        )}
+                        {currentView === GameView.CELLAR && (
                             <InnScene />
                         )}
                         {currentView === GameView.MAP && (

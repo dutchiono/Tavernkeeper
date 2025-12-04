@@ -60,12 +60,13 @@ export const TheOfficeMiniapp: React.FC<{
     const isMiniapp = isInFarcasterMiniapp();
 
     useEffect(() => {
-        if (!isMiniapp || wagmiConnected) {
+        if (!isMiniapp) {
             setFarcasterAddress(null);
             return;
         }
 
-        // Check Farcaster SDK as fallback
+        // Check Farcaster SDK immediately on mount and as fallback
+        // This ensures we catch cases where wagmi hasn't connected yet
         const checkFarcaster = async () => {
             try {
                 const addr = await getFarcasterWalletAddress();
@@ -76,9 +77,14 @@ export const TheOfficeMiniapp: React.FC<{
             }
         };
 
+        // Check immediately on mount
         checkFarcaster();
-        const interval = setInterval(checkFarcaster, 2000);
-        return () => clearInterval(interval);
+
+        // Only poll if wagmi is not connected (to avoid unnecessary checks)
+        if (!wagmiConnected) {
+            const interval = setInterval(checkFarcaster, 2000);
+            return () => clearInterval(interval);
+        }
     }, [isMiniapp, wagmiConnected]);
 
     // Use wagmi address if available, otherwise fallback to Farcaster SDK
@@ -214,6 +220,9 @@ export const TheOfficeMiniapp: React.FC<{
             setIsLoading(false);
             theCellarService.clearCache();
 
+            // Capture previous manager address before state refresh
+            const previousManagerAddress = state.currentKing;
+
             // If transaction was successful and we have userContext, cache the FID/name
             if (receipt.status === 'success' && address && userContext && (userContext.fid || userContext.username)) {
                 setOfficeManagerData(address, {
@@ -223,13 +232,30 @@ export const TheOfficeMiniapp: React.FC<{
                 });
             }
 
+            // Send notification to previous manager if office was taken
+            if (receipt.status === 'success' && previousManagerAddress &&
+                previousManagerAddress !== '0x0000000000000000000000000000000000000000' &&
+                previousManagerAddress.toLowerCase() !== address?.toLowerCase()) {
+
+                // Send notification asynchronously (don't await - don't block UI)
+                fetch('/api/office/notify-previous-manager', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        previousManagerAddress,
+                        newManagerAddress: address,
+                        pricePaid: state.currentPrice
+                    })
+                }).catch(err => console.error('Failed to send notification:', err));
+            }
+
             fetchOfficeState(true); // Force refresh after transaction
             const resetTimer = setTimeout(() => {
                 resetWrite();
             }, 500);
             return () => clearTimeout(resetTimer);
         }
-    }, [receipt, resetWrite, address, userContext]);
+    }, [receipt, resetWrite, address, userContext, state.currentKing, state.currentPrice]);
 
     const handleTakeOffice = async () => {
         if (!isConnected || !address) {

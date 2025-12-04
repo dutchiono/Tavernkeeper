@@ -33,6 +33,8 @@ const CONTRACT_PROXIES: Record<string, string> = {
     Adventurer: "0xb138Bf579058169e0657c12Fd9cc1267CAFcb935",
     CellarHook: "0x6c7612F44B71E5E6E2bA0FEa799A23786A537755",
     "The Cellar": "0x6c7612F44B71E5E6E2bA0FEa799A23786A537755",
+    CellarZapV4: "0xf7248a01051bf297Aa56F12a05e7209C60Fc5863",
+    "CellarZap": "0xf7248a01051bf297Aa56F12a05e7209C60Fc5863",
 };
 
 function updateFirstDeployment(upgrade: UpgradeInfo) {

@@ -1,0 +1,83 @@
+﻿=== TESTING LIQUIDITY ADDITION ===
+
+Deployer: 0xD515674a7fE63dFDfd43Fb5647E8B04eEfCEdCAa
+Network: monad
+
+--- Token Addresses ---
+MON: Native (ETH)
+KEEP: 0x2D1094F5CED6ba279962f9676d32BE092AFbf82E
+
+--- Pool Status (Before) ---
+Pool Initialized: Γ¥î NO
+
+--- Test Amounts ---
+MON: 0.1 MON
+KEEP: 0.3 KEEP
+Ratio: 1:3 Γ£à
+
+--- Deployer Balances (Before) ---
+MON Balance: 97.178792761979608049 MON
+KEEP Balance: 21316.0 KEEP
+
+--- LP Balance (Before) ---
+LP Balance: 0.0 LP
+
+--- Approving KEEP Tokens ---
+Γ£à KEEP tokens approved
+
+--- Pool Key ---
+Currency0: Native
+Currency1: 0x2D1094F5CED6ba279962f9676d32BE092AFbf82E
+Fee: 3000 (0.3%)
+Tick Spacing: 60
+Hooks: 0x6c7612F44B71E5E6E2bA0FEa799A23786A537755
+
+--- Adding Liquidity ---
+Calling addLiquidity...
+Amount MON: 0.1 MON
+Amount KEEP: 0.3 KEEP
+node.exe : Γ¥î Test failed: ProviderError: execution 
+reverted
+At C:\Program Files\nodejs\npx.ps1:29 char:3
++   & $NODE_EXE $NPX_CLI_JS $args
++   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Γ¥î Test fa 
+   iled...cution reverted:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+    at HttpProvider.request (C:\Users\epj33\Desktop\InnKe
+eper\node_modules\.pnpm\hardhat@2.27.0_bufferutil@4_1d4cf
+f43b59b11ea9974f10e9d4d1b8f\node_modules\hardhat\src\inte
+rnal\core\providers\http.ts:116:21)
+    at processTicksAndRejections 
+(node:internal/process/task_queues:105:5)
+    at async HardhatEthersProvider.estimateGas (C:\Users\
+epj33\Desktop\InnKeeper\node_modules\.pnpm\@nomicfoundati
+on+hardhat-et_737a4986e8856403038804c063804dc2\node_modul
+es\@nomicfoundation\hardhat-ethers\src\internal\hardhat-e
+thers-provider.ts:246:27)
+    at async C:\Users\epj33\Desktop\InnKeeper\node_module
+s\.pnpm\@nomicfoundation+hardhat-et_737a4986e885640303880
+4c063804dc2\node_modules\@nomicfoundation\hardhat-ethers\
+src\signers.ts:335:35
+    at async Promise.all (index 0)
+    at async 
+HardhatEthersSigner._sendUncheckedTransaction (C:\Users\e
+pj33\Desktop\InnKeeper\node_modules\.pnpm\@nomicfoundatio
+n+hardhat-et_737a4986e8856403038804c063804dc2\node_module
+s\@nomicfoundation\hardhat-ethers\src\signers.ts:356:7)
+    at async HardhatEthersSigner.sendTransaction (C:\User
+s\epj33\Desktop\InnKeeper\node_modules\.pnpm\@nomicfounda
+tion+hardhat-et_737a4986e8856403038804c063804dc2\node_mod
+ules\@nomicfoundation\hardhat-ethers\src\signers.ts:181:1
+8)
+    at async send (C:\Users\epj33\Desktop\InnKeeper\node_
+modules\.pnpm\ethers@6.15.0_bufferutil@4.0.9_utf-8-valida
+te@5.0.10\node_modules\ethers\src.ts\contract\contract.ts
+:313:20)
+    at async Proxy.addLiquidity (C:\Users\epj33\Desktop\I
+nnKeeper\node_modules\.pnpm\ethers@6.15.0_bufferutil@4.0.
+9_utf-8-validate@5.0.10\node_modules\ethers\src.ts\contra
+ct\contract.ts:352:16)
+    at async main (C:\Users\epj33\Desktop\InnKeeper\packa
+ges\contracts\scripts\test_liquidity_addition.ts:136:14)

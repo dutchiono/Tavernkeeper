@@ -4221,8 +4221,8 @@
       ]
     },
     "C:\\Users\\epj33\\Desktop\\InnKeeper\\packages\\contracts\\contracts\\hooks\\CellarHook.sol": {
-      "lastModificationDate": 1764803943263,
-      "contentHash": "acb23469f6e27bc881155277258368df",
+      "lastModificationDate": 1764853734098,
+      "contentHash": "4e6438a3507d4dee2a50b3684cd6e877",
       "sourceName": "contracts/hooks/CellarHook.sol",
       "solcConfig": {
         "version": "0.8.26",
@@ -4258,6 +4258,8 @@
         "@uniswap/v4-core/src/types/PoolOperation.sol",
         "@uniswap/v4-core/src/types/BeforeSwapDelta.sol",
         "@uniswap/v4-core/src/types/Currency.sol",
+        "@uniswap/v4-core/src/libraries/TickMath.sol",
+        "@uniswap/v4-core/src/types/BalanceDelta.sol",
         "@openzeppelin/contracts/token/ERC20/IERC20.sol",
         "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol",
         "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol",
@@ -4273,8 +4275,8 @@
       ]
     },
     "C:\\Users\\epj33\\Desktop\\InnKeeper\\packages\\contracts\\contracts\\CellarZapV4.sol": {
-      "lastModificationDate": 1764703294302,
-      "contentHash": "122b4834b6ad813e38112fcaf92b7ab8",
+      "lastModificationDate": 1764851243959,
+      "contentHash": "7a336b69eb41a6d7b28fcc308dc0c1ca",
       "sourceName": "contracts/CellarZapV4.sol",
       "solcConfig": {
         "version": "0.8.26",
