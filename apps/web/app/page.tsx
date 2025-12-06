@@ -50,45 +50,22 @@ function HomeContent() {
         // Call sdk.actions.ready() when interface is ready (per Farcaster docs)
         // https://miniapps.farcaster.xyz/docs/guides/loading#calling-ready
         if (inMiniapp) {
-            const callReady = async () => {
+            const bootstrapSdk = async () => {
                 try {
-                    // Check if SDK is available on window first
-                    if (typeof window !== 'undefined' && (window as any).farcaster) {
-                        const farcasterSDK = (window as any).farcaster;
-                        if (farcasterSDK?.actions?.ready) {
-                            await farcasterSDK.actions.ready();
-                            console.log('✅ sdk.actions.ready() called successfully (window SDK)');
-                            return;
-                        }
-                    }
-                    
-                    // Fallback to imported SDK
-                    if (sdk && (sdk as any).actions && (sdk as any).actions.ready) {
-                        await (sdk as any).actions.ready();
-                        console.log('✅ sdk.actions.ready() called successfully (imported SDK)');
+                    const insideMiniApp = await sdk.isInMiniApp();
+                    if (!insideMiniApp) {
+                        console.log('Not in miniapp, skipping ready()');
                         return;
                     }
                     
-                    console.warn('SDK not available yet');
-                } catch (error) {
-                    console.error('Failed to call sdk.actions.ready():', error);
+                    await sdk.actions.ready();
+                    console.log('✅ sdk.actions.ready() called successfully');
+                } catch (err) {
+                    console.error('Failed to call sdk.actions.ready()', err);
                 }
             };
             
-            // Try immediately
-            callReady();
-            
-            // Retry with delays
-            const timeouts = [
-                setTimeout(callReady, 50),
-                setTimeout(callReady, 200),
-                setTimeout(callReady, 500),
-                setTimeout(callReady, 1000),
-            ];
-            
-            return () => {
-                timeouts.forEach(clearTimeout);
-            };
+            void bootstrapSdk();
         }
     }, []);
 
