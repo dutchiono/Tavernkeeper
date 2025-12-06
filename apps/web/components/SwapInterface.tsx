@@ -41,7 +41,7 @@ export function SwapInterface() {
         };
 
         checkPoolReady();
-        const interval = setInterval(checkPoolReady, 10000);
+        const interval = setInterval(checkPoolReady, 30000);
         return () => clearInterval(interval);
     }, []); // Run once on mount, doesn't depend on account
 
@@ -62,7 +62,7 @@ export function SwapInterface() {
         };
 
         fetchBalances();
-        const interval = setInterval(fetchBalances, 10000);
+        const interval = setInterval(fetchBalances, 30000);
         return () => clearInterval(interval);
     }, [account]);
 
@@ -343,14 +343,14 @@ export function SwapInterface() {
                 {!account
                     ? 'Connect Wallet'
                     : !amountIn
-                    ? 'Enter Amount'
-                    : isLoading
-                    ? 'Calculating...'
-                    : isSwapping
-                    ? 'Swapping...'
-                    : error
-                    ? 'Retry Swap'
-                    : 'Swap'}
+                        ? 'Enter Amount'
+                        : isLoading
+                            ? 'Calculating...'
+                            : isSwapping
+                                ? 'Swapping...'
+                                : error
+                                    ? 'Retry Swap'
+                                    : 'Swap'}
             </PixelButton>
 
         </PixelBox>

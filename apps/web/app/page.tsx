@@ -46,27 +46,6 @@ function HomeContent() {
         setIsMounted(true);
         const inMiniapp = isInFarcasterMiniapp();
         setIsInMiniapp(inMiniapp);
-
-        // Call sdk.actions.ready() when interface is ready (per Farcaster docs)
-        // https://miniapps.farcaster.xyz/docs/guides/loading#calling-ready
-        if (inMiniapp) {
-            const bootstrapSdk = async () => {
-                try {
-                    const insideMiniApp = await sdk.isInMiniApp();
-                    if (!insideMiniApp) {
-                        console.log('Not in miniapp, skipping ready()');
-                        return;
-                    }
-
-                    await sdk.actions.ready();
-                    console.log('✅ sdk.actions.ready() called successfully');
-                } catch (err) {
-                    console.error('Failed to call sdk.actions.ready()', err);
-                }
-            };
-
-            void bootstrapSdk();
-        }
     }, []);
 
     // Fetch KEEP Balance
@@ -87,7 +66,7 @@ function HomeContent() {
         };
 
         fetchBalance();
-        const interval = setInterval(fetchBalance, 10000); // Poll every 10s
+        const interval = setInterval(fetchBalance, 30000); // Poll every 30s
         return () => clearInterval(interval);
     }, [address, setKeepBalance]);
 

@@ -8,7 +8,7 @@
         "version": "1",
         "name": "TavernKeeper",
         "iconUrl": "https://tavernkeeper.xyz/icon.png",
-        "homeUrl": "https://tavernkeeper.xyz/",
+        "homeUrl": "https://tavernkeeper.xyz/miniapp",
         "imageUrl": "https://tavernkeeper.xyz/image.png",
         "buttonTitle": "Play TavernKeeper",
         "splashImageUrl": "https://tavernkeeper.xyz/splash.png",

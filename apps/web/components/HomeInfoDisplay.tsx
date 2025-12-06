@@ -40,7 +40,7 @@ export const HomeInfoDisplay: React.FC<HomeInfoDisplayProps> = ({ address }) => 
         };
 
         fetchPoolLiquidity();
-        const interval = setInterval(fetchPoolLiquidity, 10000); // Poll every 10s
+        const interval = setInterval(fetchPoolLiquidity, 30000); // Poll every 30s
         return () => clearInterval(interval);
     }, []); // Run once on mount, doesn't depend on address
 
@@ -84,7 +84,7 @@ export const HomeInfoDisplay: React.FC<HomeInfoDisplayProps> = ({ address }) => 
         };
 
         fetchUserData();
-        const interval = setInterval(fetchUserData, 10000); // Poll every 10s
+        const interval = setInterval(fetchUserData, 30000); // Poll every 30s
         return () => clearInterval(interval);
     }, [address]);
 

@@ -17,12 +17,12 @@ import { useGameStore } from '../../lib/stores/gameStore';
 import { GameView } from '../../lib/types';
 
 type MiniAppContext = {
-  user?: {
-    fid: number;
-    username?: string;
-    displayName?: string;
-    pfpUrl?: string;
-  };
+    user?: {
+        fid: number;
+        username?: string;
+        displayName?: string;
+        pfpUrl?: string;
+    };
 };
 
 function SearchParamsHandler({ onViewChange }: { onViewChange: (view: string | null) => void }) {
@@ -66,57 +66,25 @@ function MiniappContent() {
 
     // Call sdk.actions.ready() when interface is ready (per Farcaster docs)
     // https://miniapps.farcaster.xyz/docs/guides/loading#calling-ready
+    // Call sdk.actions.ready() when interface is ready (per Farcaster docs)
+    // https://miniapps.farcaster.xyz/docs/guides/loading#calling-ready
     useEffect(() => {
-        const callReady = async () => {
-            if (readyRef.current) return;
-            
+        const bootstrapSdk = async () => {
             try {
-                // Check if SDK is available
-                if (!sdk || !sdk.actions || !sdk.actions.ready) {
-                    // Try window.farcaster as fallback
-                    if (typeof window !== 'undefined' && (window as any).farcaster?.actions?.ready) {
-                        const insideMiniApp = await (window as any).farcaster.isInMiniApp?.() ?? true;
-                        if (insideMiniApp) {
-                            await (window as any).farcaster.actions.ready();
-                            readyRef.current = true;
-                            console.log('✅ window.farcaster.actions.ready() called successfully');
-                            return;
-                        }
-                    }
-                    console.warn('SDK not ready yet, will retry...');
-                    return;
-                }
-                
                 const insideMiniApp = await sdk.isInMiniApp();
                 if (!insideMiniApp) {
                     console.log('Not in miniapp, skipping ready()');
                     return;
                 }
-                
+
                 await sdk.actions.ready();
-                readyRef.current = true;
                 console.log('✅ sdk.actions.ready() called successfully');
             } catch (err) {
                 console.error('Failed to call sdk.actions.ready()', err);
             }
         };
-        
-        // Try immediately
-        void callReady();
-        
-        // Also try after short delays to catch SDK initialization
-        const timeouts = [
-            setTimeout(() => void callReady(), 50),
-            setTimeout(() => void callReady(), 100),
-            setTimeout(() => void callReady(), 200),
-            setTimeout(() => void callReady(), 500),
-            setTimeout(() => void callReady(), 1000),
-            setTimeout(() => void callReady(), 2000),
-        ];
-        
-        return () => {
-            timeouts.forEach(clearTimeout);
-        };
+
+        void bootstrapSdk();
     }, []);
 
     // Wagmi hooks for wallet connection (auto-connect handled by AutoConnectWallet in provider)
@@ -139,7 +107,7 @@ function MiniappContent() {
         };
 
         fetchBalance();
-        const interval = setInterval(fetchBalance, 10000); // Poll every 10s
+        const interval = setInterval(fetchBalance, 30000); // Poll every 30s
         return () => clearInterval(interval);
     }, [address, setKeepBalance]);
 
