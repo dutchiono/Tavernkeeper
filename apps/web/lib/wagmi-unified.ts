@@ -15,6 +15,18 @@ const monadTransports = process.env.NEXT_PUBLIC_MONAD_RPC_URL
   ? [http(process.env.NEXT_PUBLIC_MONAD_RPC_URL), http()]
   : [http()];
 
+// Create a safe storage that works in both SSR and client
+// Use a no-op storage for SSR to avoid indexedDB errors, cookieStorage for client
+const noOpStorage = {
+  getItem: () => null,
+  setItem: () => {},
+  removeItem: () => {},
+};
+
+const safeStorage = createStorage({
+  storage: typeof window !== 'undefined' ? cookieStorage : noOpStorage,
+});
+
 // Include all connectors - RainbowKit will filter/show appropriate ones
 // Farcaster connector works in miniapp, others work in web
 export const wagmiConfig = createConfig({
@@ -31,9 +43,6 @@ export const wagmiConfig = createConfig({
   transports: {
     [monad.id]: fallback(monadTransports),
   },
-  storage: createStorage({
-    storage: cookieStorage,
-  }),
+  storage: safeStorage,
   pollingInterval: 12_000,
 });
-

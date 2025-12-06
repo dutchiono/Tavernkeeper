@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import { Press_Start_2P } from 'next/font/google';
 import './globals.css';
+import '../lib/polyfills/indexeddb-ssr'; // Polyfill indexedDB for SSR
 import { UnifiedWeb3Provider } from '../components/providers/UnifiedWeb3Provider';
 import { Web3Provider } from '../components/providers/Web3Provider';
 import { AuthProvider } from '../components/providers/AuthProvider';
