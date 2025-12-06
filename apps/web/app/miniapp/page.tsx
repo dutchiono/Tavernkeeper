@@ -68,7 +68,7 @@ function MiniappContent() {
     // https://miniapps.farcaster.xyz/docs/guides/loading#calling-ready
     useEffect(() => {
         if (readyRef.current) return;
-        
+
         const bootstrapSdk = async () => {
             try {
                 const insideMiniApp = await sdk.isInMiniApp();
@@ -76,7 +76,7 @@ function MiniappContent() {
                     console.log('Not in miniapp, skipping ready()');
                     return;
                 }
-                
+
                 await sdk.actions.ready();
                 readyRef.current = true;
                 console.log('✅ sdk.actions.ready() called successfully');
@@ -85,7 +85,7 @@ function MiniappContent() {
                 readyRef.current = false; // Allow retry
             }
         };
-        
+
         void bootstrapSdk();
     }, []);
 
