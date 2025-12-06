@@ -54,6 +54,15 @@ export default function MiniappLayout({
 }: {
     children: React.ReactNode;
 }) {
-    return <>{children}</>;
+    // We need to import dynamically to avoid SSR issues with provider if needed, 
+    // but typically Provider is a Client Component so it's fine.
+    // However, MiniappProvider is a named export.
+    const { MiniappProvider } = require('../../components/providers/MiniappProvider');
+
+    return (
+        <MiniappProvider>
+            {children}
+        </MiniappProvider>
+    );
 }
 

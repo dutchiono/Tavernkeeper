@@ -205,11 +205,14 @@ export function SwapInterface() {
         return (
             <PixelBox variant="dark" className="p-4">
                 <div className="text-center text-sm text-yellow-400">
-                    ⚠️ Pool not ready. Please ensure the pool is initialized and has liquidity.
+                    ⚠️ Pool not ready. Please ensure using Monad (Chain 143) and server is restarted for CSP.
                 </div>
             </PixelBox>
         );
     }
+
+    // Check for quote error but valid input
+    const showQuoteError = !quote && amountIn && parseFloat(amountIn) > 0 && !isLoading;
 
     return (
         <PixelBox variant="dark" title="Swap" className="space-y-2.5 sm:space-y-3 max-w-full overflow-hidden [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden p-3 sm:p-4">
@@ -305,6 +308,13 @@ export function SwapInterface() {
                     </div>
                 )}
             </div>
+
+            {/* Quote Error Feedback */}
+            {showQuoteError && (
+                <div className="text-[10px] text-red-400 text-center border border-red-900/50 bg-red-900/20 p-1 rounded">
+                    Unable to fetch quote. Check console for CSP errors or connection issues.
+                </div>
+            )}
 
             {/* Price Info */}
             {quote && parseFloat(amountIn) > 0 && (

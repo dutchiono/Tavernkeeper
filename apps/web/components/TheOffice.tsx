@@ -311,6 +311,9 @@ export const TheOffice: React.FC<{
             if (chainId !== monad.id) {
                 try {
                     await switchChainAsync({ chainId: monad.id });
+                    // Return here to prevent "double popup" (switching then immediately trying to buy)
+                    // The user will click again once network is switched.
+                    return;
                 } catch (error) {
                     console.error('Failed to switch network:', error);
                     alert('Please switch to Monad Mainnet manually.');
