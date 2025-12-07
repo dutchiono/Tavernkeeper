@@ -17,6 +17,8 @@ import type * as legacy from "./legacy";
 export type { legacy };
 import type * as test from "./test";
 export type { test };
+import type * as v3 from "./v3";
+export type { v3 };
 export type { Adventurer } from "./Adventurer";
 export type { Create2Factory } from "./Create2Factory";
 export type { DungeonGatekeeper } from "./DungeonGatekeeper";

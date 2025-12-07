@@ -142,6 +142,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.SafeERC20__factory>;
     getContractFactory(
+      name: "ERC721",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.ERC721__factory>;
+    getContractFactory(
       name: "IERC721Metadata",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IERC721Metadata__factory>;
@@ -169,6 +173,10 @@ declare module "hardhat/types/runtime" {
       name: "Errors",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.Errors__factory>;
+    getContractFactory(
+      name: "ERC165",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.ERC165__factory>;
     getContractFactory(
       name: "IERC165",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -410,6 +418,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.TavernRegularsManager__factory>;
     getContractFactory(
+      name: "MockPositionManager",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.MockPositionManager__factory>;
+    getContractFactory(
       name: "PoolModifyLiquidityTest",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.PoolModifyLiquidityTest__factory>;
@@ -417,6 +429,10 @@ declare module "hardhat/types/runtime" {
       name: "ProxyHelper",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.ProxyHelper__factory>;
+    getContractFactory(
+      name: "WETH9",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.WETH9__factory>;
     getContractFactory(
       name: "ICellarHook",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -429,6 +445,18 @@ declare module "hardhat/types/runtime" {
       name: "UniswapIntegration",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.UniswapIntegration__factory>;
+    getContractFactory(
+      name: "CellarToken",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.CellarToken__factory>;
+    getContractFactory(
+      name: "INonfungiblePositionManager",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.INonfungiblePositionManager__factory>;
+    getContractFactory(
+      name: "TheCellarV3",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.TheCellarV3__factory>;
     getContractFactory(
       name: "V4DependencyHelper",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -599,6 +627,11 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.SafeERC20>;
     getContractAt(
+      name: "ERC721",
+      address: string | ethers.Addressable,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ERC721>;
+    getContractAt(
       name: "IERC721Metadata",
       address: string | ethers.Addressable,
       signer?: ethers.Signer
@@ -633,6 +666,11 @@ declare module "hardhat/types/runtime" {
       address: string | ethers.Addressable,
       signer?: ethers.Signer
     ): Promise<Contracts.Errors>;
+    getContractAt(
+      name: "ERC165",
+      address: string | ethers.Addressable,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ERC165>;
     getContractAt(
       name: "IERC165",
       address: string | ethers.Addressable,
@@ -934,6 +972,11 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.TavernRegularsManager>;
     getContractAt(
+      name: "MockPositionManager",
+      address: string | ethers.Addressable,
+      signer?: ethers.Signer
+    ): Promise<Contracts.MockPositionManager>;
+    getContractAt(
       name: "PoolModifyLiquidityTest",
       address: string | ethers.Addressable,
       signer?: ethers.Signer
@@ -943,6 +986,11 @@ declare module "hardhat/types/runtime" {
       address: string | ethers.Addressable,
       signer?: ethers.Signer
     ): Promise<Contracts.ProxyHelper>;
+    getContractAt(
+      name: "WETH9",
+      address: string | ethers.Addressable,
+      signer?: ethers.Signer
+    ): Promise<Contracts.WETH9>;
     getContractAt(
       name: "ICellarHook",
       address: string | ethers.Addressable,
@@ -958,6 +1006,21 @@ declare module "hardhat/types/runtime" {
       address: string | ethers.Addressable,
       signer?: ethers.Signer
     ): Promise<Contracts.UniswapIntegration>;
+    getContractAt(
+      name: "CellarToken",
+      address: string | ethers.Addressable,
+      signer?: ethers.Signer
+    ): Promise<Contracts.CellarToken>;
+    getContractAt(
+      name: "INonfungiblePositionManager",
+      address: string | ethers.Addressable,
+      signer?: ethers.Signer
+    ): Promise<Contracts.INonfungiblePositionManager>;
+    getContractAt(
+      name: "TheCellarV3",
+      address: string | ethers.Addressable,
+      signer?: ethers.Signer
+    ): Promise<Contracts.TheCellarV3>;
     getContractAt(
       name: "V4DependencyHelper",
       address: string | ethers.Addressable,
@@ -1098,6 +1161,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.SafeERC20>;
     deployContract(
+      name: "ERC721",
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.ERC721>;
+    deployContract(
       name: "IERC721Metadata",
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.IERC721Metadata>;
@@ -1125,6 +1192,10 @@ declare module "hardhat/types/runtime" {
       name: "Errors",
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.Errors>;
+    deployContract(
+      name: "ERC165",
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.ERC165>;
     deployContract(
       name: "IERC165",
       signerOrOptions?: ethers.Signer | DeployContractOptions
@@ -1366,6 +1437,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.TavernRegularsManager>;
     deployContract(
+      name: "MockPositionManager",
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.MockPositionManager>;
+    deployContract(
       name: "PoolModifyLiquidityTest",
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.PoolModifyLiquidityTest>;
@@ -1373,6 +1448,10 @@ declare module "hardhat/types/runtime" {
       name: "ProxyHelper",
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.ProxyHelper>;
+    deployContract(
+      name: "WETH9",
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.WETH9>;
     deployContract(
       name: "ICellarHook",
       signerOrOptions?: ethers.Signer | DeployContractOptions
@@ -1385,6 +1464,18 @@ declare module "hardhat/types/runtime" {
       name: "UniswapIntegration",
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.UniswapIntegration>;
+    deployContract(
+      name: "CellarToken",
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.CellarToken>;
+    deployContract(
+      name: "INonfungiblePositionManager",
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.INonfungiblePositionManager>;
+    deployContract(
+      name: "TheCellarV3",
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.TheCellarV3>;
     deployContract(
       name: "V4DependencyHelper",
       signerOrOptions?: ethers.Signer | DeployContractOptions
@@ -1555,6 +1646,11 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.SafeERC20>;
     deployContract(
+      name: "ERC721",
+      args: any[],
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.ERC721>;
+    deployContract(
       name: "IERC721Metadata",
       args: any[],
       signerOrOptions?: ethers.Signer | DeployContractOptions
@@ -1589,6 +1685,11 @@ declare module "hardhat/types/runtime" {
       args: any[],
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.Errors>;
+    deployContract(
+      name: "ERC165",
+      args: any[],
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.ERC165>;
     deployContract(
       name: "IERC165",
       args: any[],
@@ -1890,6 +1991,11 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.TavernRegularsManager>;
     deployContract(
+      name: "MockPositionManager",
+      args: any[],
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.MockPositionManager>;
+    deployContract(
       name: "PoolModifyLiquidityTest",
       args: any[],
       signerOrOptions?: ethers.Signer | DeployContractOptions
@@ -1899,6 +2005,11 @@ declare module "hardhat/types/runtime" {
       args: any[],
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.ProxyHelper>;
+    deployContract(
+      name: "WETH9",
+      args: any[],
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.WETH9>;
     deployContract(
       name: "ICellarHook",
       args: any[],
@@ -1914,6 +2025,21 @@ declare module "hardhat/types/runtime" {
       args: any[],
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.UniswapIntegration>;
+    deployContract(
+      name: "CellarToken",
+      args: any[],
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.CellarToken>;
+    deployContract(
+      name: "INonfungiblePositionManager",
+      args: any[],
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.INonfungiblePositionManager>;
+    deployContract(
+      name: "TheCellarV3",
+      args: any[],
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.TheCellarV3>;
     deployContract(
       name: "V4DependencyHelper",
       args: any[],

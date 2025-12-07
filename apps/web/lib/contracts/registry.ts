@@ -174,6 +174,61 @@ export const CONTRACT_REGISTRY: Record<string, ContractConfig> = {
     ],
     requiredFunctions: ['totalSupply', 'balanceOf', 'mint', 'burn'],
   },
+  CELLAR_TOKEN: {
+    name: 'Cellar Token (CLP)',
+    proxyAddress: undefined, // Standard ERC20, not proxy
+    directAddress: CONTRACT_ADDRESSES.CELLAR_TOKEN,
+    version: '1.0.0',
+    proxyType: 'None',
+    chainId: monad.id,
+    abi: [
+      {
+        inputs: [],
+        name: 'totalSupply',
+        outputs: [{ name: '', type: 'uint256' }],
+        stateMutability: 'view',
+        type: 'function',
+      },
+      {
+        inputs: [{ name: 'account', type: 'address' }],
+        name: 'balanceOf',
+        outputs: [{ name: '', type: 'uint256' }],
+        stateMutability: 'view',
+        type: 'function',
+      },
+      {
+        inputs: [
+          { name: 'to', type: 'address' },
+          { name: 'amount', type: 'uint256' },
+        ],
+        name: 'transfer',
+        outputs: [{ name: '', type: 'bool' }],
+        stateMutability: 'nonpayable',
+        type: 'function',
+      },
+      {
+        inputs: [
+          { name: "spender", type: "address" },
+          { name: "amount", type: "uint256" }
+        ],
+        name: "approve",
+        outputs: [{ name: "", type: "bool" }],
+        stateMutability: "nonpayable",
+        type: "function"
+      },
+      {
+        inputs: [
+          { name: "owner", type: "address" },
+          { name: "spender", type: "address" }
+        ],
+        name: "allowance",
+        outputs: [{ name: "", type: "uint256" }],
+        stateMutability: "view",
+        type: "function"
+      }
+    ],
+    requiredFunctions: ['totalSupply', 'balanceOf', 'transfer', 'approve', 'allowance'],
+  },
   INVENTORY: {
     name: 'Inventory (ERC-1155)',
     proxyAddress: CONTRACT_ADDRESSES.INVENTORY,
@@ -469,50 +524,54 @@ export const CONTRACT_REGISTRY: Record<string, ContractConfig> = {
     chainId: monad.id,
     abi: [
       {
-        inputs: [],
-        name: 'slot0',
-        outputs: [
-          {
-            components: [
-              { name: 'locked', type: 'uint8' },
-              { name: 'epochId', type: 'uint16' },
-              { name: 'initPrice', type: 'uint192' },
-              { name: 'startTime', type: 'uint40' },
-            ],
-            internalType: 'struct CellarHook.Slot0',
-            name: '',
-            type: 'tuple',
-          },
+        inputs: [
+          { name: 'amount0Desired', type: 'uint256' },
+          { name: 'amount1Desired', type: 'uint256' },
         ],
-        stateMutability: 'view',
+        name: 'addLiquidity',
+        outputs: [{ name: 'liquidity', type: 'uint256' }],
+        stateMutability: 'nonpayable',
         type: 'function',
       },
       {
-        inputs: [],
-        name: 'getAuctionPrice',
-        outputs: [{ name: '', type: 'uint256' }],
-        stateMutability: 'view',
+        inputs: [{ name: 'lpAmount', type: 'uint256' }],
+        name: 'withdraw',
+        outputs: [],
+        stateMutability: 'nonpayable',
         type: 'function',
       },
       {
-        inputs: [{ name: 'maxPaymentAmount', type: 'uint256' }],
+        inputs: [{ name: 'lpBid', type: 'uint256' }],
         name: 'raid',
-        outputs: [{ name: 'paymentAmount', type: 'uint256' }],
+        outputs: [],
         stateMutability: 'nonpayable',
         type: 'function',
       },
       {
         inputs: [],
-        name: 'potBalance',
+        name: 'harvest',
+        outputs: [],
+        stateMutability: 'nonpayable',
+        type: 'function',
+      },
+      {
+        inputs: [],
+        name: 'potBalanceMON',
         outputs: [{ name: '', type: 'uint256' }],
         stateMutability: 'view',
         type: 'function',
       },
       {
         inputs: [],
-        name: 'poolManager',
+        name: 'potBalanceKEEP',
+        outputs: [{ name: '', type: 'uint256' }],
+        stateMutability: 'view',
+        type: 'function',
+      },
+      {
+        inputs: [],
+        name: 'cellarToken',
         outputs: [{ name: '', type: 'address' }],
-
         stateMutability: 'view',
         type: 'function',
       },
@@ -523,28 +582,8 @@ export const CONTRACT_REGISTRY: Record<string, ContractConfig> = {
         stateMutability: 'view',
         type: 'function',
       },
-      {
-        inputs: [
-          { name: 'owner', type: 'address' },
-          { name: 'spender', type: 'address' },
-        ],
-        name: 'allowance',
-        outputs: [{ name: '', type: 'uint256' }],
-        stateMutability: 'view',
-        type: 'function',
-      },
-      {
-        inputs: [
-          { name: 'spender', type: 'address' },
-          { name: 'amount', type: 'uint256' },
-        ],
-        name: 'approve',
-        outputs: [{ name: '', type: 'bool' }],
-        stateMutability: 'nonpayable',
-        type: 'function',
-      },
     ],
-    requiredFunctions: ['slot0', 'getAuctionPrice', 'raid', 'potBalance', 'poolManager'],
+    requiredFunctions: ['addLiquidity', 'withdraw', 'raid', 'potBalanceMON', 'potBalanceKEEP'],
   },
   CELLAR_ZAP: {
     name: 'CellarZap V4',

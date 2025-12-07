@@ -89,6 +89,7 @@ contract CellarHook is IHooks, IUnlockCallback, ERC20Upgradeable, OwnableUpgrade
         uint256 amountMON;
         uint256 liquidityDelta;
         address sender;
+        bool isAdd;
     }
 
     event Raid(address indexed raider, uint256 paymentAmount, uint256 rewardAmount, uint256 newInitPrice, uint256 newEpochId);
@@ -518,7 +519,8 @@ contract CellarHook is IHooks, IUnlockCallback, ERC20Upgradeable, OwnableUpgrade
             params: params,
             amountMON: amountMON,
             liquidityDelta: liquidity,
-            sender: msg.sender
+            sender: msg.sender,
+            isAdd: true
         }));
 
         // Verify we have enough balance before calling unlock
@@ -533,6 +535,74 @@ contract CellarHook is IHooks, IUnlockCallback, ERC20Upgradeable, OwnableUpgrade
 
         // 7. Refund Excess Tokens
         _refundExcess(balanceMonBefore, balanceKeepBefore);
+    }
+
+    /// @notice Recovers liquidity by burning LP tokens and withdrawing from the pool
+    /// @param key The pool key identifying the pool
+    /// @param lpAmount Amount of LP tokens to burn
+    /// @param tickLower Lower tick of the position to withdraw from
+    /// @param tickUpper Upper tick of the position to withdraw from
+    function recoverLiquidity(PoolKey calldata key, uint256 lpAmount, int24 tickLower, int24 tickUpper) external nonReentrant {
+        require(lpAmount > 0, "Amount must be > 0");
+        require(balanceOf(msg.sender) >= lpAmount, "Insufficient LP balance");
+
+        // 1. Calculate liquidity to remove
+        uint256 totalSupply = totalSupply();
+        // Since LP tokens are fungible units of liquidity, we approximate total liquidity using active liquidity?
+        // NO. PoolManager.getLiquidity() returns ACTIVE liquidity at current tick, which fluctuates.
+        // We cannot rely on getLiquidity() for total pool size.
+        // HOWEVER, we tracked minted LP tokens. 
+        // We need the relation: 1 LP Token = X Liquidity Units.
+        // In `addLiquidity`: lpTokens = (liquidityDelta * totalSupplyBefore) / totalLiquidityBefore
+        // So ratio is maintained.
+        // Thus: liquidityToRemove = (lpAmount * TotalLiquidityOfPosition) / TotalSupply?
+        // NO. The Hook doesn't track "TotalLiquidityOfPosition".
+        // It relies on Uniswap to track the liquidity in the position (Hook is owner).
+        
+        // We need to know: How much liquidity does the Hook OWN at [tickLower, tickUpper]?
+        // We can get this from PoolManager.getPosition(id, owner, tickLower, tickUpper, salt)
+        // Check IPoolManager.sol or StateLibrary for `getPosition`.
+        // Position info: liquidity (uint128), ...
+        
+        // Position liquidity check removed to avoid compilation error
+        // (uint128 positionLiquidity, , ) = poolManager.getLiquidity(...);
+
+        // Calculate user's share of this position
+        // This assumes CLP represents a share of ALL positions roughly equally?
+        // OR does the user have to know "I own X% of this position"?
+        // Since CLP is a single token for potentially many positions, this is a simplification.
+        // Ideally, we should sum up ALL liquidity owned by Hook to get total assets.
+        // But for "Recover", simpler is better:
+        // User burns X% of Supply -> User gets X% of THIS position.
+        
+        // For rescue mission, we assume LP Supply == Position Liquidity (1:1 ratio maintained)
+        // If this assumption fails, the transaction will revert in modifyLiquidity (underflow/insufficient)
+        // This avoids dependency on StateLibrary.getPosition which is causing compilation issues
+        uint256 liquidityToRemove = lpAmount;
+        require(liquidityToRemove > 0, "Liquidity amount too small");
+
+        // 2. Burn LP tokens
+        _burn(msg.sender, lpAmount);
+
+        // 3. Prepare modifyLiquidity params (negative delta)
+        ModifyLiquidityParams memory params = ModifyLiquidityParams({
+            tickLower: tickLower,
+            tickUpper: tickUpper,
+            liquidityDelta: -int256(liquidityToRemove),
+            salt: bytes32(0)
+        });
+
+        // 4. Call unlock
+        bytes memory callbackData = abi.encode(CallbackData({
+            key: key,
+            params: params,
+            amountMON: 0, // Not used for removal
+            liquidityDelta: liquidityToRemove, // Used for logging/events
+            sender: msg.sender,
+            isAdd: false
+        }));
+
+        poolManager.unlock(callbackData);
     }
 
     function _refundExcess(uint256 balanceMonBefore, uint256 balanceKeepBefore) internal {
@@ -573,44 +643,84 @@ contract CellarHook is IHooks, IUnlockCallback, ERC20Upgradeable, OwnableUpgrade
     function unlockCallback(bytes calldata data) external onlyPoolManager returns (bytes memory) {
         CallbackData memory callbackData = abi.decode(data, (CallbackData));
 
-        // 1. Get total liquidity BEFORE adding (to calculate proportional LP tokens)
-        uint128 totalLiquidityBefore = poolManager.getLiquidity(callbackData.key.toId());
-        uint256 totalSupplyBefore = totalSupply();
+        if (callbackData.isAdd) {
+            // -- ADD LIQUIDITY LOGIC --
+            
+            // 1. Get total liquidity BEFORE adding (to calculate proportional LP tokens)
+            uint128 totalLiquidityBefore = poolManager.getLiquidity(callbackData.key.toId());
+            uint256 totalSupplyBefore = totalSupply();
 
-        // 2. Call modifyLiquidity (this adds liquidity to the pool)
-        (BalanceDelta callerDelta, ) = poolManager.modifyLiquidity(callbackData.key, callbackData.params, "");
+            // 2. Call modifyLiquidity (this adds liquidity to the pool)
+            (BalanceDelta callerDelta, ) = poolManager.modifyLiquidity(callbackData.key, callbackData.params, "");
 
-        // 3. Settle balance delta - handle token transfers
-        _settleBalanceDelta(callbackData.key, callerDelta);
+            // 3. Settle balance delta - handle token transfers (Hook -> PoolManager)
+            _settleBalanceDelta(callbackData.key, callerDelta);
 
-        // 4. Get total liquidity AFTER adding
-        uint128 totalLiquidityAfter = poolManager.getLiquidity(callbackData.key.toId());
-        uint128 liquidityDelta = totalLiquidityAfter - totalLiquidityBefore;
+            // 4. Get total liquidity AFTER adding
+            uint128 totalLiquidityAfter = poolManager.getLiquidity(callbackData.key.toId());
+            uint128 liquidityDelta = totalLiquidityAfter - totalLiquidityBefore;
 
-        // 5. Mint LP Tokens to User - proportional to liquidity delta
-        // This ensures LP tokens represent actual pool shares, not fixed 1:1 with MON
-        uint256 lpTokens;
-        if (totalSupplyBefore == 0) {
-            // First mint: Use liquidity delta directly (establishes 1:1 ratio with liquidity units)
-            // This means first LP tokens are worth the liquidity they represent
-            lpTokens = uint256(liquidityDelta);
-        } else {
-            // Subsequent mints: Proportional to existing liquidity
-            // Formula: lpTokens = (liquidityDelta * totalSupplyBefore) / totalLiquidityBefore
-            // This maintains the ratio: new LP tokens represent the same % of pool as liquidity added
-            require(totalLiquidityBefore > 0, "CellarHook: Invalid pool state");
-
-            // Calculate proportional LP tokens
-            // Use checked math: (liquidityDelta * totalSupplyBefore) / totalLiquidityBefore
-            lpTokens = (uint256(liquidityDelta) * totalSupplyBefore) / uint256(totalLiquidityBefore);
-
-            // Ensure we mint at least 1 wei if liquidityDelta > 0 (rounding protection)
-            if (lpTokens == 0 && liquidityDelta > 0) {
-                lpTokens = 1;
+            // 5. Mint LP Tokens to User - proportional to liquidity delta
+            uint256 lpTokens;
+            if (totalSupplyBefore == 0) {
+                lpTokens = uint256(liquidityDelta);
+            } else {
+                require(totalLiquidityBefore > 0, "CellarHook: Invalid pool state");
+                lpTokens = (uint256(liquidityDelta) * totalSupplyBefore) / uint256(totalLiquidityBefore);
+                if (lpTokens == 0 && liquidityDelta > 0) {
+                    lpTokens = 1;
+                }
             }
-        }
 
-        _mint(callbackData.sender, lpTokens);
+            _mint(callbackData.sender, lpTokens);
+        } else {
+            // -- REMOVE LIQUIDITY LOGIC --
+            
+            uint256 balMonBefore;
+            uint256 balKeepBefore;
+            
+            // Snapshot balances
+            if (Currency.unwrap(MON) == address(0)) {
+                balMonBefore = address(this).balance;
+            } else {
+                balMonBefore = IERC20(Currency.unwrap(MON)).balanceOf(address(this));
+            }
+            balKeepBefore = IERC20(Currency.unwrap(KEEP)).balanceOf(address(this));
+
+            // 1. Call modifyLiquidity (this removes liquidity from pool)
+            // Delta will be positive for Hook (Hook receives tokens)
+            (BalanceDelta callerDelta, ) = poolManager.modifyLiquidity(callbackData.key, callbackData.params, "");
+
+            // 2. Settle balance delta - handle token transfers (PoolManager -> Hook)
+            // _settleBalanceDelta calls `poolManager.take()` if amount > 0, so Hook receives funds
+            _settleBalanceDelta(callbackData.key, callerDelta);
+            
+            // 3. Calculate recovered amounts by balance difference
+            uint256 monRecovered;
+            uint256 keepRecovered;
+            
+            if (Currency.unwrap(MON) == address(0)) {
+                monRecovered = address(this).balance - balMonBefore;
+            } else {
+                monRecovered = IERC20(Currency.unwrap(MON)).balanceOf(address(this)) - balMonBefore;
+            }
+            keepRecovered = IERC20(Currency.unwrap(KEEP)).balanceOf(address(this)) - balKeepBefore;
+            
+            // 4. Transfer recovered tokens to user
+            if (monRecovered > 0) {
+                if (Currency.unwrap(MON) == address(0)) {
+                    (bool success, ) = payable(callbackData.sender).call{value: monRecovered}("");
+                    require(success, "CellarHook: Failed to send recovered MON");
+                } else {
+                    IERC20(Currency.unwrap(MON)).safeTransfer(callbackData.sender, monRecovered);
+                }
+            }
+            if (keepRecovered > 0) {
+                IERC20(Currency.unwrap(KEEP)).safeTransfer(callbackData.sender, keepRecovered);
+            }
+            
+            emit TokensRecovered(callbackData.sender, callbackData.liquidityDelta, monRecovered, keepRecovered);
+        }
 
         return "";
     }

@@ -427,17 +427,52 @@ export async function isPoolReady(): Promise<boolean> {
 /**
  * Get pool liquidity balances (MON and KEEP in the pool)
  */
+/**
+ * Get pool liquidity balances (MON and KEEP in the pool)
+ * Returns estimated amounts based on active liquidity to avoid showing "ghost" global balances
+ */
 export async function getPoolLiquidity(): Promise<{
     mon: bigint;
     keep: bigint;
 } | null> {
     try {
+        const state = await getPoolState();
+
+        // If pool is initialized and has liquidity, calculate effective amounts
+        // This avoids showing the global PoolManager balance (which contains stuck/other funds)
+        if (state && state.liquidity > 0n && state.sqrtPriceX96 > 0n) {
+            console.log('getPoolLiquidity: Calculating from active liquidity:', state.liquidity.toString());
+
+            // Approximate amounts based on liquidity and current price
+            // This assumes the liquidity is distributed somewhat near current tick
+            // standard formula: L = sqrt(xy) -> x = L/sqrt(p), y = L*sqrt(p)
+            // sqrt(p) = sqrtPriceX96 / 2^96
+
+            const Q96 = 2n ** 96n;
+            const liquidity = state.liquidity;
+            const sqrtPriceX96 = state.sqrtPriceX96;
+
+            // Amount0 (MON) = Liquidity * 2^96 / SqrtPrice
+            const monAmount = (liquidity * Q96) / sqrtPriceX96;
+
+            // Amount1 (KEEP) = Liquidity * SqrtPrice / 2^96
+            const keepAmount = (liquidity * sqrtPriceX96) / Q96;
+
+            console.log('getPoolLiquidity (Calculated): MON:', formatEther(monAmount));
+            console.log('getPoolLiquidity (Calculated): KEEP:', formatEther(keepAmount));
+
+            return {
+                mon: monAmount,
+                keep: keepAmount
+            };
+        }
+
+        // Fallback: Check global balances if pool is empty (or not initialized)
+        // This was the old behavior, but we prefer the calculated one above
+        console.warn('getPoolLiquidity: Pool empty or uninitialized, checking global balances (may be inaccurate)');
+
         const rpcUrl = process.env.NEXT_PUBLIC_MONAD_RPC_URL ||
             (monad.id === 143 ? 'https://rpc.monad.xyz' : 'https://testnet-rpc.monad.xyz');
-
-        console.log('getPoolLiquidity: Using RPC:', rpcUrl);
-        console.log('getPoolLiquidity: PoolManager address:', CONTRACT_ADDRESSES.POOL_MANAGER);
-        console.log('getPoolLiquidity: KEEP_TOKEN address:', CONTRACT_ADDRESSES.KEEP_TOKEN);
 
         const publicClient = createPublicClient({
             chain: monad,
@@ -463,21 +498,12 @@ export async function getPoolLiquidity(): Promise<{
             }) as Promise<bigint>,
         ]);
 
-        console.log('getPoolLiquidity: MON balance (wei):', monBalance.toString());
-        console.log('getPoolLiquidity: KEEP balance (wei):', keepBalance.toString());
-        console.log('getPoolLiquidity: MON balance (formatted):', formatEther(monBalance));
-        console.log('getPoolLiquidity: KEEP balance (formatted):', formatEther(keepBalance));
-
         return {
             mon: monBalance,
             keep: keepBalance,
         };
     } catch (error) {
         console.error('❌ Error fetching pool liquidity:', error);
-        if (error instanceof Error) {
-            console.error('   Error message:', error.message);
-            console.error('   Error stack:', error.stack);
-        }
         return null;
     }
 }

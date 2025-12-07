@@ -32,9 +32,12 @@ const MONAD_TESTNET_ADDRESSES = {
     // Group LP Management
     TAVERN_REGULARS_MANAGER: '0xE671CA8cDA72a70Ca4adb8BCfA03631FCfFe2cE8' as Address,
     TOWN_POSSE_MANAGER: '0xEa0F26c751b27504Df2D6D99Aa225e8f0D79Be58' as Address,
+
+    // Tokens
+    CELLAR_TOKEN: '0x0000000000000000000000000000000000000000' as Address, // TODO: Deploy on testnet
 };
 
-// Monad Mainnet Addresses (Chain ID: 143) - From FIRSTDEPLOYMENT.md
+// Monad Mainnet Addresses (Chain ID: 143) - From FIRSTDEPLOYMENT.md / V3 Migration
 const MONAD_MAINNET_ADDRESSES = {
     // Infrastructure
     ERC6551_REGISTRY: '0xE74D0b9372e81037e11B4DEEe27D063C24060Ea9' as Address,
@@ -48,16 +51,20 @@ const MONAD_MAINNET_ADDRESSES = {
     DUNGEON_GATEKEEPER: '0xf454A4A4f2F960a5d5b7583A289dCAE765d57355' as Address,
 
     // Treasury / Mechanics
-    THE_CELLAR: '0xe71CAf7162dd81a4A9C0c6BD25ED02C26F492DC0' as Address, // New pool (fee=10000, tickSpacing=200) - deployed 2025-01-XX
-    CELLAR_ZAP: '0xf7248a01051bf297Aa56F12a05e7209C60Fc5863' as Address,
-    POOL_MANAGER: '0x27e98f6A0D3315F9f3ECDaFE0187a7637F41c7c2' as Address,
+    THE_CELLAR: '0x32A920be00dfCE1105De0415ba1d4f06942E9ed0' as Address, // V3 Migration (Uniswap V3 Wrapper)
+    CELLAR_ZAP: '0xf7248a01051bf297Aa56F12a05e7209C60Fc5863' as Address, // TODO: Update if Zap is needed, else direct interact
+    POOL_MANAGER: '0x27e98f6A0D3315F9f3ECDaFE0187a7637F41c7c2' as Address, // V4 Pool Manager (Legacy reference now)
     SWAP_ROUTER_V4: '0x6Aa207465c4B8c4Ab8381baf9aB27d5F133Abb95' as Address,
+
     // Fee recipient from env (NEXT_PUBLIC_FEE_RECIPIENT_ADDRESS), fallback to Cellar if not set
     FEE_RECIPIENT: (process.env.NEXT_PUBLIC_FEE_RECIPIENT_ADDRESS as Address | undefined) || '0xe71CAf7162dd81a4A9C0c6BD25ED02C26F492DC0' as Address,
 
     // Group LP Management
     TAVERN_REGULARS_MANAGER: '0x9f455Ad562e080CC745f9E97c469a86E1bBF8db8' as Address,
     TOWN_POSSE_MANAGER: '0xE46592D8185975888b4A301DBD9b24A49933CC7D' as Address,
+
+    // Tokens
+    CELLAR_TOKEN: '0x6eF142a2203102F6c58b0C15006BF9F6F5CFe39E' as Address,
 };
 
 // Localhost Addresses (for local development)
@@ -84,6 +91,9 @@ export const LOCALHOST_ADDRESSES = {
     // Group LP Management
     TAVERN_REGULARS_MANAGER: '0xc84E7d5C75a89eBB3322bEb004c9351c25fc0092' as Address,
     TOWN_POSSE_MANAGER: '0xF25F6e2E8c2023954eD349027C92B266A1290086' as Address,
+
+    // Tokens
+    CELLAR_TOKEN: '0x0000000000000000000000000000000000000000' as Address, // TODO: Deploy on localhost
 };
 
 // Get chain ID from environment (143 = mainnet, 10143 = testnet)

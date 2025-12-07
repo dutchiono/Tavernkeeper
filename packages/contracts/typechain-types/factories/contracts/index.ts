@@ -9,6 +9,7 @@ export * as hooks from "./hooks";
 export * as interfaces from "./interfaces";
 export * as legacy from "./legacy";
 export * as test from "./test";
+export * as v3 from "./v3";
 export { Adventurer__factory } from "./Adventurer__factory";
 export { Create2Factory__factory } from "./Create2Factory__factory";
 export { DungeonGatekeeper__factory } from "./DungeonGatekeeper__factory";
