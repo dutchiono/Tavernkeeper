@@ -2,13 +2,19 @@
 
 import { useEffect, useState } from 'react';
 import { formatEther, parseEther, createPublicClient, http, type Address } from 'viem';
+import { useAccount, useWriteContract, useSwitchChain } from 'wagmi';
 import { PixelBox, PixelButton } from './PixelComponents';
 import { useUnifiedWalletClient } from '../lib/hooks/useUnifiedWalletClient';
+import { monad } from '../lib/chains';
+import { CONTRACT_ADDRESSES } from '../lib/contracts/addresses';
+import { isInFarcasterMiniapp } from '../lib/utils/farcasterDetection';
 import {
     getSwapQuote,
     getTokenBalances,
     isPoolReady,
     executeSwap,
+    getSwapCallArgs,
+    checkAllowance,
     type SwapParams,
     type SwapQuote,
     getPoolKey,
@@ -26,7 +32,7 @@ export function SwapInterface() {
     const [poolReady, setPoolReady] = useState<boolean>(false);
     const [isSwapping, setIsSwapping] = useState(false);
 
-    const account = walletClient?.account?.address;
+    const { address: account, isConnected } = useAccount();
 
     // Fetch pool status (always check, doesn't need wallet)
     useEffect(() => {
@@ -107,9 +113,36 @@ export function SwapInterface() {
         setError(null);
     };
 
+    // Wagmi hooks for Miniapp
+    const { writeContractAsync } = useWriteContract();
+    const { switchChainAsync } = useSwitchChain();
+    const chainId = useAccount().chainId;
+    const { monad } = require('../lib/chains'); // Inline require if not imported top-level, or just assume monad is available if imported. 
+    // Wait, import monad chain at top level? It's not there. Let's assume we need to import it or it's in chains.ts
+    // Let's use the monad object from '../lib/chains' which is likely imported. Oh wait, it wasn't.
+    // I need to add imports for useWriteContract, useSwitchChain, monad, CONTRACT_ADDRESSES, checkAllowance, getSwapCallArgs, isInFarcasterMiniapp.
+
+    // I will do imports separately. Here is the function.
+
+    // Helper to switch network
+    const ensureNetwork = async () => {
+        if (chainId !== monad.id) {
+            try {
+                await switchChainAsync({ chainId: monad.id });
+                return true;
+            } catch (e) {
+                console.error('Failed to switch', e);
+                return false;
+            }
+        }
+        return true;
+    };
+
     const handleSwap = async () => {
-        if (!walletClient || !account || !quote || !amountIn) {
-            console.warn('Swap prerequisites not met:', { walletClient: !!walletClient, account, quote: !!quote, amountIn });
+        const isMiniapp = isInFarcasterMiniapp();
+
+        // Validation
+        if (!account || !quote || !amountIn) {
             setError('Please connect wallet and enter an amount');
             return;
         }
@@ -126,13 +159,85 @@ export function SwapInterface() {
                 slippageTolerance: 0.5,
             };
 
-            console.log('🔄 Executing swap:', {
-                ...swapParams,
-                amountInFormatted: formatEther(amountInWei),
-                account,
-            });
+            let txHash: `0x${string}`;
 
-            const txHash = await executeSwap(walletClient, swapParams);
+            if (isMiniapp) {
+                // --- Miniapp Path (Wagmi) ---
+
+                // 1. Ensure Connected
+                if (!isConnected) {
+                    setError('Wallet disconnected');
+                    return;
+                }
+
+                // 2. Switch Chain if needed
+                if (chainId !== monad.id) {
+                    try {
+                        await switchChainAsync({ chainId: monad.id });
+                        // Wagmi might need a moment to update state?
+                    } catch (e) {
+                        setError('Wrong network. Please switch to Monad.');
+                        return;
+                    }
+                }
+
+                // 3. Check/Handle Allowance
+                if (tokenIn === 'KEEP') {
+                    // Check allowance
+                    const hasAllowance = await checkAllowance(
+                        CONTRACT_ADDRESSES.KEEP_TOKEN,
+                        account,
+                        CONTRACT_ADDRESSES.SWAP_ROUTER_V4,
+                        amountInWei
+                    );
+
+                    if (!hasAllowance) {
+                        // Must Approve First
+                        // Ideally we show a UI button for this, but for now let's try to prompt approval
+                        // using writeContractAsync
+                        try {
+                            const approveHash = await writeContractAsync({
+                                address: CONTRACT_ADDRESSES.KEEP_TOKEN,
+                                abi: [{
+                                    name: 'approve',
+                                    type: 'function',
+                                    stateMutability: 'nonpayable',
+                                    inputs: [{ name: 'spender', type: 'address' }, { name: 'amount', type: 'uint256' }],
+                                    outputs: [{ name: '', type: 'bool' }]
+                                }],
+                                functionName: 'approve',
+                                args: [CONTRACT_ADDRESSES.SWAP_ROUTER_V4, amountInWei], // Approve exact amount or max? Let's do exact for safety/standard
+                                chainId: monad.id
+                            });
+                            console.log('Approve sent:', approveHash);
+                            // Wait for it? simpler to just alert user "Approving..." and wait
+                            // But we need to wait for receipt to continue swap.
+                            // This blocking experience is suboptimal but functional.
+                            const publicClient = createPublicClient({ chain: monad, transport: http() });
+                            await publicClient.waitForTransactionReceipt({ hash: approveHash });
+                        } catch (e) {
+                            throw new Error('Approval failed or rejected');
+                        }
+                    }
+                }
+
+                // 4. Exec Swap
+                const callArgs = getSwapCallArgs(swapParams, account);
+                txHash = await writeContractAsync({
+                    ...callArgs,
+                    chainId: monad.id,
+                    account: account, // Wagmi needs this sometimes
+                });
+
+            } else {
+                // --- Web Path (WalletClient) ---
+                if (!walletClient) {
+                    setError('Wallet client not ready');
+                    return;
+                }
+                txHash = await executeSwap(walletClient, swapParams);
+            }
+
             console.log('✅ Swap transaction submitted:', txHash);
 
             // Wait for transaction confirmation
@@ -140,7 +245,6 @@ export function SwapInterface() {
                 (typeof window !== 'undefined' && (window as any).__ENV__?.NEXT_PUBLIC_MONAD_RPC_URL) ||
                 'https://rpc.monad.xyz';
 
-            const { monad } = await import('../lib/chains');
             const publicClient = createPublicClient({
                 chain: monad,
                 transport: http(rpcUrl),
@@ -164,14 +268,6 @@ export function SwapInterface() {
             console.error('❌ Swap error:', err);
             const errorMessage = err.message || err.reason || 'Swap failed';
             setError(errorMessage);
-
-            // Log more details for debugging
-            if (err.data) {
-                console.error('Error data:', err.data);
-            }
-            if (err.code) {
-                console.error('Error code:', err.code);
-            }
         } finally {
             setIsSwapping(false);
         }
@@ -346,11 +442,11 @@ export function SwapInterface() {
             {/* Swap Button */}
             <PixelButton
                 onClick={handleSwap}
-                disabled={!account || !amountIn || !quote || isLoading || isSwapping || parseFloat(amountIn) <= 0}
+                disabled={!isConnected || !amountIn || !quote || isLoading || isSwapping || parseFloat(amountIn) <= 0}
                 className="w-full"
                 variant="primary"
             >
-                {!account
+                {!isConnected
                     ? 'Connect Wallet'
                     : !amountIn
                         ? 'Enter Amount'

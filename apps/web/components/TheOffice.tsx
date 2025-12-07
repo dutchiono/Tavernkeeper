@@ -73,7 +73,8 @@ export const TheOffice: React.FC<{
     // Unified state based on context
     const privyWallet = wallets.find((w) => w.address === privy.user?.wallet?.address);
     const address = isMiniapp ? (wagmiAddress || farcasterAddress) : privy.user?.wallet?.address;
-    const isConnected = isMiniapp ? (wagmiConnected || !!farcasterAddress) : (privy.authenticated && !!privyWallet);
+    // Treat as connected if we have a wagmi address (even if isConnected is false during rehydration)
+    const isConnected = isMiniapp ? (wagmiConnected || !!wagmiAddress || !!farcasterAddress) : (privy.authenticated && !!privyWallet);
     const chainId = isMiniapp ? wagmiChainId : (privyWallet?.chainId ? parseInt(privyWallet.chainId.split(':')[1]) : undefined);
 
     const [state, setState] = useState<OfficeState>({

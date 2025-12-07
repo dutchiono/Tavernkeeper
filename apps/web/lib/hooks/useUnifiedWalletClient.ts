@@ -12,6 +12,7 @@ import { useAccount, useWriteContract } from 'wagmi';
 import { monad } from '../chains';
 import { createFarcasterWalletClient } from '../services/farcasterWallet';
 import { isInFarcasterMiniapp } from '../utils/farcasterDetection';
+import { wagmiConfig } from '../wagmi-miniapp';
 import { useSafeAccount } from './useSafeAccount';
 
 export function useUnifiedWalletClient() {
@@ -27,12 +28,32 @@ export function useUnifiedWalletClient() {
             setIsLoading(true);
 
             if (isMiniapp) {
-                // Miniapp: Use Farcaster SDK wallet
+                // Miniapp: Check valid connectors (Farcaster or Fallback)
                 try {
-                    const client = await createFarcasterWalletClient();
-                    setWalletClient(client);
+                    // If we have an active wagmi account with a connector, use that first
+                    // This supports the "fallback" injected connector we added
+                    const { connector } = await import('wagmi/actions').then(m => m.getAccount(wagmiConfig));
+
+                    if (connector?.id === 'farcaster-miniapp') {
+                        const client = await createFarcasterWalletClient();
+                        setWalletClient(client);
+                    } else if (connector && wagmiAddress) {
+                        // Injected or other wagmi connector
+                        const provider = await connector.getProvider();
+                        const client = createWalletClient({
+                            account: wagmiAddress as `0x${string}`,
+                            chain: monad,
+                            transport: custom(provider as any),
+                        });
+                        setWalletClient(client);
+                    } else {
+                        // Default to Farcaster attempt if no connector yet
+                        // But if we are here, we might just need to wait for connection
+                        const client = await createFarcasterWalletClient().catch(() => null);
+                        setWalletClient(client);
+                    }
                 } catch (error) {
-                    console.error('Failed to create Farcaster wallet client:', error);
+                    console.error('Failed to create Miniapp wallet client:', error);
                     setWalletClient(null);
                 }
             } else {
@@ -93,7 +114,7 @@ export function useUnifiedWriteContract() {
         },
         isPending: false,
         data: undefined,
-        reset: () => {},
+        reset: () => { },
     };
 }
 

@@ -242,14 +242,15 @@ export async function getSwapQuote(params: SwapParams): Promise<SwapQuote | null
 /**
  * Execute swap transaction using SwapRouterV4
  */
-export async function executeSwap(
-    walletClient: WalletClient,
-    params: SwapParams
-): Promise<`0x${string}`> {
-    if (!walletClient.account) {
-        throw new Error('Wallet not connected');
-    }
-
+/**
+ * Check if allowance is sufficient
+ */
+export async function checkAllowance(
+    tokenAddress: Address,
+    owner: Address,
+    spender: Address,
+    amount: bigint
+): Promise<boolean> {
     const rpcUrl = process.env.NEXT_PUBLIC_MONAD_RPC_URL ||
         (monad.id === 143 ? 'https://rpc.monad.xyz' : 'https://testnet-rpc.monad.xyz');
 
@@ -258,81 +259,49 @@ export async function executeSwap(
         transport: http(rpcUrl),
     });
 
+    const allowance = await publicClient.readContract({
+        address: tokenAddress,
+        abi: [
+            {
+                inputs: [
+                    { name: 'owner', type: 'address' },
+                    { name: 'spender', type: 'address' },
+                ],
+                name: 'allowance',
+                outputs: [{ name: '', type: 'uint256' }],
+                stateMutability: 'view',
+                type: 'function',
+            },
+        ],
+        functionName: 'allowance',
+        args: [owner, spender],
+    }) as bigint;
+
+    return allowance >= amount;
+}
+
+/**
+ * Get SwapRouterV4 transaction arguments
+ */
+export function getSwapCallArgs(
+    params: SwapParams,
+    recipient: Address
+) {
     const poolKey = poolKeyToStruct(getPoolKey());
-
-    // Determine swap direction
-    // zeroForOne: true means swapping currency0 for currency1 (MON -> KEEP)
-    // zeroForOne: false means swapping currency1 for currency0 (KEEP -> MON)
     const zeroForOne = params.tokenIn === 'MON';
-
-    // amountSpecified must be positive for exact input
-    // For exact input, we use positive amountSpecified
     const amountSpecified = params.amountIn;
 
-    // sqrtPriceLimitX96: 0 means no limit
-    // Note: amountSpecified must be int256 (signed), positive for exact input
-    const swapParams: SwapParamsStruct = {
-        zeroForOne,
-        amountSpecified: amountSpecified, // This is bigint, will be converted to int256
-        sqrtPriceLimitX96: 0n, // No price limit
-    };
-
-    console.log('Swap params:', {
-        zeroForOne,
-        amountSpecified: amountSpecified.toString(),
-        sqrtPriceLimitX96: '0',
-    });
-
-    // Get SwapRouterV4 address
-    const swapRouterAddress = CONTRACT_ADDRESSES.SWAP_ROUTER_V4;
-
-    if (!swapRouterAddress || swapRouterAddress === '0x0000000000000000000000000000000000000000') {
-        const chainId = monad.id;
-        const networkName = chainId === 143 ? 'mainnet' : chainId === 10143 ? 'testnet' : 'localhost';
-        throw new Error(
-            `SWAP_ROUTER_V4 not deployed on ${networkName}. ` +
-            `Please deploy SwapRouterV4 contract first using: ` +
-            `npx hardhat run scripts/deploy_swap_router.ts --network ${networkName}`
-        );
-    }
-
-    console.log('Using SwapRouterV4 at:', swapRouterAddress);
-
-    // Prepare transaction
+    // Determine value to send (only if MON is input)
     const value = params.tokenIn === 'MON' ? params.amountIn : 0n;
 
-    // For ERC20 (KEEP), user must approve router first
-    if (params.tokenIn === 'KEEP') {
-        // Check allowance
-        const allowance = await publicClient.readContract({
-            address: CONTRACT_ADDRESSES.KEEP_TOKEN,
-            abi: [
-                {
-                    inputs: [
-                        { name: 'owner', type: 'address' },
-                        { name: 'spender', type: 'address' },
-                    ],
-                    name: 'allowance',
-                    outputs: [{ name: '', type: 'uint256' }],
-                    stateMutability: 'view',
-                    type: 'function',
-                },
-            ],
-            functionName: 'allowance',
-            args: [walletClient.account.address, swapRouterAddress],
-        }) as bigint;
+    const swapParamsStruct = {
+        zeroForOne,
+        amountSpecified: amountSpecified,
+        sqrtPriceLimitX96: 0n,
+    };
 
-        if (allowance < params.amountIn) {
-            // Need to approve - this should be done in the UI before swap
-            throw new Error(
-                `Insufficient KEEP allowance. Please approve SwapRouterV4 to spend ${formatEther(params.amountIn)} KEEP first.`
-            );
-        }
-    }
-
-    // Execute swap via router
-    const hash = await walletClient.writeContract({
-        address: swapRouterAddress,
+    return {
+        address: CONTRACT_ADDRESSES.SWAP_ROUTER_V4,
         abi: [
             {
                 inputs: [
@@ -352,7 +321,7 @@ export async function executeSwap(
                         type: 'tuple',
                         components: [
                             { name: 'zeroForOne', type: 'bool' },
-                            { name: 'amountSpecified', type: 'int256' }, // Must be positive for exact input
+                            { name: 'amountSpecified', type: 'int256' },
                             { name: 'sqrtPriceLimitX96', type: 'uint160' },
                         ],
                     },
@@ -365,11 +334,49 @@ export async function executeSwap(
             },
         ],
         functionName: 'swapExactInput',
-        args: [poolKey, swapParams, walletClient.account.address],
-        value: value,
+        args: [poolKey, swapParamsStruct, recipient],
+        value,
+    };
+}
+
+/**
+ * Execute swap transaction using SwapRouterV4
+ */
+export async function executeSwap(
+    walletClient: WalletClient,
+    params: SwapParams
+): Promise<`0x${string}`> {
+    if (!walletClient.account) {
+        throw new Error('Wallet not connected');
+    }
+
+    const swapRouterAddress = CONTRACT_ADDRESSES.SWAP_ROUTER_V4;
+
+    // Check allowance if tokenIn is KEEP
+    if (params.tokenIn === 'KEEP') {
+        const hasAllowance = await checkAllowance(
+            CONTRACT_ADDRESSES.KEEP_TOKEN,
+            walletClient.account.address,
+            swapRouterAddress,
+            params.amountIn
+        );
+
+        if (!hasAllowance) {
+            throw new Error(
+                `Insufficient KEEP allowance. Please approve SwapRouterV4 to spend ${formatEther(params.amountIn)} KEEP first.`
+            );
+        }
+    }
+
+    // Get call arguments
+    const callArgs = getSwapCallArgs(params, walletClient.account.address);
+
+    // Execute swap via router
+    const hash = await walletClient.writeContract({
+        ...callArgs,
         account: walletClient.account,
         chain: null,
-    });
+    } as any);
 
     return hash;
 }
