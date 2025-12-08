@@ -64,6 +64,15 @@ contract TheCellarV3 is Initializable, OwnableUpgradeable, UUPSUpgradeable, IERC
     uint256 public constant POOL_FEE = 10000; // 1%
     int24 public constant TICK_SPACING = 200;
 
+    // Dutch Auction Constants
+    uint256 public constant MIN_EPOCH_PERIOD = 1 hours;
+    uint256 public constant MAX_EPOCH_PERIOD = 365 days;
+    uint256 public constant MIN_PRICE_MULTIPLIER = 1.1e18; // 110%
+    uint256 public constant MAX_PRICE_MULTIPLIER = 3e18; // 300%
+    uint256 public constant ABS_MIN_INIT_PRICE = 1e18; // 1 MON minimum
+    uint256 public constant ABS_MAX_INIT_PRICE = type(uint192).max;
+    uint256 public constant PRICE_MULTIPLIER_SCALE = 1e18;
+
     // The single NFT Position ID this Cellar manages
     uint256 public tokenId;
 
@@ -81,10 +90,38 @@ contract TheCellarV3 is Initializable, OwnableUpgradeable, UUPSUpgradeable, IERC
     // Deployer address that receives all swap fees
     address public deployerAddress;
 
+    // Dutch Auction State
+    uint256 public epochPeriod;
+    uint256 public priceMultiplier;
+    uint256 public minInitPrice;
+
+    struct Slot0 {
+        uint8 locked; // 1 if unlocked, 2 if locked
+        uint16 epochId; // intentionally overflowable
+        uint192 initPrice;
+        uint40 startTime;
+    }
+
+    Slot0 public slot0;
+
+    error Reentrancy();
+
+    modifier nonReentrant() {
+        if (slot0.locked == 2) revert Reentrancy();
+        slot0.locked = 2;
+        _;
+        slot0.locked = 1;
+    }
+
+    modifier nonReentrantView() {
+        if (slot0.locked == 2) revert Reentrancy();
+        _;
+    }
+
     event LiquidityAdded(address indexed user, uint256 amount0, uint256 amount1, uint256 liquidityMinted);
     event LiquidityRemoved(address indexed user, uint256 liquidityBurned, uint256 amount0, uint256 amount1, uint256 feesMon, uint256 feesKeep);
     event FeesCollected(uint256 amount0, uint256 amount1);
-    event Raid(address indexed user, uint256 lpBurned, uint256 monPayout, uint256 keepPayout);
+    event Raid(address indexed user, uint256 lpBurned, uint256 monPayout, uint256 keepPayout, uint256 newInitPrice, uint256 newEpochId);
 
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
@@ -123,7 +160,12 @@ contract TheCellarV3 is Initializable, OwnableUpgradeable, UUPSUpgradeable, IERC
         if (serveMon > 0) IERC20(wmon).transfer(recipient, serveMon);
         if (serveKeep > 0) IERC20(keepToken).transfer(recipient, serveKeep);
 
-        emit Raid(recipient, 0, serveMon, serveKeep);
+        // Emergency drain doesn't update auction state, so pass current values or 0
+        Slot0 memory slot0Cache = slot0;
+        uint256 currentInitPrice = slot0Cache.epochId > 0 ? slot0Cache.initPrice : 0;
+        uint256 currentEpochId = slot0Cache.epochId;
+
+        emit Raid(recipient, 0, serveMon, serveKeep, currentInitPrice, currentEpochId);
     }
 
     /**
@@ -261,7 +303,7 @@ contract TheCellarV3 is Initializable, OwnableUpgradeable, UUPSUpgradeable, IERC
         // User owns (lpAmount / totalLiquidity) of the position
         // Note: totalLiquidity was just decreased, so we use (totalLiquidity + lpAmount) which is the pre-burn total
         uint256 totalLiquidityBefore = totalLiquidity + lpAmount;
-        
+
         // Safety check for math
         uint256 userFeeShare0 = totalLiquidityBefore > 0 ? (uint256(tokensOwed0Before) * lpAmount) / totalLiquidityBefore : 0;
         uint256 userFeeShare1 = totalLiquidityBefore > 0 ? (uint256(tokensOwed1Before) * lpAmount) / totalLiquidityBefore : 0;
@@ -321,26 +363,74 @@ contract TheCellarV3 is Initializable, OwnableUpgradeable, UUPSUpgradeable, IERC
 
     /**
      * @notice Raid the pot (Burn CLP -> Get Share of Fees).
-     * @param lpBid Amount of CLP to burn.
+     * @param lpBid Amount of CLP to burn. Must be >= current auction price.
      */
-    function raid(uint256 lpBid) external {
-         require(lpBid > 0, "Bid > 0");
+    function raid(uint256 lpBid) external nonReentrant {
+        require(lpBid > 0, "Bid > 0");
+        require(epochPeriod > 0, "Auction not initialized");
 
-         // 1. Burn Bid
-         cellarToken.transferFrom(msg.sender, address(this), lpBid);
-         cellarToken.burn(address(this), lpBid);
+        Slot0 memory slot0Cache = slot0;
 
-         // 2. Payout (Dump Pot)
-         uint256 serveMon = potBalanceMON;
-         uint256 serveKeep = potBalanceKEEP;
+        // Calculate current auction price
+        uint256 currentPrice = getPriceFromCache(slot0Cache);
+        require(lpBid >= currentPrice, "Bid too low");
 
-         potBalanceMON = 0;
-         potBalanceKEEP = 0;
+        // 1. Burn Bid
+        cellarToken.transferFrom(msg.sender, address(this), lpBid);
+        cellarToken.burn(address(this), lpBid);
 
-         if (serveMon > 0) IERC20(wmon).transfer(msg.sender, serveMon);
-         if (serveKeep > 0) IERC20(keepToken).transfer(msg.sender, serveKeep);
+        // 2. Payout (Dump Pot)
+        uint256 serveMon = potBalanceMON;
+        uint256 serveKeep = potBalanceKEEP;
 
-         emit Raid(msg.sender, lpBid, serveMon, serveKeep);
+        potBalanceMON = 0;
+        potBalanceKEEP = 0;
+
+        if (serveMon > 0) IERC20(wmon).transfer(msg.sender, serveMon);
+        if (serveKeep > 0) IERC20(keepToken).transfer(msg.sender, serveKeep);
+
+        // 3. Setup new auction (use initPrice to ensure growth even if raided at floor)
+        uint256 newInitPrice = slot0Cache.initPrice * priceMultiplier / PRICE_MULTIPLIER_SCALE;
+
+        if (newInitPrice > ABS_MAX_INIT_PRICE) {
+            newInitPrice = ABS_MAX_INIT_PRICE;
+        } else if (newInitPrice < minInitPrice) {
+            newInitPrice = minInitPrice;
+        }
+
+        unchecked {
+            slot0Cache.epochId++;
+        }
+        slot0Cache.initPrice = uint192(newInitPrice);
+        slot0Cache.startTime = uint40(block.timestamp);
+
+        slot0 = slot0Cache;
+
+        emit Raid(msg.sender, lpBid, serveMon, serveKeep, newInitPrice, slot0Cache.epochId);
+    }
+
+    /**
+     * @notice Get current auction price from cache
+     * @param slot0Cache The Slot0 struct containing epoch state
+     * @return price The current auction price (decays over time, minimum is minInitPrice)
+     */
+    function getPriceFromCache(Slot0 memory slot0Cache) internal view returns (uint256) {
+        uint256 timePassed = block.timestamp - slot0Cache.startTime;
+
+        if (timePassed > epochPeriod) {
+            return minInitPrice;
+        }
+
+        uint256 calculatedPrice = slot0Cache.initPrice - slot0Cache.initPrice * timePassed / epochPeriod;
+        return calculatedPrice < minInitPrice ? minInitPrice : calculatedPrice;
+    }
+
+    /**
+     * @notice Get current auction price
+     * @return price The current auction price
+     */
+    function getAuctionPrice() external view nonReentrantView returns (uint256) {
+        return getPriceFromCache(slot0);
     }
 
     /**
@@ -361,9 +451,9 @@ contract TheCellarV3 is Initializable, OwnableUpgradeable, UUPSUpgradeable, IERC
 
             // Update Accounting
             potBalanceMON += msg.value;
-            
+
             // Emit event (reusing FeesCollected for simplicity, effectively 0 KEEP collected here)
-            emit FeesCollected(msg.value, 0); 
+            emit FeesCollected(msg.value, 0);
         }
     }
 
@@ -373,7 +463,7 @@ contract TheCellarV3 is Initializable, OwnableUpgradeable, UUPSUpgradeable, IERC
      */
     function sweetenPot() external payable {
         require(msg.value > 0, "Must send MON");
-        
+
         // Wrap native MON to WMON
         (bool success, ) = wmon.call{value: msg.value}(abi.encodeWithSignature("deposit()"));
         require(success, "WMON deposit failed");

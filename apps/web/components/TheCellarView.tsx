@@ -81,13 +81,16 @@ export default function TheCellarView({ onBackToOffice, monBalance = "0", keepBa
     };
 
     const handleClaim = async () => {
-        if (!address || !isConnected || !walletClient || !publicClient) return;
+        if (!address || !isConnected || !walletClient || !publicClient || !state) return;
 
         setShowConfirmModal(false);
         setIsClaiming(true);
         try {
-            // Raid Bid: 1.05 LP (Fixed for now, V3 Migration default)
-            const bid = parseEther("1.05");
+            // Raid Bid: Use current auction price from contract
+            if (!state.currentPrice) {
+                throw new Error("Unable to fetch current auction price. Please refresh.");
+            }
+            const bid = parseEther(state.currentPrice);
 
             // Get TheCellar address and CLP token address
             const contractConfig = CONTRACT_REGISTRY.THECELLAR;
@@ -330,8 +333,16 @@ export default function TheCellarView({ onBackToOffice, monBalance = "0", keepBa
     }
 
     const isPotEmpty = parseFloat(state.potSize) === 0;
-    const currentPriceWei = state ? parseEther(state.currentPrice) : 0n;
+    const currentPriceWei = state && state.currentPrice ? parseEther(state.currentPrice) : 0n;
     const hasEnoughLP = lpBalance >= currentPriceWei;
+
+    // Calculate time remaining in epoch (epochPeriod is 3600 seconds = 1 hour)
+    const epochPeriodSeconds = 3600; // 1 hour
+    const timeRemaining = state && state.startTime > 0
+        ? Math.max(0, epochPeriodSeconds - Math.floor((Date.now() - state.startTime) / 1000))
+        : 0;
+    const timeRemainingMinutes = Math.floor(timeRemaining / 60);
+    const timeRemainingSeconds = timeRemaining % 60;
 
     // Show disabled message if cellar is disabled
     if (CELLAR_DISABLED) {
@@ -393,11 +404,19 @@ export default function TheCellarView({ onBackToOffice, monBalance = "0", keepBa
                         </div>
                     </PixelBox>
                 </div>
-                {/* LP Price Display */}
-                <div className="flex justify-center mt-2">
+                {/* Auction Info Display */}
+                <div className="flex flex-col items-center mt-2 gap-1">
                     <div className="text-[10px] text-zinc-500">
-                        Raid Cost: <span className="text-orange-400 font-bold">{parseFloat(state.currentPrice).toFixed(2)} LP</span>
+                        Raid Cost: <span className="text-orange-400 font-bold">{state ? parseFloat(state.currentPrice || '0').toFixed(2) : '0.00'} LP</span>
                     </div>
+                    {state && state.epochId > 0 && (
+                        <div className="text-[8px] text-zinc-600 text-center">
+                            Epoch #{state.epochId} • Starts at {parseFloat(state.initPrice || '0').toFixed(2)} LP
+                            {timeRemaining > 0 && (
+                                <span className="ml-1">• {timeRemainingMinutes}m {timeRemainingSeconds}s remaining</span>
+                            )}
+                        </div>
+                    )}
                 </div>
 
                 <div className="mt-2 pb-16"> {/* Reduced padding for mobile */}
@@ -534,7 +553,7 @@ export default function TheCellarView({ onBackToOffice, monBalance = "0", keepBa
                                     <div className="flex justify-between items-center">
                                         <span className="text-zinc-400 text-sm">LP Tokens (You'll Spend):</span>
                                         <span className="text-xl font-bold text-orange-400">
-                                            {parseFloat(state.currentPrice).toFixed(2)} LP
+                                            {state ? parseFloat(state.currentPrice || '0').toFixed(2) : '0.00'} LP
                                         </span>
                                     </div>
                                 </div>

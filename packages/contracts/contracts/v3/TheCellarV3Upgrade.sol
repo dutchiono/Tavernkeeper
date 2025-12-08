@@ -3,54 +3,54 @@ pragma solidity ^0.8.24;
 
 import "./TheCellarV3.sol";
 
-interface IWMON {
-    function deposit() external payable;
-}
-
 /**
  * @title TheCellarV3Upgrade
- * @notice Upgrade to add receive() and sweetenPot() functions for accepting office fees and manual contributions
+ * @notice Upgrade to add Dutch auction functionality for raid pricing
+ * @dev This upgrade adds:
+ *      - Dutch auction state variables (already in base contract)
+ *      - Initialization function for auction parameters
+ *      - Price calculation and enforcement in raid()
  */
 contract TheCellarV3Upgrade is TheCellarV3 {
-    // event PotContributed(address indexed contributor, uint256 amount);
-    // event PotSweetened(address indexed contributor, uint256 amount); // Inherited from Base
+
+    bool private auctionInitialized;
+
+    error AuctionNotInitialized();
 
     /**
-     * @notice Receives native MON tokens from office fees and wraps to WMON
-     * @dev Called when TavernKeeper sends office fees (15% of office price)
-     *      Automatically wraps MON to WMON and adds to potBalanceMON
+     * @notice Initialize Dutch auction parameters
+     * @dev Can only be called once, by owner
+     * @param _initPrice Initial auction price (in CLP tokens)
+     * @param _epochPeriod Duration of each epoch in seconds
+     * @param _priceMultiplier Multiplier for next epoch price (e.g., 2e18 for 2x)
+     * @param _minInitPrice Minimum floor price (e.g., 1e18 for 1 MON)
      */
-     /*
-    receive() external payable override {
-        if (msg.value > 0 && wmon != address(0)) {
-            // Wrap native MON to WMON
-            IWMON(wmon).deposit{value: msg.value}();
+    function initializeAuction(
+        uint256 _initPrice,
+        uint256 _epochPeriod,
+        uint256 _priceMultiplier,
+        uint256 _minInitPrice
+    ) external onlyOwner {
+        require(!auctionInitialized, "Auction already initialized");
+        require(_initPrice >= _minInitPrice, "Init price too low");
+        require(_initPrice <= ABS_MAX_INIT_PRICE, "Init price too high");
+        require(_epochPeriod >= MIN_EPOCH_PERIOD && _epochPeriod <= MAX_EPOCH_PERIOD, "Invalid epoch period");
+        require(_priceMultiplier >= MIN_PRICE_MULTIPLIER && _priceMultiplier <= MAX_PRICE_MULTIPLIER, "Invalid multiplier");
+        require(_minInitPrice >= ABS_MIN_INIT_PRICE && _minInitPrice <= ABS_MAX_INIT_PRICE, "Invalid min init price");
 
-            // Add wrapped WMON to pot
-            potBalanceMON += msg.value;
+        epochPeriod = _epochPeriod;
+        priceMultiplier = _priceMultiplier;
+        minInitPrice = _minInitPrice;
 
-            emit PotContributed(msg.sender, msg.value);
+        // Initialize slot0 if not already initialized
+        if (slot0.epochId == 0) {
+            slot0.initPrice = uint192(_initPrice);
+            slot0.startTime = uint40(block.timestamp);
+            slot0.locked = 1; // Unlocked
+            slot0.epochId = 1;
         }
+
+        auctionInitialized = true;
     }
-    */
 
-    /**
-     * @notice Manually add MON to the cellar pot (sweeten the pot)
-     * @dev Wraps native MON to WMON and adds to potBalanceMON
-     *      Anyone can call this to contribute to the pot
-     */
-     /*
-    function sweetenPot() external payable {
-        require(msg.value > 0, "Must send MON");
-        require(wmon != address(0), "WMON not set");
-
-        // Wrap native MON to WMON
-        IWMON(wmon).deposit{value: msg.value}();
-
-        // Add wrapped WMON to pot
-        potBalanceMON += msg.value;
-
-        emit PotSweetened(msg.sender, msg.value);
-    }
-    */
 }

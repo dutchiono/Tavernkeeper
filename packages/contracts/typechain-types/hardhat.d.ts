@@ -334,14 +334,6 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.ERC6551Registry__factory>;
     getContractFactory(
-      name: "CellarHook",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.CellarHook__factory>;
-    getContractFactory(
-      name: "CellarHookRecovery",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.CellarHookRecovery__factory>;
-    getContractFactory(
       name: "IERC6551Account",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IERC6551Account__factory>;
@@ -473,10 +465,6 @@ declare module "hardhat/types/runtime" {
       name: "TheCellarV3Emergency",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.TheCellarV3Emergency__factory>;
-    getContractFactory(
-      name: "IWMON",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.IWMON__factory>;
     getContractFactory(
       name: "TheCellarV3Upgrade",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -891,16 +879,6 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.ERC6551Registry>;
     getContractAt(
-      name: "CellarHook",
-      address: string | ethers.Addressable,
-      signer?: ethers.Signer
-    ): Promise<Contracts.CellarHook>;
-    getContractAt(
-      name: "CellarHookRecovery",
-      address: string | ethers.Addressable,
-      signer?: ethers.Signer
-    ): Promise<Contracts.CellarHookRecovery>;
-    getContractAt(
       name: "IERC6551Account",
       address: string | ethers.Addressable,
       signer?: ethers.Signer
@@ -1065,11 +1043,6 @@ declare module "hardhat/types/runtime" {
       address: string | ethers.Addressable,
       signer?: ethers.Signer
     ): Promise<Contracts.TheCellarV3Emergency>;
-    getContractAt(
-      name: "IWMON",
-      address: string | ethers.Addressable,
-      signer?: ethers.Signer
-    ): Promise<Contracts.IWMON>;
     getContractAt(
       name: "TheCellarV3Upgrade",
       address: string | ethers.Addressable,
@@ -1407,14 +1380,6 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.ERC6551Registry>;
     deployContract(
-      name: "CellarHook",
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.CellarHook>;
-    deployContract(
-      name: "CellarHookRecovery",
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.CellarHookRecovery>;
-    deployContract(
       name: "IERC6551Account",
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.IERC6551Account>;
@@ -1546,10 +1511,6 @@ declare module "hardhat/types/runtime" {
       name: "TheCellarV3Emergency",
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.TheCellarV3Emergency>;
-    deployContract(
-      name: "IWMON",
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.IWMON>;
     deployContract(
       name: "TheCellarV3Upgrade",
       signerOrOptions?: ethers.Signer | DeployContractOptions
@@ -1964,16 +1925,6 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.ERC6551Registry>;
     deployContract(
-      name: "CellarHook",
-      args: any[],
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.CellarHook>;
-    deployContract(
-      name: "CellarHookRecovery",
-      args: any[],
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.CellarHookRecovery>;
-    deployContract(
       name: "IERC6551Account",
       args: any[],
       signerOrOptions?: ethers.Signer | DeployContractOptions
@@ -2138,11 +2089,6 @@ declare module "hardhat/types/runtime" {
       args: any[],
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.TheCellarV3Emergency>;
-    deployContract(
-      name: "IWMON",
-      args: any[],
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.IWMON>;
     deployContract(
       name: "TheCellarV3Upgrade",
       args: any[],

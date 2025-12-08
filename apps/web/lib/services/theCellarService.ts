@@ -50,7 +50,7 @@ export const theCellarService = {
                 transport: http(rpcUrl),
             });
 
-            // V3 Cellar calls: potBalanceMON, potBalanceKEEP, tokenId
+            // V3 Cellar calls: potBalanceMON, potBalanceKEEP, getAuctionPrice, slot0
             const results = await Promise.allSettled([
                 publicClient.readContract({
                     address: contractAddress,
@@ -67,26 +67,39 @@ export const theCellarService = {
                 publicClient.readContract({
                     address: contractAddress,
                     abi: contractConfig.abi,
-                    functionName: 'tokenId',
+                    functionName: 'getAuctionPrice',
+                    args: [],
+                }),
+                publicClient.readContract({
+                    address: contractAddress,
+                    abi: contractConfig.abi,
+                    functionName: 'slot0',
                     args: [],
                 }),
             ]);
 
             let potMON = 0n;
             let potKEEP = 0n;
-            let tokenId = 0n;
+            let currentPrice = 0n;
+            let slot0Data: any = null;
 
             if (results[0].status === 'fulfilled') potMON = results[0].value as bigint;
             if (results[1].status === 'fulfilled') potKEEP = results[1].value as bigint;
-            if (results[2].status === 'fulfilled') tokenId = results[2].value as bigint;
+            if (results[2].status === 'fulfilled') currentPrice = results[2].value as bigint;
+            if (results[3].status === 'fulfilled') slot0Data = results[3].value;
+
+            // Extract slot0 data
+            const epochId = slot0Data ? Number(slot0Data.epochId) : 0;
+            const initPrice = slot0Data ? formatEther(slot0Data.initPrice) : '0';
+            const startTime = slot0Data ? Number(slot0Data.startTime) * 1000 : now; // Convert to milliseconds
 
             const newState = {
                 potSize: formatEther(potMON), // MON share of pot
                 potSizeKeep: formatEther(potKEEP), // KEEP share of pot
-                currentPrice: '1.05', // Fixed Raid Price? Or check contract for dynamic? For now assume V3 implementation standard
-                epochId: Number(tokenId), // Using tokenId as "Epoch" concept for display
-                startTime: now,
-                initPrice: '1.05',
+                currentPrice: formatEther(currentPrice), // Current auction price from contract
+                epochId: epochId,
+                startTime: startTime,
+                initPrice: initPrice,
                 paymentToken: contractAddress,
             };
 

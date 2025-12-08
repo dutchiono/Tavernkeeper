@@ -9,8 +9,6 @@ import type * as tavernRegularsManagerSol from "./TavernRegularsManager.sol";
 export type { tavernRegularsManagerSol };
 import type * as townPosseManagerSol from "./TownPosseManager.sol";
 export type { townPosseManagerSol };
-import type * as hooks from "./hooks";
-export type { hooks };
 import type * as interfaces from "./interfaces";
 export type { interfaces };
 import type * as legacy from "./legacy";
