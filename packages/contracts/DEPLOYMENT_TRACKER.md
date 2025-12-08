@@ -233,6 +233,7 @@ This file tracks all contract deployments. **ALWAYS** update this file when depl
 | Contract | Type | Address | Deployed | TX Hash | Notes |
 |----------|------|---------|----------|---------|-------|
 | TheCellarV3 | Proxy | `0x32A920be00dfCE1105De0415ba1d4f06942E9ed0` | ✅ 2025-12-07 | ... | V3 Migration - UUPS Proxy |
+| TheCellarV3 | Impl | `0x85d081275254f39d31ebC7b5b5DCBD7276C4E9dF` | ✅ 2025-01-XX | See upgrade tx | v1.5.0 - Price Calculation Fix (use currentPrice not initPrice) |
 | TheCellarV3 | Impl | `0x3Ae6fe0eD190Bd31bBE3fe7f91b310f9C8f45D5C` | ✅ 2025-01-XX | See upgrade tx | v1.4.0 - Withdrawal Fix (position liquidity checks) |
 | TheCellarV3 | Impl | `0x296d8B63c95013a6c972b3f08b0D52c859D37066` | ✅ 2025-12-07 | ... | v1.3.0 - Logic Fix (harvest/withdraw) |
 | CellarToken | Contract | `0x6eF142a2203102F6c58b0C15006BF9F6F5CFe39E` | ✅ 2025-12-06 | 0x... | Migrated V3 LP Token |
@@ -287,6 +288,13 @@ This file tracks all contract deployments. **ALWAYS** update this file when depl
   - **Reason**: `potBalance` remained 0 because contract lacked `receive()` handler for Native MON. Funds were reverting.
   - **Action**: Added `receive()` to accept and wrap Native MON to WMON. Added `sweetenPot()` for manual contributions.
   - **Result**: "Take Office" now triggers fee deposits correctly.
+
+- **v1.5.0** - `0x85d081275254f39d31ebC7b5b5DCBD7276C4E9dF` (Impl) - Price Calculation Fix
+  - **Reason**: `raid()` was using `initPrice` (old init price) instead of `currentPrice` (price paid) to calculate next epoch price, causing unbounded price growth.
+  - **Action**: Changed `raid()` to use `currentPrice * priceMultiplier` instead of `initPrice * priceMultiplier`. Matches Office Manager behavior.
+  - **Result**: Price is now bounded by actual payments, preventing huge numbers. New init price = current price paid × multiplier.
+  - **Network**: Monad Mainnet (Chain 143)
+  - **Date**: 2025-01-XX
 
 
 

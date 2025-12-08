@@ -2,6 +2,10 @@ NOTIFICIATIONS i JUST TOOK THE OFFICE!!!!!! COMPOSE CAST yEA
  we should also add a leaderboard and have the top 5 minters
 
 
+toadyhawk.eth
+19m
+
+does your mini app embed have a dynamic APNG image preview anon?
 
 
 

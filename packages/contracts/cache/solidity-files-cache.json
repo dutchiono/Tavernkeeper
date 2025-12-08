@@ -5209,8 +5209,8 @@
       ]
     },
     "C:\\Users\\epj33\\Desktop\\InnKeeper\\packages\\contracts\\contracts\\v3\\TheCellarV3.sol": {
-      "lastModificationDate": 1765219243986,
-      "contentHash": "4dcd989625438a8f3d84045b622c54e1",
+      "lastModificationDate": 1765226595364,
+      "contentHash": "e64a8d7db60988a1400d28e2a89e660e",
       "sourceName": "contracts/v3/TheCellarV3.sol",
       "solcConfig": {
         "version": "0.8.26",
@@ -5540,7 +5540,7 @@
       ]
     },
     "C:\\Users\\epj33\\Desktop\\InnKeeper\\packages\\contracts\\contracts\\v3\\TheCellarV3Upgrade.sol": {
-      "lastModificationDate": 1765192022860,
+      "lastModificationDate": 1765224078270,
       "contentHash": "66efc81b8586111a61cf51e4f09e738c",
       "sourceName": "contracts/v3/TheCellarV3Upgrade.sol",
       "solcConfig": {
@@ -5580,7 +5580,7 @@
       ]
     },
     "C:\\Users\\epj33\\Desktop\\InnKeeper\\packages\\contracts\\contracts\\v3\\TheCellarV3Emergency.sol": {
-      "lastModificationDate": 1765085598053,
+      "lastModificationDate": 1765224078263,
       "contentHash": "1de860e739aa527e33e63f69834f0b6e",
       "sourceName": "contracts/v3/TheCellarV3Emergency.sol",
       "solcConfig": {
@@ -5620,7 +5620,7 @@
       ]
     },
     "C:\\Users\\epj33\\Desktop\\InnKeeper\\packages\\contracts\\contracts\\v3\\TheCellarV3SetDeployer.sol": {
-      "lastModificationDate": 1765210058890,
+      "lastModificationDate": 1765224078263,
       "contentHash": "ecd849672204a8fbb85cd00c789f7af7",
       "sourceName": "contracts/v3/TheCellarV3SetDeployer.sol",
       "solcConfig": {
@@ -5657,6 +5657,46 @@
       ],
       "artifacts": [
         "TheCellarV3SetDeployer"
+      ]
+    },
+    "C:\\Users\\epj33\\Desktop\\InnKeeper\\packages\\contracts\\contracts\\v3\\TheCellarV3PriceFix.sol": {
+      "lastModificationDate": 1765226683855,
+      "contentHash": "2c1374dac14295edb348df7e5ab53b0a",
+      "sourceName": "contracts/v3/TheCellarV3PriceFix.sol",
+      "solcConfig": {
+        "version": "0.8.26",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "viaIR": true,
+          "evmVersion": "cancun",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "storageLayout"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./TheCellarV3Upgrade.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.24"
+      ],
+      "artifacts": [
+        "TheCellarV3PriceFix"
       ]
     }
   }

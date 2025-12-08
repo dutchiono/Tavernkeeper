@@ -9,6 +9,7 @@ import { ChatOverlay } from '../components/ChatOverlay';
 import { HomeInfoDisplay } from '../components/HomeInfoDisplay';
 import { PixelButton } from '../components/PixelComponents';
 import { BattleScene } from '../components/scenes/BattleScene';
+import { DungeonReplayScene } from '../components/dungeon/DungeonReplayScene';
 import { InnScene } from '../components/scenes/InnScene';
 import { MapScene } from '../components/scenes/MapScene';
 import { TheOffice } from '../components/TheOffice';
@@ -157,18 +158,7 @@ function HomeContent() {
                         {currentView === GameView.INN && <InnScene />}
                         {currentView === GameView.MAP && <MapScene />}
                         {currentView === GameView.BATTLE && (
-                            <BattleScene
-                                party={party}
-                                onComplete={(success) => {
-                                    useGameStore.getState().addLog({
-                                        id: Date.now(),
-                                        message: success ? "Victory! The party returns to the inn." : "Defeat... The party retreats.",
-                                        type: 'combat',
-                                        timestamp: new Date().toLocaleTimeString()
-                                    });
-                                    switchView(GameView.INN);
-                                }}
-                            />
+                            <DungeonReplayScene />
                         )}
 
                         {/* CHAT VIEW */}

@@ -409,8 +409,8 @@ contract TheCellarV3 is Initializable, OwnableUpgradeable, UUPSUpgradeable, IERC
         if (serveMon > 0) IERC20(wmon).transfer(msg.sender, serveMon);
         if (serveKeep > 0) IERC20(keepToken).transfer(msg.sender, serveKeep);
 
-        // 3. Setup new auction (use initPrice to ensure growth even if raided at floor)
-        uint256 newInitPrice = slot0Cache.initPrice * priceMultiplier / PRICE_MULTIPLIER_SCALE;
+        // 3. Setup new auction (use currentPrice to match Office behavior - price based on what was paid, not old initPrice)
+        uint256 newInitPrice = currentPrice * priceMultiplier / PRICE_MULTIPLIER_SCALE;
 
         if (newInitPrice > ABS_MAX_INIT_PRICE) {
             newInitPrice = ABS_MAX_INIT_PRICE;
