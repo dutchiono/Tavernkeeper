@@ -5,7 +5,9 @@ import React, { useEffect, useState } from 'react';
 import { createPublicClient, http, type Address } from 'viem';
 import { useAccount, useConnect, useSwitchChain, useWaitForTransactionReceipt, useWriteContract } from 'wagmi';
 import { monad } from '../lib/chains';
+import { getMonPrice } from '../lib/services/monPriceService';
 import { getOfficeManagerData, setOfficeManagerData } from '../lib/services/officeManagerCache';
+import { officePnlService, type OfficePnlData } from '../lib/services/officePnlService';
 import { OfficeState, tavernKeeperService } from '../lib/services/tavernKeeperService';
 import { CellarState, theCellarService } from '../lib/services/theCellarService';
 import { useGameStore } from '../lib/stores/gameStore';
@@ -74,6 +76,7 @@ export const TheOffice: React.FC<{
     const [monBalance, setMonBalance] = useState<string>('0');
     const [cellarState, setCellarState] = useState<CellarState | null>(null);
     const [pnl, setPnl] = useState<string>('$0.00');
+    const [enhancedPnl, setEnhancedPnl] = useState<OfficePnlData | null>(null);
     const [interpolatedState, setInterpolatedState] = useState<OfficeState>(state);
     const [refreshKey, setRefreshKey] = useState<number>(0);
 
@@ -202,6 +205,43 @@ export const TheOffice: React.FC<{
         }, 5000);
         return () => clearInterval(interval);
     }, [state.kingSince, state.initPrice, state.officeRate]);
+
+    // Calculate enhanced PnL (Dutch Auction + KEEP Earnings)
+    useEffect(() => {
+        // Only calculate if user is the current king
+        if (!address || !state.currentKing || address.toLowerCase() !== state.currentKing.toLowerCase()) {
+            setEnhancedPnl(null);
+            return;
+        }
+
+        let cancelled = false;
+
+        const calculateEnhancedPnl = async () => {
+            try {
+                const monPriceUsd = await getMonPrice();
+                const pnlData = await officePnlService.calculateOfficePnl(state, monPriceUsd);
+
+                if (!cancelled && pnlData) {
+                    setEnhancedPnl(pnlData);
+                }
+            } catch (error) {
+                if (!cancelled) {
+                    console.error('Error calculating enhanced PnL:', error);
+                }
+            }
+        };
+
+        // Calculate immediately
+        calculateEnhancedPnl();
+
+        // Recalculate every 30 seconds
+        const interval = setInterval(calculateEnhancedPnl, 30000);
+
+        return () => {
+            cancelled = true;
+            clearInterval(interval);
+        };
+    }, [state, address]);
 
     // Handle transaction receipt
     useEffect(() => {
@@ -442,6 +482,7 @@ export const TheOffice: React.FC<{
             onTakeOffice={handleTakeOffice}
             onDisconnect={undefined} // Disconnect handled by main UI/RainbowKit/Context
             pnl={pnl}
+            enhancedPnl={enhancedPnl}
             isKing={!!isKing}
             viewMode={viewMode}
             onViewSwitch={setViewMode}

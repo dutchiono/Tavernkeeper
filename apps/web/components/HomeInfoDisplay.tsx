@@ -6,6 +6,7 @@ import { createPublicClient, formatEther, http } from 'viem';
 import { monad } from '../lib/chains';
 import { CONTRACT_ADDRESSES } from '../lib/contracts/addresses';
 import { keepTokenService } from '../lib/services/keepToken';
+import { mcapService, type KeepMcapData } from '../lib/services/mcapService';
 import { theCellarService } from '../lib/services/theCellarService';
 import { getPoolLiquidity } from '../lib/services/uniswapV4SwapService';
 import { checkIsInFarcasterMiniapp } from '../lib/utils/farcasterDetection';
@@ -22,6 +23,7 @@ export const HomeInfoDisplay: React.FC<HomeInfoDisplayProps> = ({ address }) => 
     const [keepBalance, setKeepBalance] = useState<string>('0');
     const [poolMon, setPoolMon] = useState<bigint>(0n);
     const [poolKeep, setPoolKeep] = useState<bigint>(0n);
+    const [mcapData, setMcapData] = useState<KeepMcapData | null>(null);
     const [copied, setCopied] = useState(false);
     const [isInMiniapp, setIsInMiniapp] = useState(false);
 
@@ -88,6 +90,40 @@ export const HomeInfoDisplay: React.FC<HomeInfoDisplayProps> = ({ address }) => 
         };
     }, []); // Run once on mount, doesn't depend on address
 
+    // Fetch MCAP data separately (doesn't need user address)
+    useEffect(() => {
+        let cancelled = false;
+
+        const fetchMcap = async () => {
+            // Delay initial fetch to let other components load first
+            await new Promise(resolve => setTimeout(resolve, 2000));
+
+            if (cancelled) return;
+
+            try {
+                console.log('Fetching MCAP data...');
+                const data = await mcapService.getKeepMcap();
+                if (data && !cancelled) {
+                    console.log('✅ MCAP:', `$${data.mcapUsd}`);
+                    setMcapData(data);
+                } else if (!cancelled) {
+                    console.warn('❌ Failed to fetch MCAP - returned null');
+                }
+            } catch (error) {
+                if (!cancelled) {
+                    console.error('❌ Error fetching MCAP:', error);
+                }
+            }
+        };
+
+        fetchMcap();
+        const interval = setInterval(fetchMcap, 30000); // Poll every 30s
+        return () => {
+            cancelled = true;
+            clearInterval(interval);
+        };
+    }, []); // Run once on mount, doesn't depend on address
+
     // Fetch user-specific data
     useEffect(() => {
         if (!address) {
@@ -143,8 +179,8 @@ export const HomeInfoDisplay: React.FC<HomeInfoDisplayProps> = ({ address }) => 
 
     return (
         <div className="w-full p-2 sm:p-3 space-y-2 max-w-full overflow-x-hidden [scrollbar-width:thin] [scrollbar-color:rgba(255,255,255,0.2)_transparent] [-ms-overflow-style:auto] [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-thumb]:rounded-full">
-            {/* Pool Liquidity - Compact */}
-            <div className="grid grid-cols-2 gap-2">
+            {/* Pool Liquidity & MCAP - Compact */}
+            <div className="grid grid-cols-3 gap-2">
                 <PixelBox variant="dark" className="p-2 flex flex-col items-center justify-center min-w-0">
                     <div className="text-[8px] text-zinc-400 uppercase tracking-wider mb-0.5">Pool MON</div>
                     <div className="text-yellow-400 font-bold text-xs font-mono truncate w-full text-center">
@@ -156,6 +192,17 @@ export const HomeInfoDisplay: React.FC<HomeInfoDisplayProps> = ({ address }) => 
                     <div className="text-orange-400 font-bold text-xs font-mono truncate w-full text-center">
                         {parseFloat(formatEther(poolKeep)).toFixed(2)}
                     </div>
+                </PixelBox>
+                <PixelBox variant="dark" className="p-2 flex flex-col items-center justify-center min-w-0">
+                    <div className="text-[8px] text-zinc-400 uppercase tracking-wider mb-0.5">MCAP</div>
+                    <div className="text-green-400 font-bold text-xs font-mono truncate w-full text-center">
+                        {mcapData?.mcapUsd ? `$${parseFloat(mcapData.mcapUsd).toFixed(2)}` : '...'}
+                    </div>
+                    {mcapData?.mcap && (
+                        <div className="text-[6px] text-zinc-500 mt-0.5 text-center">
+                            {parseFloat(mcapData.mcap).toFixed(2)} MON
+                        </div>
+                    )}
                 </PixelBox>
             </div>
 

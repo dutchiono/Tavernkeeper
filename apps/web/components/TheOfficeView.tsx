@@ -5,6 +5,7 @@ import React, { useEffect, useState } from 'react';
 import { formatEther } from 'viem';
 import { getMonPrice } from '../lib/services/monPriceService';
 import { getOfficeManagerData } from '../lib/services/officeManagerCache';
+import { type OfficePnlData } from '../lib/services/officePnlService';
 import { OfficeState } from '../lib/services/tavernKeeperService';
 import { CellarState, theCellarService } from '../lib/services/theCellarService';
 import { PixelBox, PixelButton } from './PixelComponents';
@@ -22,6 +23,7 @@ interface TheOfficeViewProps {
     onDisconnect?: () => Promise<void>;
     children?: React.ReactNode;
     pnl?: string;
+    enhancedPnl?: OfficePnlData | null;
     isKing?: boolean;
     // New props
     cellarState?: any;
@@ -43,6 +45,7 @@ export const TheOfficeView: React.FC<TheOfficeViewProps> = ({
     onTakeOffice,
     children,
     pnl,
+    enhancedPnl,
     isKing = false,
     cellarState: propCellarState,
     viewMode = 'office',
@@ -285,7 +288,15 @@ export const TheOfficeView: React.FC<TheOfficeViewProps> = ({
                             </div>
                             <div className="bg-[#2a1d17] border border-[#5c4033] rounded p-1 flex flex-col items-center justify-center">
                                 <div className="text-[6px] text-[#86efac] uppercase tracking-widest mb-0.5">Office PNL</div>
-                                <div className={`font-bold text-[10px] ${pnl && pnl.startsWith('+') ? 'text-green-400' : 'text-red-400'}`}>{pnl || '$0.00'}</div>
+                                <div className={`font-bold text-[10px] ${enhancedPnl?.totalPnl.color === 'green' ? 'text-green-400' : enhancedPnl?.totalPnl.color === 'red' ? 'text-red-400' : (pnl && pnl.startsWith('+') ? 'text-green-400' : 'text-red-400')}`}>
+                                    {enhancedPnl?.totalPnl.formatted || pnl || '$0.00'}
+                                </div>
+                                {enhancedPnl && (
+                                    <div className="text-[4px] text-zinc-500 mt-0.5 space-y-0.5 text-center leading-tight">
+                                        <div>Dutch: {enhancedPnl.dutchAuctionPnl.formatted}</div>
+                                        <div>KEEP: {enhancedPnl.keepEarningsPnl.formatted}</div>
+                                    </div>
+                                )}
                             </div>
 
                             {/* Cellar Stats */}
