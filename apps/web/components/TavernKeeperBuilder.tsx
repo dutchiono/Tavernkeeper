@@ -3,8 +3,6 @@
 import { useEffect, useState } from 'react';
 import { formatEther } from 'viem';
 import { useAccount, usePublicClient, useWalletClient } from 'wagmi';
-import { UnfinishedFeatureWarning } from './UnfinishedFeatureWarning';
-import { monad } from '../lib/chains';
 import { uploadMetadata } from '../lib/services/heroMinting';
 import { metadataStorage } from '../lib/services/metadataStorage';
 import { getMonPrice } from '../lib/services/monPriceService';
@@ -12,6 +10,7 @@ import { rpgService } from '../lib/services/rpgService';
 import { DEFAULT_COLORS, Gender, GENDERS, generateSpriteURI, HeroColors } from '../lib/services/spriteService';
 import { ForgeButton, ForgePanel } from './heroes/ForgeComponents';
 import { SpritePreview } from './heroes/SpritePreview';
+import { UnfinishedFeatureWarning } from './UnfinishedFeatureWarning';
 
 export default function TavernKeeperBuilder({ onSuccess }: { onSuccess?: () => void }) {
     const { address } = useAccount();
@@ -179,17 +178,25 @@ export default function TavernKeeperBuilder({ onSuccess }: { onSuccess?: () => v
             // Wait for token to appear
             let tokenId = '';
             let retries = 0;
-            while (!tokenId && retries < 15) {
+            const maxRetries = 15;
+            while (!tokenId && retries < maxRetries) {
                 await new Promise(r => setTimeout(r, 2000));
-                const keepers = await rpgService.getUserTavernKeepers(address);
-                if (keepers.length > 0) {
-                    // Take the last one as the new one
-                    tokenId = keepers[keepers.length - 1].tokenId;
+                try {
+                    const keepers = await rpgService.getUserTavernKeepers(address);
+                    if (keepers.length > 0) {
+                        // Take the last one as the new one
+                        tokenId = keepers[keepers.length - 1].tokenId;
+                    }
+                } catch (error) {
+                    // If fetching fails, continue retrying (might be temporary network issue)
+                    console.warn(`Failed to fetch keepers (attempt ${retries + 1}/${maxRetries}):`, error);
                 }
                 retries++;
             }
 
-            if (!tokenId) throw new Error("Failed to detect new Tavern Keeper. Please check your wallet.");
+            if (!tokenId) {
+                throw new Error("Failed to detect new Tavern Keeper. The transaction may still be processing. Please check your wallet and try refreshing.");
+            }
 
             // 3. Claim Free Hero
             setStatus('claiming_hero');
@@ -202,10 +209,22 @@ export default function TavernKeeperBuilder({ onSuccess }: { onSuccess?: () => v
 
             if (onSuccess) onSuccess();
 
-        } catch (e) {
-            console.error(e);
+        } catch (e: any) {
+            console.error('Mint error:', e);
             setStatus('error');
-            setError((e as Error).message);
+
+            // Check if user rejected the transaction
+            const errorMessage = e?.message || e?.toString() || 'Unknown error';
+            const isUserRejection = errorMessage.includes('User rejected') ||
+                                   errorMessage.includes('User denied') ||
+                                   errorMessage.includes('user rejected') ||
+                                   e?.name === 'UserRejectedRequestError';
+
+            if (isUserRejection) {
+                setError('Transaction cancelled. You can try again when ready.');
+            } else {
+                setError(errorMessage);
+            }
         }
     };
 
@@ -249,17 +268,25 @@ export default function TavernKeeperBuilder({ onSuccess }: { onSuccess?: () => v
             // Wait for token to appear
             let tokenId = '';
             let retries = 0;
-            while (!tokenId && retries < 15) {
+            const maxRetries = 15;
+            while (!tokenId && retries < maxRetries) {
                 await new Promise(r => setTimeout(r, 2000));
-                const keepers = await rpgService.getUserTavernKeepers(address);
-                if (keepers.length > 0) {
-                    // Take the last one as the new one
-                    tokenId = keepers[keepers.length - 1].tokenId;
+                try {
+                    const keepers = await rpgService.getUserTavernKeepers(address);
+                    if (keepers.length > 0) {
+                        // Take the last one as the new one
+                        tokenId = keepers[keepers.length - 1].tokenId;
+                    }
+                } catch (error) {
+                    // If fetching fails, continue retrying (might be temporary network issue)
+                    console.warn(`Failed to fetch keepers (attempt ${retries + 1}/${maxRetries}):`, error);
                 }
                 retries++;
             }
 
-            if (!tokenId) throw new Error("Failed to detect new Tavern Keeper. Please check your wallet.");
+            if (!tokenId) {
+                throw new Error("Failed to detect new Tavern Keeper. The transaction may still be processing. Please check your wallet and try refreshing.");
+            }
 
             // 3. Claim Free Hero
             setStatus('claiming_hero');
@@ -272,10 +299,22 @@ export default function TavernKeeperBuilder({ onSuccess }: { onSuccess?: () => v
 
             if (onSuccess) onSuccess();
 
-        } catch (e) {
-            console.error(e);
+        } catch (e: any) {
+            console.error('Whitelist mint error:', e);
             setStatus('error');
-            setError((e as Error).message);
+
+            // Check if user rejected the transaction
+            const errorMessage = e?.message || e?.toString() || 'Unknown error';
+            const isUserRejection = errorMessage.includes('User rejected') ||
+                                   errorMessage.includes('User denied') ||
+                                   errorMessage.includes('user rejected') ||
+                                   e?.name === 'UserRejectedRequestError';
+
+            if (isUserRejection) {
+                setError('Transaction cancelled. You can try again when ready.');
+            } else {
+                setError(errorMessage);
+            }
         }
     };
 

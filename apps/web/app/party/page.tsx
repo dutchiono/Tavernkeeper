@@ -17,6 +17,7 @@ export default function PartyPage() {
   const [tavernKeepers, setTavernKeepers] = useState<TavernKeeperNFT[]>([]);
   const [selectedKeeper, setSelectedKeeper] = useState<TavernKeeperNFT | null>(null);
   const [heroes, setHeroes] = useState<HeroNFT[]>([]);
+  const [keeperMetadata, setKeeperMetadata] = useState<Record<string, { name: string }>>({});
 
   const [loading, setLoading] = useState(true);
   const [loadingHeroes, setLoadingHeroes] = useState(false);
@@ -47,7 +48,7 @@ export default function PartyPage() {
 
   // Fetch Heroes when a Keeper is selected
   useEffect(() => {
-    if (selectedKeeper) {
+    if (selectedKeeper && selectedKeeper.tbaAddress && selectedKeeper.tbaAddress.trim() !== '') {
       fetchHeroes(selectedKeeper.tbaAddress);
     } else {
       setHeroes([]);
@@ -60,6 +61,46 @@ export default function PartyPage() {
     try {
       const keepers = await rpgService.getUserTavernKeepers(address);
       setTavernKeepers(keepers);
+
+      // Fetch metadata for each keeper
+      const metadataMap: Record<string, { name: string }> = {};
+      for (const keeper of keepers) {
+        try {
+          const tokenURI = await rpgService.getTavernKeeperTokenURI(keeper.tokenId);
+          let metadata: { name?: string } = {};
+
+          // Handle data URIs (base64 encoded JSON)
+          if (tokenURI.startsWith('data:application/json;base64,')) {
+            const base64 = tokenURI.replace('data:application/json;base64,', '');
+            const jsonString = atob(base64);
+            metadata = JSON.parse(jsonString);
+          }
+          // Handle HTTP URLs
+          else if (tokenURI.startsWith('http://') || tokenURI.startsWith('https://')) {
+            const response = await fetch(tokenURI);
+            if (response.ok) {
+              metadata = await response.json();
+            }
+          }
+          // Handle IPFS URIs
+          else if (tokenURI.startsWith('ipfs://')) {
+            const url = tokenURI.replace('ipfs://', 'https://ipfs.io/ipfs/');
+            const response = await fetch(url);
+            if (response.ok) {
+              metadata = await response.json();
+            }
+          }
+
+          if (metadata.name) {
+            metadataMap[keeper.tokenId] = { name: metadata.name };
+          }
+        } catch (e) {
+          console.warn(`Failed to fetch metadata for keeper ${keeper.tokenId}:`, e);
+        }
+      }
+
+      setKeeperMetadata(metadataMap);
+
       if (keepers.length > 0 && !selectedKeeper) {
         setSelectedKeeper(keepers[0]);
       }
@@ -71,12 +112,20 @@ export default function PartyPage() {
   };
 
   const fetchHeroes = async (tbaAddress: string) => {
+    // Validate TBA address before fetching
+    if (!tbaAddress || tbaAddress.trim() === '' || !tbaAddress.startsWith('0x')) {
+      console.warn('Cannot fetch heroes: invalid TBA address:', tbaAddress);
+      setHeroes([]);
+      return;
+    }
+
     setLoadingHeroes(true);
     try {
       const heroList = await rpgService.getHeroes(tbaAddress);
       setHeroes(heroList);
     } catch (e) {
       console.error("Failed to fetch heroes", e);
+      setHeroes([]);
     } finally {
       setLoadingHeroes(false);
     }
@@ -132,33 +181,38 @@ export default function PartyPage() {
     <main className="min-h-full bg-[#2a1d17] p-4 md:p-8 font-pixel">
       {/* Metadata Updater Modals */}
       {updatingHero && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-          <NFTMetadataUpdater
-            tokenId={updatingHero.tokenId}
-            tokenUri={updatingHero.metadataUri}
-            contractType="hero"
-            onSuccess={() => {
-              setUpdatingHero(null);
-              if (selectedKeeper) {
-                fetchHeroes(selectedKeeper.tbaAddress);
-              }
-            }}
-            onCancel={() => setUpdatingHero(null)}
-          />
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm p-2 sm:p-4 overflow-hidden">
+          <div className="w-full h-full max-w-4xl max-h-[95vh] flex items-center justify-center">
+            <NFTMetadataUpdater
+              tokenId={updatingHero.tokenId}
+              tokenUri={updatingHero.metadataUri}
+              contractType="hero"
+              onSuccess={() => {
+                setUpdatingHero(null);
+                if (selectedKeeper) {
+                  fetchHeroes(selectedKeeper.tbaAddress);
+                }
+              }}
+              onCancel={() => setUpdatingHero(null)}
+            />
+          </div>
         </div>
       )}
       {updatingKeeper && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-          <NFTMetadataUpdater
-            tokenId={updatingKeeper.keeper.tokenId}
-            tokenUri={updatingKeeper.metadataUri}
-            contractType="tavernKeeper"
-            onSuccess={() => {
-              setUpdatingKeeper(null);
-              fetchKeepers();
-            }}
-            onCancel={() => setUpdatingKeeper(null)}
-          />
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm p-2 sm:p-4 overflow-hidden">
+          <div className="w-full h-full max-w-4xl max-h-[95vh] flex items-center justify-center">
+            <NFTMetadataUpdater
+              tokenId={updatingKeeper.keeper.tokenId}
+              tokenUri={updatingKeeper.metadataUri}
+              contractType="tavernKeeper"
+              onSuccess={() => {
+                setUpdatingKeeper(null);
+                // Refresh keepers to get updated metadata
+                fetchKeepers();
+              }}
+              onCancel={() => setUpdatingKeeper(null)}
+            />
+          </div>
         </div>
       )}
 
@@ -180,7 +234,9 @@ export default function PartyPage() {
                     onClick={() => setSelectedKeeper(keeper)}
                     className="cursor-pointer"
                   >
-                    <div className="text-[#eaddcf]">Tavern #{keeper.tokenId}</div>
+                    <div className="text-[#eaddcf]">
+                      {keeperMetadata[keeper.tokenId]?.name || `TavernKeeper #${keeper.tokenId}`}
+                    </div>
                     <div className="text-xs text-[#8b7355] truncate">{keeper.tbaAddress}</div>
                   </div>
                   <div className="mt-2">
@@ -205,7 +261,7 @@ export default function PartyPage() {
         <div className="lg:col-span-8">
           {selectedKeeper ? (
             <div className="space-y-6">
-              <PixelPanel title={`Tavern #${selectedKeeper.tokenId}`} variant="wood">
+              <PixelPanel title={keeperMetadata[selectedKeeper.tokenId]?.name || `TavernKeeper #${selectedKeeper.tokenId}`} variant="wood">
                 <div className="flex justify-between items-start mb-6">
                   <div>
                     <div className="text-sm text-[#8b7355]">Vault Address</div>

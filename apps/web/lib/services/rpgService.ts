@@ -50,19 +50,24 @@ export const rpgService = {
 
             for (const idBigInt of tokenIds) {
                 const id = idBigInt.toString();
-                // Calculate TBA
-                const tba = await this.getTBA(id);
-                // Determine Tier (Simple logic based on ID)
-                const idNum = Number(id);
-                let tier = 3;
-                if (idNum <= 100) tier = 1;
-                else if (idNum <= 1000) tier = 2;
+                try {
+                    // Calculate TBA (may return empty string if TBA not created yet)
+                    const tba = await this.getTBA(id);
+                    // Determine Tier (Simple logic based on ID)
+                    const idNum = Number(id);
+                    let tier = 3;
+                    if (idNum <= 100) tier = 1;
+                    else if (idNum <= 1000) tier = 2;
 
-                ownedKeepers.push({
-                    tokenId: id,
-                    tbaAddress: tba,
-                    tier
-                });
+                    ownedKeepers.push({
+                        tokenId: id,
+                        tbaAddress: tba,
+                        tier
+                    });
+                } catch (error) {
+                    // Skip tokens that fail to fetch TBA (might not exist or TBA not initialized)
+                    console.warn(`Failed to get TBA for token ${id}, skipping:`, error);
+                }
             }
 
             return ownedKeepers.sort((a, b) => Number(a.tokenId) - Number(b.tokenId));
@@ -116,26 +121,39 @@ export const rpgService = {
             transport: http(),
         });
 
-        const tba = await publicClient.readContract({
-            address: registryAddress,
-            abi: registryConfig.abi,
-            functionName: 'account',
-            args: [
-                accountImplAddress,      // implementation
-                BigInt(monad.id),        // chainId
-                tokenContractAddress,     // tokenContract
-                BigInt(tokenId),         // tokenId
-                BigInt(0)                // salt
-            ]
-        });
+        try {
+            const tba = await publicClient.readContract({
+                address: registryAddress,
+                abi: registryConfig.abi,
+                functionName: 'account',
+                args: [
+                    accountImplAddress,      // implementation
+                    BigInt(monad.id),        // chainId
+                    tokenContractAddress,     // tokenContract
+                    BigInt(tokenId),         // tokenId
+                    BigInt(0)                // salt
+                ]
+            });
 
-        return tba as string;
+            return tba as string;
+        } catch (error: any) {
+            // If account() reverts, the TBA hasn't been created yet (token might not exist or TBA not initialized)
+            // Return empty string to indicate TBA is not available
+            console.warn(`TBA not available for token ${tokenId}:`, error?.message || error);
+            return '';
+        }
     },
 
     /**
      * Get all Heroes owned by a specific address (usually a TBA).
      */
     async getHeroes(ownerAddress: string): Promise<HeroNFT[]> {
+        // Validate address before proceeding
+        if (!ownerAddress || ownerAddress.trim() === '' || !ownerAddress.startsWith('0x')) {
+            console.warn('getHeroes called with invalid address:', ownerAddress);
+            return [];
+        }
+
         const contractConfig = CONTRACT_REGISTRY.ADVENTURER;
         const address = getContractAddress(contractConfig);
         if (!address) return [];

@@ -218,9 +218,10 @@ export async function sendNotification(
  * Post a cast to Farcaster feed using the UUID signer
  *
  * @param text The text content of the cast
+ * @param embedUrls Array of URLs to embed (will be converted to embed objects)
  * @returns Promise<boolean> True if successful, false otherwise
  */
-export async function postToFeed(text: string, embeds?: string[]): Promise<boolean> {
+export async function postToFeed(text: string, embedUrls?: string[]): Promise<boolean> {
     try {
         const signerUuid = process.env.NEYNAR_SIGNER_UUID;
         if (!signerUuid) {
@@ -230,10 +231,13 @@ export async function postToFeed(text: string, embeds?: string[]): Promise<boole
 
         const client = getNeynarClient();
 
+        // Convert URL strings to embed objects
+        const embeds = embedUrls?.map(url => ({ url })) || [];
+
         await client.publishCast({
             signerUuid: signerUuid,
             text: text,
-            embeds: embeds || [],
+            embeds: embeds,
         });
 
         console.log('✅ Feed post published successfully');
