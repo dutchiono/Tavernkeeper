@@ -1004,6 +1004,166 @@ export const CONTRACT_REGISTRY: Record<string, ContractConfig> = {
     requiredFunctions: ['createTownPosse', 'requestJoinTownPosse', 'contributeToTownPosse'],
 
   },
+  LP_STAKING: {
+    name: 'LP Staking',
+    directAddress: CONTRACT_ADDRESSES.LP_STAKING,
+    version: '1.0.0',
+    proxyType: 'None',
+    chainId: monad.id,
+    abi: [
+      {
+        inputs: [
+          { name: 'amount', type: 'uint256' },
+          { name: 'lockDays', type: 'uint256' },
+        ],
+        name: 'stake',
+        outputs: [],
+        stateMutability: 'nonpayable',
+        type: 'function',
+      },
+      {
+        inputs: [{ name: 'amount', type: 'uint256' }],
+        name: 'unstake',
+        outputs: [],
+        stateMutability: 'nonpayable',
+        type: 'function',
+      },
+      {
+        inputs: [],
+        name: 'claimRewards',
+        outputs: [],
+        stateMutability: 'nonpayable',
+        type: 'function',
+      },
+      {
+        inputs: [{ name: 'user', type: 'address' }],
+        name: 'getPendingRewards',
+        outputs: [{ name: '', type: 'uint256' }],
+        stateMutability: 'view',
+        type: 'function',
+      },
+      {
+        inputs: [{ name: 'user', type: 'address' }],
+        name: 'getUserStake',
+        outputs: [
+          {
+            components: [
+              { name: 'amount', type: 'uint256' },
+              { name: 'lockExpiry', type: 'uint256' },
+              { name: 'lockMultiplier', type: 'uint256' },
+              { name: 'rewardDebt', type: 'uint256' },
+            ],
+            name: '',
+            type: 'tuple',
+          },
+        ],
+        stateMutability: 'view',
+        type: 'function',
+      },
+      {
+        inputs: [],
+        name: 'stakingToken',
+        outputs: [{ name: '', type: 'address' }],
+        stateMutability: 'view',
+        type: 'function',
+      },
+      {
+        inputs: [],
+        name: 'rewardToken',
+        outputs: [{ name: '', type: 'address' }],
+        stateMutability: 'view',
+        type: 'function',
+      },
+      {
+        inputs: [],
+        name: 'totalWeightedStake',
+        outputs: [{ name: '', type: 'uint256' }],
+        stateMutability: 'view',
+        type: 'function',
+      },
+    ],
+    requiredFunctions: ['stake', 'unstake', 'claimRewards', 'getPendingRewards'],
+  },
+  KEEP_STAKING: {
+    name: 'KEEP Staking',
+    directAddress: CONTRACT_ADDRESSES.KEEP_STAKING,
+    version: '1.0.0',
+    proxyType: 'None',
+    chainId: monad.id,
+    abi: [
+      {
+        inputs: [
+          { name: 'amount', type: 'uint256' },
+          { name: 'lockDays', type: 'uint256' },
+        ],
+        name: 'stake',
+        outputs: [],
+        stateMutability: 'nonpayable',
+        type: 'function',
+      },
+      {
+        inputs: [{ name: 'amount', type: 'uint256' }],
+        name: 'unstake',
+        outputs: [],
+        stateMutability: 'nonpayable',
+        type: 'function',
+      },
+      {
+        inputs: [],
+        name: 'claimRewards',
+        outputs: [],
+        stateMutability: 'nonpayable',
+        type: 'function',
+      },
+      {
+        inputs: [{ name: 'user', type: 'address' }],
+        name: 'getPendingRewards',
+        outputs: [{ name: '', type: 'uint256' }],
+        stateMutability: 'view',
+        type: 'function',
+      },
+      {
+        inputs: [{ name: 'user', type: 'address' }],
+        name: 'getUserStake',
+        outputs: [
+          {
+            components: [
+              { name: 'amount', type: 'uint256' },
+              { name: 'lockExpiry', type: 'uint256' },
+              { name: 'lockMultiplier', type: 'uint256' },
+              { name: 'rewardDebt', type: 'uint256' },
+            ],
+            name: '',
+            type: 'tuple',
+          },
+        ],
+        stateMutability: 'view',
+        type: 'function',
+      },
+      {
+        inputs: [],
+        name: 'stakingToken',
+        outputs: [{ name: '', type: 'address' }],
+        stateMutability: 'view',
+        type: 'function',
+      },
+      {
+        inputs: [],
+        name: 'rewardToken',
+        outputs: [{ name: '', type: 'address' }],
+        stateMutability: 'view',
+        type: 'function',
+      },
+      {
+        inputs: [],
+        name: 'totalWeightedStake',
+        outputs: [{ name: '', type: 'uint256' }],
+        stateMutability: 'view',
+        type: 'function',
+      },
+    ],
+    requiredFunctions: ['stake', 'unstake', 'claimRewards', 'getPendingRewards'],
+  },
 };
 
 /**

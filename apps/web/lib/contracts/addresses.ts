@@ -36,6 +36,10 @@ const MONAD_TESTNET_ADDRESSES = {
     // Tokens
     CELLAR_TOKEN: '0x0000000000000000000000000000000000000000' as Address, // TODO: Deploy on testnet
 
+    // Staking Contracts
+    LP_STAKING: '0x0000000000000000000000000000000000000000' as Address, // TODO: Deploy on testnet
+    KEEP_STAKING: '0x0000000000000000000000000000000000000000' as Address, // TODO: Deploy on testnet
+
     // V3 Infrastructure (Placeholders for Testnet)
     V3_FACTORY: '0x0000000000000000000000000000000000000000' as Address,
     V3_POOL: '0x0000000000000000000000000000000000000000' as Address,
@@ -79,6 +83,10 @@ const MONAD_MAINNET_ADDRESSES = {
 
     // Tokens
     CELLAR_TOKEN: '0x6eF142a2203102F6c58b0C15006BF9F6F5CFe39E' as Address,
+
+    // Staking Contracts
+    LP_STAKING: '0x0000000000000000000000000000000000000000' as Address, // TODO: Deploy on mainnet
+    KEEP_STAKING: '0x0000000000000000000000000000000000000000' as Address, // TODO: Deploy on mainnet
 };
 
 // Localhost Addresses (for local development)
@@ -108,6 +116,10 @@ export const LOCALHOST_ADDRESSES = {
 
     // Tokens
     CELLAR_TOKEN: '0x0000000000000000000000000000000000000000' as Address, // TODO: Deploy on localhost
+
+    // Staking Contracts
+    LP_STAKING: '0x0000000000000000000000000000000000000000' as Address, // TODO: Deploy on localhost
+    KEEP_STAKING: '0x0000000000000000000000000000000000000000' as Address, // TODO: Deploy on localhost
 
     // V3 Infrastructure (Placeholders for Localhost)
     V3_FACTORY: '0x0000000000000000000000000000000000000000' as Address,

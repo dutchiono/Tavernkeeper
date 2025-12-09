@@ -63,12 +63,6 @@ export async function POST(request: NextRequest) {
         const miniappEmbedUrl = 'https://farcaster.xyz/miniapps/dDsKsz-XG5KU/tavernkeeper';
         feedPostSuccess = await postToFeed(feedPostBody, [miniappEmbedUrl]);
 
-        if (feedPostSuccess) {
-            console.log('✅ Raid feed post published successfully');
-        } else {
-            console.warn('⚠️ Failed to post raid to feed (this is non-critical)');
-        }
-
         // Send broadcast notification to all miniapp users (same pattern as office notifications)
         let notificationSuccess = false;
         const notificationTitle = 'Cellar Raided!';
@@ -93,6 +87,12 @@ export async function POST(request: NextRequest) {
             console.error('❌ Exception while sending broadcast notification:', notificationError);
             console.error('   Error message:', notificationError?.message);
             notificationSuccess = false;
+        }
+
+        if (feedPostSuccess) {
+            console.log('✅ Feed post published successfully');
+        } else {
+            console.warn('⚠️ Failed to post to feed (this is non-critical)');
         }
 
         // Return success if feed post worked (notification is optional)

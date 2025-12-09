@@ -162,8 +162,9 @@ export async function sendNotification(
         }
 
         // Validate inputs
-        if (!targetFids || targetFids.length === 0) {
-            console.warn('⚠️ No target FIDs provided for notification');
+        // Note: Empty targetFids array is valid - it means broadcast to all users with notifications enabled
+        if (!Array.isArray(targetFids)) {
+            console.error('❌ targetFids must be an array');
             return false;
         }
 
@@ -178,15 +179,16 @@ export async function sendNotification(
             ...(targetUrl && { target_url: targetUrl }),
         };
 
-        console.log('📤 Attempting to send notification:', {
-            targetFids,
+        const isBroadcast = targetFids.length === 0;
+        console.log(`📤 Attempting to ${isBroadcast ? 'broadcast' : 'send'} notification:`, {
+            targetFids: isBroadcast ? 'ALL USERS (broadcast)' : targetFids,
             title,
             bodyLength: body.length,
             targetUrl,
         });
 
         await client.publishFrameNotifications({
-            targetFids,
+            targetFids, // Empty array = broadcast to all users with notifications enabled
             notification: notification as any, // Cast to any to avoid strict type checking on optional fields
         });
 
@@ -225,31 +227,53 @@ export async function postToFeed(text: string, embedUrls?: string[]): Promise<bo
     try {
         const signerUuid = process.env.NEYNAR_SIGNER_UUID;
         if (!signerUuid) {
-            console.warn('⚠️ NEYNAR_SIGNER_UUID not found. Cannot post to feed.');
+            console.error('❌ NEYNAR_SIGNER_UUID not found. Cannot post to feed.');
+            console.error('   Set NEYNAR_SIGNER_UUID in your .env file to enable feed posting.');
             return false;
         }
 
         const client = getNeynarClient();
+        const apiKey = process.env.NEYNAR_API_KEY;
+
+        if (!apiKey || apiKey === 'DUMMY_KEY') {
+            console.error('❌ NEYNAR_API_KEY is not set or is dummy. Cannot post to feed.');
+            return false;
+        }
 
         // Convert URL strings to embed objects
         const embeds = embedUrls?.map(url => ({ url })) || [];
 
-        await client.publishCast({
+        console.log('📝 Posting to feed:', {
+            textLength: text.length,
+            embedCount: embeds.length,
+            signerUuid: signerUuid.substring(0, 8) + '...',
+        });
+
+        const response = await client.publishCast({
             signerUuid: signerUuid,
             text: text,
             embeds: embeds,
         });
 
         console.log('✅ Feed post published successfully');
+        console.log('   Cast hash:', response?.hash || 'N/A');
         return true;
     } catch (error: any) {
-        console.error('❌ Error posting to feed:', error);
-        if (error.response) {
-            console.error('Status:', error.response.status);
-            console.error('Data:', JSON.stringify(error.response.data, null, 2));
-        } else {
-            console.error(error.message || error);
+        console.error('❌ Error posting to feed:');
+        console.error('Error type:', error?.constructor?.name);
+        console.error('Error message:', error?.message);
+
+        if (error?.response) {
+            console.error('Response status:', error.response.status);
+            console.error('Response data:', JSON.stringify(error.response.data, null, 2));
+        } else if (error?.data) {
+            console.error('Error data:', JSON.stringify(error.data, null, 2));
         }
+
+        if (error?.stack) {
+            console.error('Stack trace:', error.stack);
+        }
+
         return false;
     }
 }

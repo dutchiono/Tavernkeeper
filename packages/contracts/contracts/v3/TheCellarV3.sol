@@ -90,6 +90,10 @@ contract TheCellarV3 is Initializable, OwnableUpgradeable, UUPSUpgradeable, IERC
     // Deployer address that receives all swap fees
     address public deployerAddress;
 
+    // Staking contract addresses (for reference, not used in harvest)
+    address public lpStakingContract;
+    address public keepStakingContract;
+
     // Dutch Auction State
     uint256 public epochPeriod;
     uint256 public priceMultiplier; // Legacy - kept for compatibility, but not used for new price calculation
@@ -121,7 +125,7 @@ contract TheCellarV3 is Initializable, OwnableUpgradeable, UUPSUpgradeable, IERC
     event LiquidityAdded(address indexed user, uint256 amount0, uint256 amount1, uint256 liquidityMinted);
     event LiquidityRemoved(address indexed user, uint256 liquidityBurned, uint256 amount0, uint256 amount1, uint256 feesMon, uint256 feesKeep);
     event FeesCollected(uint256 amount0, uint256 amount1);
-    event Raid(address indexed user, uint256 lpBurned, uint256 monPayout, uint256 keepPayout, uint256 newInitPrice, uint256 newEpochId);
+    event Raid(address indexed user, uint256 lpBurned, uint256 wmonPayout, uint256 keepPayout, uint256 newInitPrice, uint256 newEpochId);
 
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
@@ -144,6 +148,16 @@ contract TheCellarV3 is Initializable, OwnableUpgradeable, UUPSUpgradeable, IERC
     function setConfig(address _wmon, address _keepToken) external onlyOwner {
         wmon = _wmon;
         keepToken = _keepToken;
+    }
+
+    /**
+     * @notice Set staking contract addresses (for reference only, not used in harvest)
+     * @param _lpStaking LP staking contract address
+     * @param _keepStaking KEEP staking contract address
+     */
+    function setStakingContracts(address _lpStaking, address _keepStaking) external onlyOwner {
+        lpStakingContract = _lpStaking;
+        keepStakingContract = _keepStaking;
     }
 
     /**
