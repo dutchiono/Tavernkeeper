@@ -7,6 +7,12 @@ toadyhawk.eth
 
 does your mini app embed have a dynamic APNG image preview anon?
 
+also the compose cast thing, it never fucking works, nobody ever does it, or it never happens on the take hte office or the raid.
+
+maybe we think about how we an have hte bakend reward them with 1000 keep if they do it, it has to confirm
+
+
+
 
 
 📜 Session Report: Cellar Pot Logic & App Stability

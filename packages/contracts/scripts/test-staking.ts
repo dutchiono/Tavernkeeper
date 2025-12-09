@@ -1,10 +1,73 @@
 import { ethers } from "hardhat";
 import * as dotenv from "dotenv";
+import * as fs from "fs";
+import * as path from "path";
 
 dotenv.config({ path: "../../.env" });
 
-const LP_STAKING_CONTRACT = process.env.LP_STAKING_CONTRACT || "";
-const KEEP_STAKING_CONTRACT = process.env.KEEP_STAKING_CONTRACT || "";
+// Read addresses from addresses.ts (same pattern as auto-harvest)
+function getAddressesFromFile() {
+    const possiblePaths = [
+        path.join(__dirname, "../../../apps/web/lib/contracts/addresses.ts"),
+        path.join(process.cwd(), "../../apps/web/lib/contracts/addresses.ts"),
+        path.join(process.cwd(), "../../../apps/web/lib/contracts/addresses.ts"),
+    ];
+
+    for (const addressesPath of possiblePaths) {
+        if (fs.existsSync(addressesPath)) {
+            const content = fs.readFileSync(addressesPath, "utf-8");
+
+            // Determine which address set to use based on chain ID
+            const chainId = parseInt(process.env.NEXT_PUBLIC_MONAD_CHAIN_ID || "143");
+            const useLocalhost = process.env.NEXT_PUBLIC_USE_LOCALHOST === "true";
+
+            let addressSet: any = {};
+            let sectionContent = "";
+
+            if (useLocalhost) {
+                // Extract LOCALHOST_ADDRESSES
+                const localhostMatch = content.match(/export const LOCALHOST_ADDRESSES = \{([\s\S]*?)\};/);
+                if (localhostMatch) {
+                    sectionContent = localhostMatch[1];
+                }
+            } else if (chainId === 143) {
+                // Extract MONAD_MAINNET_ADDRESSES
+                const mainnetMatch = content.match(/const MONAD_MAINNET_ADDRESSES = \{([\s\S]*?)\};/);
+                if (mainnetMatch) {
+                    sectionContent = mainnetMatch[1];
+                }
+            } else {
+                // Extract MONAD_TESTNET_ADDRESSES
+                const testnetMatch = content.match(/const MONAD_TESTNET_ADDRESSES = \{([\s\S]*?)\};/);
+                if (testnetMatch) {
+                    sectionContent = testnetMatch[1];
+                }
+            }
+
+            if (sectionContent) {
+                addressSet.LP_STAKING = extractAddress(sectionContent, "LP_STAKING");
+                addressSet.KEEP_STAKING = extractAddress(sectionContent, "KEEP_STAKING");
+            }
+
+            return addressSet;
+        }
+    }
+
+    return {};
+}
+
+function extractAddress(content: string, key: string): string {
+    // Match: KEY: '0x...' or KEY: "0x..." (with optional whitespace)
+    const regex = new RegExp(`${key}:\\s*['"](0x[a-fA-F0-9]{40})['"]`, "i");
+    const match = content.match(regex);
+    return match ? match[1] : "";
+}
+
+// Get addresses from addresses.ts
+const addresses = getAddressesFromFile();
+
+const LP_STAKING_CONTRACT = addresses.LP_STAKING || process.env.LP_STAKING_CONTRACT || "";
+const KEEP_STAKING_CONTRACT = addresses.KEEP_STAKING || process.env.KEEP_STAKING_CONTRACT || "";
 const KEEP_TOKEN = process.env.KEEP_TOKEN || "0x2D1094F5CED6ba279962f9676d32BE092AFbf82E";
 
 const STAKING_ABI = [
@@ -89,18 +152,20 @@ async function main() {
 
     let allPassed = true;
 
-    if (LP_STAKING_CONTRACT) {
+    // Check if LP_STAKING is actually deployed (not zero address)
+    if (LP_STAKING_CONTRACT && LP_STAKING_CONTRACT !== "0x0000000000000000000000000000000000000000") {
         const passed = await testStakingContract(LP_STAKING_CONTRACT, "LPStaking");
         allPassed = allPassed && passed;
     } else {
-        console.log("⚠️  LP_STAKING_CONTRACT not set, skipping...");
+        console.log("⚠️  LP_STAKING_CONTRACT not deployed (zero address), skipping...");
     }
 
-    if (KEEP_STAKING_CONTRACT) {
+    // Check if KEEP_STAKING is actually deployed (not zero address)
+    if (KEEP_STAKING_CONTRACT && KEEP_STAKING_CONTRACT !== "0x0000000000000000000000000000000000000000") {
         const passed = await testStakingContract(KEEP_STAKING_CONTRACT, "KEEPStaking");
         allPassed = allPassed && passed;
     } else {
-        console.log("⚠️  KEEP_STAKING_CONTRACT not set, skipping...");
+        console.log("⚠️  KEEP_STAKING_CONTRACT not deployed (zero address), skipping...");
     }
 
     console.log("\n" + "=".repeat(60));

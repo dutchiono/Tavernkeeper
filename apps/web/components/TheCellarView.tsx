@@ -708,12 +708,18 @@ export default function TheCellarView({ onBackToOffice, monBalance = "0", keepBa
     }
 
     return (
-        <div className="flex flex-col gap-2 p-2 text-white font-pixel h-full justify-center bg-[#1a120b] relative">
+        <div className="flex flex-col gap-2 p-2 text-white font-pixel h-full bg-[#1a120b] relative overflow-y-auto">
             {/* Background Image - Same as office */}
             <div
-                className="absolute inset-0 bg-cover bg-center opacity-40 pointer-events-none"
-                style={{ backgroundImage: "url('/sprites/office_bg.png')" }}
+                className="absolute inset-0 bg-repeat bg-center opacity-40 pointer-events-none"
+                style={{
+                    backgroundImage: "url('/sprites/office_bg.png')",
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center'
+                }}
             />
+            {/* Fallback solid color to prevent black bars */}
+            <div className="absolute inset-0 bg-[#1a120b] -z-10" />
 
             <div className="relative z-10">
                 <div className="flex items-center justify-center gap-1 mb-1">
@@ -852,26 +858,6 @@ export default function TheCellarView({ onBackToOffice, monBalance = "0", keepBa
                         )}
                     </div>
 
-                    {/* Posse and Regulars Access */}
-                    <div className="mt-2 pt-2 border-t border-white/10">
-                        <div className="text-[10px] text-zinc-400 mb-1 text-center uppercase tracking-wider">Group Management</div>
-                        <div className="grid grid-cols-2 gap-1">
-                            <PixelButton
-                                onClick={() => navigate('/town-posse')}
-                                variant="wood"
-                                className="w-full h-8 text-[10px] font-bold uppercase tracking-widest"
-                            >
-                                🤠 POSSE
-                            </PixelButton>
-                            <PixelButton
-                                onClick={() => navigate('/tavern-regulars')}
-                                variant="wood"
-                                className="w-full h-8 text-[10px] font-bold uppercase tracking-widest"
-                            >
-                                🍻 REGULARS
-                            </PixelButton>
-                        </div>
-                    </div>
                 </div>
 
                 {/* Sticky Bottom Navigation */}

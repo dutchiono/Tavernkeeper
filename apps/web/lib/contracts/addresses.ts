@@ -86,7 +86,7 @@ const MONAD_MAINNET_ADDRESSES = {
 
     // Staking Contracts
     LP_STAKING: '0x0000000000000000000000000000000000000000' as Address, // TODO: Deploy on mainnet
-    KEEP_STAKING: '0x0000000000000000000000000000000000000000' as Address, // TODO: Deploy on mainnet
+    KEEP_STAKING: '0x083c36D23Fe0e337702609ad1350F08B8fbf1579' as Address,
 };
 
 // Localhost Addresses (for local development)

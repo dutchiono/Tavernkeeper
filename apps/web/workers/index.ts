@@ -24,6 +24,31 @@ async function start() {
   await import('./runWorker');
   await import('./replayWorker');
 
+  // Start auto-harvest worker if enabled
+  if (process.env.ENABLE_AUTO_HARVEST === 'true') {
+    console.log('Starting auto-harvest worker...');
+    try {
+      // Import and start auto-harvest worker
+      const { startAutoHarvestWorker } = await import('../../packages/contracts/scripts/auto-harvest');
+      await startAutoHarvestWorker();
+      console.log('✅ Auto-harvest worker started');
+    } catch (error) {
+      console.error('Failed to start auto-harvest worker:', error);
+    }
+  }
+
+  // Start staking tracker worker if enabled
+  if (process.env.ENABLE_STAKING_TRACKER === 'true') {
+    console.log('Starting staking tracker worker...');
+    try {
+      const { startStakingTrackerWorker } = await import('./stakingTrackerWorker');
+      await startStakingTrackerWorker();
+      console.log('✅ Staking tracker worker started');
+    } catch (error) {
+      console.error('Failed to start staking tracker worker:', error);
+    }
+  }
+
   console.log('Workers started. Listening for jobs...');
 }
 

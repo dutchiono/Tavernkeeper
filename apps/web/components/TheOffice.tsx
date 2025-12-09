@@ -72,7 +72,7 @@ export const TheOffice: React.FC<{
 
     const [isLoading, setIsLoading] = useState(false);
     const [timeHeld, setTimeHeld] = useState<string>('0m 0s');
-    const [viewMode, setViewMode] = useState<'office' | 'cellar'>('office');
+    const [viewMode, setViewMode] = useState<'office' | 'cellar' | 'staking' | 'posse' | 'regulars' | null>(null);
     const [monBalance, setMonBalance] = useState<string>('0');
     const [cellarState, setCellarState] = useState<CellarState | null>(null);
     const [pnl, setPnl] = useState<string>('$0.00');
@@ -80,12 +80,14 @@ export const TheOffice: React.FC<{
     const [interpolatedState, setInterpolatedState] = useState<OfficeState>(state);
     const [refreshKey, setRefreshKey] = useState<number>(0);
 
-    // Sync viewMode with GameView.CELLAR
+    // Set viewMode based on currentView
     useEffect(() => {
         if (currentView === GameView.CELLAR) {
-            setViewMode('cellar');
-        } else if (currentView === GameView.INN) {
+            // When entering Office view, always start on Office tab
             setViewMode('office');
+        } else {
+            // When not in Office view (e.g., Tavern/INN), clear viewMode so tabs don't show
+            setViewMode(null);
         }
     }, [currentView]);
 
@@ -622,7 +624,6 @@ export const TheOffice: React.FC<{
             cellarState={cellarState}
             onClaim={handleClaim}
             refreshKey={refreshKey}
-            onTestComposeCast={handleTestComposeCast}
         >
             {children}
         </TheOfficeView>

@@ -13,6 +13,8 @@ import type * as interfaces from "./interfaces";
 export type { interfaces };
 import type * as legacy from "./legacy";
 export type { legacy };
+import type * as staking from "./staking";
+export type { staking };
 import type * as test from "./test";
 export type { test };
 import type * as v3 from "./v3";

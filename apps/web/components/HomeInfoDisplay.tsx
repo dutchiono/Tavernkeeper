@@ -12,6 +12,7 @@ import { getPoolLiquidity } from '../lib/services/uniswapV4SwapService';
 import { checkIsInFarcasterMiniapp } from '../lib/utils/farcasterDetection';
 import { SmartLink } from '../lib/utils/smartNavigation';
 import { PixelBox, PixelButton } from './PixelComponents';
+import StakingInterface from './StakingInterface';
 
 interface HomeInfoDisplayProps {
     address: string | undefined;
@@ -223,24 +224,8 @@ export const HomeInfoDisplay: React.FC<HomeInfoDisplayProps> = ({ address }) => 
                 </div>
             </PixelBox>
 
-            {/* Navigation Links */}
-            <div className="grid grid-cols-3 gap-1.5">
-                <SmartLink href="/tutorial" className="block">
-                    <PixelButton variant="wood" className="w-full h-8 text-[9px] font-bold uppercase tracking-wider">
-                        Tutorial
-                    </PixelButton>
-                </SmartLink>
-                <SmartLink href="/docs" className="block">
-                    <PixelButton variant="wood" className="w-full h-8 text-[9px] font-bold uppercase tracking-wider">
-                        Docs
-                    </PixelButton>
-                </SmartLink>
-                <SmartLink href="/info" className="block">
-                    <PixelButton variant="wood" className="w-full h-8 text-[9px] font-bold uppercase tracking-wider">
-                        Info
-                    </PixelButton>
-                </SmartLink>
-            </div>
+            {/* Staking Interface */}
+            <StakingInterface />
 
             {/* Add Miniapp Button - Only show in miniapp context */}
             {isInMiniapp && (
@@ -273,6 +258,25 @@ export const HomeInfoDisplay: React.FC<HomeInfoDisplayProps> = ({ address }) => 
                     </div>
                 </PixelBox>
             )}
+
+            {/* Navigation Links */}
+            <div className="grid grid-cols-3 gap-1.5">
+                <SmartLink href="/tutorial" className="block">
+                    <PixelButton variant="wood" className="w-full h-8 text-[9px] font-bold uppercase tracking-wider">
+                        Tutorial
+                    </PixelButton>
+                </SmartLink>
+                <SmartLink href="/docs" className="block">
+                    <PixelButton variant="wood" className="w-full h-8 text-[9px] font-bold uppercase tracking-wider">
+                        Docs
+                    </PixelButton>
+                </SmartLink>
+                <SmartLink href="/info" className="block">
+                    <PixelButton variant="wood" className="w-full h-8 text-[9px] font-bold uppercase tracking-wider">
+                        Info
+                    </PixelButton>
+                </SmartLink>
+            </div>
 
             {/* Community Links */}
             <div className="grid grid-cols-2 gap-1.5">

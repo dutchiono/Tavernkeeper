@@ -7,6 +7,7 @@ export * as tavernRegularsManagerSol from "./TavernRegularsManager.sol";
 export * as townPosseManagerSol from "./TownPosseManager.sol";
 export * as interfaces from "./interfaces";
 export * as legacy from "./legacy";
+export * as staking from "./staking";
 export * as test from "./test";
 export * as v3 from "./v3";
 export { Adventurer__factory } from "./Adventurer__factory";

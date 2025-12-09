@@ -186,6 +186,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.SafeCast__factory>;
     getContractFactory(
+      name: "ReentrancyGuard",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.ReentrancyGuard__factory>;
+    getContractFactory(
       name: "Strings",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.Strings__factory>;
@@ -389,6 +393,14 @@ declare module "hardhat/types/runtime" {
       name: "MockERC20",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.MockERC20__factory>;
+    getContractFactory(
+      name: "KEEPStaking",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.KEEPStaking__factory>;
+    getContractFactory(
+      name: "LPStaking",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.LPStaking__factory>;
     getContractFactory(
       name: "SwapRouterV4",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -706,6 +718,11 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.SafeCast>;
     getContractAt(
+      name: "ReentrancyGuard",
+      address: string | ethers.Addressable,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ReentrancyGuard>;
+    getContractAt(
       name: "Strings",
       address: string | ethers.Addressable,
       signer?: ethers.Signer
@@ -960,6 +977,16 @@ declare module "hardhat/types/runtime" {
       address: string | ethers.Addressable,
       signer?: ethers.Signer
     ): Promise<Contracts.MockERC20>;
+    getContractAt(
+      name: "KEEPStaking",
+      address: string | ethers.Addressable,
+      signer?: ethers.Signer
+    ): Promise<Contracts.KEEPStaking>;
+    getContractAt(
+      name: "LPStaking",
+      address: string | ethers.Addressable,
+      signer?: ethers.Signer
+    ): Promise<Contracts.LPStaking>;
     getContractAt(
       name: "SwapRouterV4",
       address: string | ethers.Addressable,
@@ -1259,6 +1286,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.SafeCast>;
     deployContract(
+      name: "ReentrancyGuard",
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.ReentrancyGuard>;
+    deployContract(
       name: "Strings",
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.Strings>;
@@ -1462,6 +1493,14 @@ declare module "hardhat/types/runtime" {
       name: "MockERC20",
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.MockERC20>;
+    deployContract(
+      name: "KEEPStaking",
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.KEEPStaking>;
+    deployContract(
+      name: "LPStaking",
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.LPStaking>;
     deployContract(
       name: "SwapRouterV4",
       signerOrOptions?: ethers.Signer | DeployContractOptions
@@ -1779,6 +1818,11 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.SafeCast>;
     deployContract(
+      name: "ReentrancyGuard",
+      args: any[],
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.ReentrancyGuard>;
+    deployContract(
       name: "Strings",
       args: any[],
       signerOrOptions?: ethers.Signer | DeployContractOptions
@@ -2033,6 +2077,16 @@ declare module "hardhat/types/runtime" {
       args: any[],
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.MockERC20>;
+    deployContract(
+      name: "KEEPStaking",
+      args: any[],
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.KEEPStaking>;
+    deployContract(
+      name: "LPStaking",
+      args: any[],
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.LPStaking>;
     deployContract(
       name: "SwapRouterV4",
       args: any[],
