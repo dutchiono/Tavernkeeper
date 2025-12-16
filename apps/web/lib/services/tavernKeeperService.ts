@@ -356,9 +356,27 @@ export const tavernKeeperService = {
 
             const hash = await client.writeContract(request);
             return hash;
-        } catch (err) {
+        } catch (err: any) {
             console.error("Simulation failed:", err);
-            throw err;
+
+            // Extract readable error message from viem errors
+            let errorMessage = 'Transaction simulation failed';
+            if (err?.shortMessage) {
+                errorMessage = err.shortMessage;
+            } else if (err?.message) {
+                errorMessage = err.message;
+            } else if (err?.cause?.message) {
+                errorMessage = err.cause.message;
+            } else if (err?.reason) {
+                errorMessage = err.reason;
+            }
+
+            // Create a new error with the extracted message
+            const error = new Error(errorMessage);
+            if (err?.cause) {
+                (error as any).cause = err.cause;
+            }
+            throw error;
         }
     },
 

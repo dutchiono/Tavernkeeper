@@ -569,11 +569,31 @@ export const TheOffice: React.FC<{
             console.log('Transaction sent:', hash);
         } catch (error) {
             console.error('Failed to take office:', error);
-            const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 
-            // Check for cooldown error specifically
+            // Extract error message from various error formats (viem, wagmi, etc.)
+            let errorMessage = 'Unknown error';
+            if (error instanceof Error) {
+                errorMessage = error.message;
+            } else if (typeof error === 'string') {
+                errorMessage = error;
+            } else if (error && typeof error === 'object') {
+                // Handle viem/wagmi error objects
+                const err = error as any;
+                errorMessage = err.shortMessage || err.message || err.reason || JSON.stringify(error);
+
+                // Check for nested cause
+                if (err.cause) {
+                    const causeMsg = err.cause?.message || err.cause?.shortMessage || err.cause?.reason;
+                    if (causeMsg) {
+                        errorMessage = causeMsg;
+                    }
+                }
+            }
+
+            // Check for specific contract errors
             if (errorMessage.includes('CooldownActive') || errorMessage.includes('cooldown')) {
                 // Try to extract time remaining from error if available
+                // Viem error format: "CooldownActive(uint256 timeRemaining)" or similar
                 const timeMatch = errorMessage.match(/(\d+)/);
                 if (timeMatch) {
                     const secondsRemaining = parseInt(timeMatch[1]);
@@ -593,8 +613,82 @@ export const TheOffice: React.FC<{
                 } else {
                     alert(`⏰ COOLDOWN ACTIVE\n\nYou can only claim the office once every 24 hours.\n\nPlease try again later!`);
                 }
+            } else if (errorMessage.includes('MaxHoldTimeExceeded') || errorMessage.includes('max hold time')) {
+                alert(`⏰ MAX HOLD TIME EXCEEDED\n\nThe current office holder has held the office for more than 4 hours.\n\nThey will be automatically removed. Please try again in a moment.`);
+            } else if (errorMessage.includes('Internal JSON-RPC error') || errorMessage.includes('JSON') || errorMessage.includes('reverted')) {
+                // Try to decode the error using the contract ABI
+                const err = error as any;
+                let decodedError = null;
+
+                // Try to decode custom errors from error data
+                if (err?.data || err?.cause?.data) {
+                    const errorData = err.data || err.cause.data;
+                    try {
+                        const { decodeErrorResult } = await import('viem');
+                        const { CONTRACT_REGISTRY } = await import('../lib/contracts/registry');
+                        const contractConfig = CONTRACT_REGISTRY.TAVERNKEEPER;
+
+                        if (typeof errorData === 'string' && errorData.startsWith('0x')) {
+                            decodedError = decodeErrorResult({
+                                abi: contractConfig.abi,
+                                data: errorData as `0x${string}`,
+                            });
+                        }
+                    } catch (decodeErr) {
+                        console.error('Could not decode error:', decodeErr);
+                    }
+                }
+
+                if (decodedError) {
+                    // Handle decoded custom errors
+                    if (decodedError.errorName === 'CooldownActive') {
+                        const timeRemaining = Number(decodedError.args[0]);
+                        const hoursRemaining = Math.floor(timeRemaining / 3600);
+                        const minutesRemaining = Math.floor((timeRemaining % 3600) / 60);
+                        const secondsRemaining = timeRemaining % 60;
+
+                        let timeMessage = '';
+                        if (hoursRemaining > 0) {
+                            timeMessage = `${hoursRemaining} hour${hoursRemaining > 1 ? 's' : ''} ${minutesRemaining} minute${minutesRemaining !== 1 ? 's' : ''}`;
+                        } else if (minutesRemaining > 0) {
+                            timeMessage = `${minutesRemaining} minute${minutesRemaining > 1 ? 's' : ''} ${secondsRemaining} second${secondsRemaining !== 1 ? 's' : ''}`;
+                        } else {
+                            timeMessage = `${secondsRemaining} second${secondsRemaining !== 1 ? 's' : ''}`;
+                        }
+
+                        alert(`⏰ COOLDOWN ACTIVE\n\nYou can only claim the office once every 24 hours.\n\nTime remaining: ${timeMessage}\n\nPlease try again later!`);
+                    } else if (decodedError.errorName === 'MaxHoldTimeExceeded') {
+                        alert(`⏰ MAX HOLD TIME EXCEEDED\n\nThe current office holder has held the office for more than 4 hours.\n\nThey will be automatically removed. Please try again in a moment.`);
+                    } else {
+                        alert(`❌ Transaction Reverted\n\nError: ${decodedError.errorName}\n\nPlease check the console for more details.`);
+                    }
+                } else {
+                    // Generic revert message
+                    alert(`❌ Transaction Reverted\n\nThe contract call was reverted. This could be due to:\n\n• Cooldown still active (24-hour limit)\n• Insufficient payment\n• Epoch ID mismatch\n• Contract is paused\n• Max hold time exceeded\n• Deadline expired\n\nPlease check the console for more details.`);
+                }
             } else {
-                alert(`Failed to take office: ${errorMessage}`);
+                // Clean up error message for display (remove JSON artifacts)
+                let displayMessage = errorMessage;
+                if (displayMessage.includes('JSON')) {
+                    // Try to extract the actual error from JSON error
+                    try {
+                        const jsonMatch = displayMessage.match(/\{.*\}/);
+                        if (jsonMatch) {
+                            const parsed = JSON.parse(jsonMatch[0]);
+                            displayMessage = parsed.message || parsed.reason || parsed.shortMessage || errorMessage;
+                        }
+                    } catch (e) {
+                        // If JSON parsing fails, use original message
+                    }
+                }
+
+                // Remove common JSON error prefixes
+                displayMessage = displayMessage.replace(/^.*JSON.*error.*:/i, '').trim();
+                if (!displayMessage) {
+                    displayMessage = 'Transaction failed. Please check your wallet and try again.';
+                }
+
+                alert(`Failed to take office: ${displayMessage}`);
             }
             setIsLoading(false);
         }

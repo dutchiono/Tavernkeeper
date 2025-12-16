@@ -3,6 +3,16 @@
  *
  * Tracks contract addresses, implementations, versions, and ABIs
  * to ensure game code stays aligned with deployed contracts.
+ *
+ * ⚠️ CRITICAL: EVERY TIME A CONTRACT IS UPGRADED, THIS ABI MUST BE UPDATED!
+ *
+ * When upgrading contracts, you MUST add:
+ * - New functions
+ * - New events
+ * - New custom errors (type: 'error')
+ * - New public constants (as view functions)
+ *
+ * See: packages/contracts/ABI_UPDATE_REMINDER.md for full checklist
  */
 
 import { type Address } from 'viem';
@@ -656,6 +666,21 @@ export const CONTRACT_REGISTRY: Record<string, ContractConfig> = {
         outputs: [{ internalType: 'bool', name: '', type: 'bool' }],
         stateMutability: 'view',
         type: 'function',
+      },
+      // Custom errors (v4.6.0+)
+      {
+        inputs: [{ internalType: 'uint256', name: 'timeRemaining', type: 'uint256' }],
+        name: 'CooldownActive',
+        type: 'error',
+      },
+      // Custom errors (v4.7.0+)
+      {
+        inputs: [
+          { internalType: 'uint256', name: 'timeHeld', type: 'uint256' },
+          { internalType: 'uint256', name: 'maxHoldTime', type: 'uint256' },
+        ],
+        name: 'MaxHoldTimeExceeded',
+        type: 'error',
       },
     ],
     requiredFunctions: ['ownerOf', 'safeMint', 'claimTokens', 'calculatePendingTokens', 'takeOffice', 'getSlot0', 'claimOfficeRewards', 'whitelist', 'whitelistMinted', 'mintTavernKeeperWhitelist'],
