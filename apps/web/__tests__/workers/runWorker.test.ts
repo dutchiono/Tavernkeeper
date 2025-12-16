@@ -2,6 +2,9 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import type { Job } from 'bullmq';
 import * as supabaseModule from '@/lib/supabase';
 import * as engineModule from '@innkeeper/engine';
+import * as adventurerServiceModule from '@/contributions/adventurer-tracking/code/services/adventurerService';
+import * as dungeonStateServiceModule from '@/lib/services/dungeonStateService';
+import Redis from 'ioredis';
 
 // Mock ioredis for BullMQ
 vi.mock('ioredis', () => {
@@ -10,12 +13,16 @@ vi.mock('ioredis', () => {
       on: vi.fn(),
       connect: vi.fn(),
       quit: vi.fn(),
+      get: vi.fn().mockResolvedValue(null),
+      del: vi.fn().mockResolvedValue(1),
     })),
   };
 });
 
 vi.mock('@/lib/supabase');
 vi.mock('@innkeeper/engine');
+vi.mock('@/contributions/adventurer-tracking/code/services/adventurerService');
+vi.mock('@/lib/services/dungeonStateService');
 
 describe('RunWorker', () => {
   beforeEach(() => {
@@ -146,6 +153,9 @@ describe('RunWorker', () => {
       throw new Error('Simulation error');
     });
 
+    (adventurerServiceModule.restoreAdventurer as any) = vi.fn().mockResolvedValue({});
+    (dungeonStateServiceModule.dungeonStateService.unlockHeroes as any) = vi.fn().mockResolvedValue(undefined);
+
     const { runWorker } = await import('@/workers/runWorker');
     const mockJob = {
       id: 'job-123',
@@ -161,7 +171,128 @@ describe('RunWorker', () => {
     const handler = (runWorker as any).process;
     if (handler) {
       await expect(handler(mockJob)).rejects.toThrow();
+
+      // Verify HP restoration was attempted
+      expect(adventurerServiceModule.restoreAdventurer).toHaveBeenCalled();
     }
+  });
+
+  describe('HP Restoration on Failure', () => {
+    it('should restore HP to maxHealth when run fails', async () => {
+      const mockRedis = {
+        get: vi.fn().mockResolvedValue(null), // No checkpoint
+        del: vi.fn().mockResolvedValue(1),
+        quit: vi.fn().mockResolvedValue('OK'),
+      };
+      (Redis as any).mockImplementation(() => mockRedis);
+
+      (supabaseModule.supabase.from as any) = vi.fn()
+        .mockReturnValueOnce({
+          select: vi.fn().mockReturnValue({
+            eq: vi.fn().mockReturnValue({
+              single: vi.fn().mockResolvedValue({ data: { id: 'dungeon-123', seed: 'seed' }, error: null }),
+            }),
+          }),
+        })
+        .mockReturnValueOnce({
+          update: vi.fn().mockReturnValue({
+            eq: vi.fn().mockResolvedValue({ data: null, error: null }),
+          }),
+        });
+
+      (engineModule.simulateRun as any) = vi.fn().mockImplementation(() => {
+        throw new Error('Run failed');
+      });
+
+      (adventurerServiceModule.restoreAdventurer as any) = vi.fn().mockResolvedValue({});
+      (dungeonStateServiceModule.dungeonStateService.unlockHeroes as any) = vi.fn().mockResolvedValue(undefined);
+
+      const { runWorker } = await import('@/workers/runWorker');
+      const mockJob = {
+        id: 'job-123',
+        data: {
+          runId: 'run-123',
+          dungeonId: 'dungeon-123',
+          party: ['char-1'],
+          seed: 'test-seed',
+          startTime: 1000,
+        },
+      } as Job;
+
+      const handler = (runWorker as any).process;
+      if (handler) {
+        try {
+          await handler(mockJob);
+        } catch (error) {
+          // Expected to throw
+        }
+
+        // Verify restoreAdventurer was called with restoreHealth: true
+        expect(adventurerServiceModule.restoreAdventurer).toHaveBeenCalledWith(
+          expect.objectContaining({
+            tokenId: 'char-1',
+          }),
+          expect.objectContaining({
+            restoreHealth: true,
+            restoreMana: true,
+          })
+        );
+      }
+    });
+
+    it('should clean up Redis checkpoint on failure', async () => {
+      const mockRedis = {
+        get: vi.fn().mockResolvedValue(null),
+        del: vi.fn().mockResolvedValue(1),
+        quit: vi.fn().mockResolvedValue('OK'),
+      };
+      (Redis as any).mockImplementation(() => mockRedis);
+
+      (supabaseModule.supabase.from as any) = vi.fn()
+        .mockReturnValueOnce({
+          select: vi.fn().mockReturnValue({
+            eq: vi.fn().mockReturnValue({
+              single: vi.fn().mockResolvedValue({ data: { id: 'dungeon-123', seed: 'seed' }, error: null }),
+            }),
+          }),
+        })
+        .mockReturnValueOnce({
+          update: vi.fn().mockReturnValue({
+            eq: vi.fn().mockResolvedValue({ data: null, error: null }),
+          }),
+        });
+
+      (engineModule.simulateRun as any) = vi.fn().mockImplementation(() => {
+        throw new Error('Run failed');
+      });
+
+      (adventurerServiceModule.restoreAdventurer as any) = vi.fn().mockResolvedValue({});
+      (dungeonStateServiceModule.dungeonStateService.unlockHeroes as any) = vi.fn().mockResolvedValue(undefined);
+
+      const { runWorker } = await import('@/workers/runWorker');
+      const mockJob = {
+        id: 'job-123',
+        data: {
+          runId: 'run-123',
+          dungeonId: 'dungeon-123',
+          party: ['char-1'],
+          seed: 'test-seed',
+          startTime: 1000,
+        },
+      } as Job;
+
+      const handler = (runWorker as any).process;
+      if (handler) {
+        try {
+          await handler(mockJob);
+        } catch (error) {
+          // Expected to throw
+        }
+
+        // Verify checkpoint cleanup was attempted
+        expect(mockRedis.del).toHaveBeenCalled();
+      }
+    });
   });
 });
 

@@ -129,11 +129,42 @@ export const dungeonStateService = {
 
     /**
      * Unlock heroes after a run completes or fails
+     * @param heroes - Array of heroes to unlock
+     * @param restoreHp - Optional: If true, restore HP to maxHealth before unlocking (default: false)
      */
-    async unlockHeroes(heroes: { contractAddress: string; tokenId: string }[]) {
+    async unlockHeroes(heroes: { contractAddress: string; tokenId: string }[], restoreHp: boolean = false) {
         if (heroes.length === 0) {
             console.log('[DungeonStateService] No heroes to unlock');
             return;
+        }
+
+        // Restore HP if requested (typically on failure)
+        if (restoreHp) {
+            try {
+                const { restoreAdventurer } = await import('../../contributions/adventurer-tracking/code/services/adventurerService');
+                const CHAIN_ID = parseInt(process.env.NEXT_PUBLIC_CHAIN_ID || '143', 10);
+
+                console.log(`[DungeonStateService] Restoring HP for ${heroes.length} heroes before unlock...`);
+                for (const hero of heroes) {
+                    const heroId = {
+                        tokenId: hero.tokenId,
+                        contractAddress: hero.contractAddress,
+                        chainId: CHAIN_ID
+                    };
+                    try {
+                        await restoreAdventurer(heroId, {
+                            restoreHealth: true,
+                            restoreMana: true
+                        });
+                    } catch (error) {
+                        console.error(`[DungeonStateService] Error restoring HP for ${hero.tokenId}:`, error);
+                        // Continue - try to restore others
+                    }
+                }
+            } catch (error) {
+                console.error('[DungeonStateService] Error importing restoreAdventurer:', error);
+                // Continue - still unlock heroes even if HP restore fails
+            }
         }
 
         const now = new Date().toISOString();

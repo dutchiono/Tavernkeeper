@@ -21,105 +21,112 @@ import { ItemGenerator } from '../../contributions/procedural-item-generation/co
 import { scheduleEventsSequentially } from '../../contributions/timer-system/code/services/timerService';
 import { logGameEvent, persistKeyEvent } from './gameLoggingService';
 import { CONTRACT_ADDRESSES } from '../contracts/addresses';
+import Redis from 'ioredis';
 
-// Safe fallback: Use environment variable first, then try CONTRACT_ADDRESSES, then fallback to testnet address
-// Use a function to ensure we always get a valid address, even if module initialization hasn't completed
-function getHeroContractAddress(): string {
-  // Hardcoded fallback address (testnet)
+// Single source of truth for contract address resolution
+function getValidatedHeroContractAddress(): string {
   const FALLBACK_ADDRESS = '0x4Fff2Ce5144989246186462337F0eE2C086F913E';
 
+  let envAddress: string | undefined;
   try {
-    // Try to get from env first
-    let envAddress: string | undefined;
-    try {
-      envAddress = typeof process !== 'undefined' && process.env ? process.env.NEXT_PUBLIC_HERO_CONTRACT_ADDRESS : undefined;
-    } catch (e) {
-      // process.env might not be available in some contexts
-      envAddress = undefined;
-    }
-
-    // Try to get from CONTRACT_ADDRESSES (may not be loaded yet)
-    let contractAddressesValue: string | undefined;
-    try {
-      if (typeof CONTRACT_ADDRESSES !== 'undefined' && CONTRACT_ADDRESSES && typeof CONTRACT_ADDRESSES.ADVENTURER !== 'undefined') {
-        contractAddressesValue = CONTRACT_ADDRESSES.ADVENTURER;
-      }
-    } catch (e) {
-      // CONTRACT_ADDRESSES might not be loaded yet, ignore
-      contractAddressesValue = undefined;
-    }
-
-    // Use env, then CONTRACT_ADDRESSES, then testnet fallback
-    let address = envAddress || contractAddressesValue || FALLBACK_ADDRESS;
-
-    // Final safety check - if somehow still undefined or zero address, use testnet address
-    if (!address ||
-      address === '0x0000000000000000000000000000000000000000' ||
-      address === 'undefined' ||
-      typeof address !== 'string' ||
-      address.length < 10) {
-      console.warn('[DungeonRunService] HERO_CONTRACT_ADDRESS was invalid, using testnet fallback');
-      address = FALLBACK_ADDRESS;
-    }
-
-    return address;
-  } catch (error) {
-    console.error('[DungeonRunService] Error getting HERO_CONTRACT_ADDRESS:', error);
-    if (error instanceof Error) {
-      console.error('[DungeonRunService] Error name:', error.name);
-      console.error('[DungeonRunService] Error message:', error.message);
-      console.error('[DungeonRunService] Error stack:', error.stack);
-    }
-    return FALLBACK_ADDRESS; // Fallback to testnet
+    envAddress = typeof process !== 'undefined' && process.env ? process.env.NEXT_PUBLIC_HERO_CONTRACT_ADDRESS : undefined;
+  } catch (e) {
+    // process.env might not be available in some contexts
   }
-}
 
-// Initialize module-level variable for backwards compatibility
-// Use let instead of const to allow reassignment if needed
-let HERO_CONTRACT_ADDRESS: string;
-try {
-  HERO_CONTRACT_ADDRESS = getHeroContractAddress();
-  // Final safety check
-  if (!HERO_CONTRACT_ADDRESS || typeof HERO_CONTRACT_ADDRESS !== 'string') {
-    console.error('[DungeonRunService] HERO_CONTRACT_ADDRESS was invalid after getHeroContractAddress(), using fallback');
-    HERO_CONTRACT_ADDRESS = '0x4Fff2Ce5144989246186462337F0eE2C086F913E';
+  let contractAddressesValue: string | undefined;
+  try {
+    if (typeof CONTRACT_ADDRESSES !== 'undefined' && CONTRACT_ADDRESSES && typeof CONTRACT_ADDRESSES.ADVENTURER !== 'undefined') {
+      contractAddressesValue = CONTRACT_ADDRESSES.ADVENTURER;
+    }
+  } catch (e) {
+    // CONTRACT_ADDRESSES might not be loaded yet
   }
-} catch (error) {
-  console.error('[DungeonRunService] Error initializing HERO_CONTRACT_ADDRESS:', error);
-  HERO_CONTRACT_ADDRESS = '0x4Fff2Ce5144989246186462337F0eE2C086F913E';
+
+  const address = envAddress || contractAddressesValue || FALLBACK_ADDRESS;
+
+  // Validate address format
+  if (!address || address === '0x0000000000000000000000000000000000000000' || !/^0x[a-fA-F0-9]{40}$/.test(address)) {
+    console.warn('[DungeonRunService] Invalid contract address, using fallback');
+    return FALLBACK_ADDRESS;
+  }
+
+  return address;
 }
 
-// Ensure it's never undefined
-if (typeof HERO_CONTRACT_ADDRESS === 'undefined') {
-  console.error('[DungeonRunService] CRITICAL: HERO_CONTRACT_ADDRESS was still undefined! Using hardcoded fallback.');
-  HERO_CONTRACT_ADDRESS = '0x4Fff2Ce5144989246186462337F0eE2C086F913E';
-}
-
+// Module-level: validate once at load time
+const HERO_CONTRACT_ADDRESS = getValidatedHeroContractAddress();
 const CHAIN_ID = parseInt(process.env.NEXT_PUBLIC_CHAIN_ID || '143', 10);
 
-// Validate HERO_CONTRACT_ADDRESS is defined
-// Only log initialization once (module load)
+// Log initialization once (server-side only)
 if (typeof window === 'undefined') {
   console.log(`[DungeonRunService] Module initialized - HERO_CONTRACT_ADDRESS: ${HERO_CONTRACT_ADDRESS}`);
-  console.log(`[DungeonRunService] HERO_CONTRACT_ADDRESS type: ${typeof HERO_CONTRACT_ADDRESS}`);
-  console.log(`[DungeonRunService] HERO_CONTRACT_ADDRESS is undefined: ${typeof HERO_CONTRACT_ADDRESS === 'undefined'}`);
 }
 
 /**
  * Wrap a promise with a timeout
+ * Note: The original promise may continue running after timeout, but the result will be ignored.
+ * Full cancellation would require AbortController support in underlying operations (Supabase, etc.)
  */
 function withTimeout<T>(promise: Promise<T>, timeoutMs: number, operationName: string): Promise<T> {
-  return Promise.race([
-    promise,
-    new Promise<T>((_, reject) => {
-      setTimeout(() => {
+  let timeoutId: NodeJS.Timeout | null = null;
+  let isResolved = false;
+
+  const timeoutPromise = new Promise<T>((_, reject) => {
+    timeoutId = setTimeout(() => {
+      if (!isResolved) {
+        isResolved = true;
         reject(new Error(`${operationName} timed out after ${timeoutMs}ms`));
-      }, timeoutMs);
+      }
+    }, timeoutMs);
+  });
+
+  return Promise.race([
+    promise.then(result => {
+      if (!isResolved) {
+        isResolved = true;
+        if (timeoutId) clearTimeout(timeoutId);
+        return result;
+      }
+      // Timeout already fired, ignore result
+      throw new Error(`${operationName} was cancelled due to timeout`);
+    }).catch(error => {
+      if (!isResolved) {
+        isResolved = true;
+        if (timeoutId) clearTimeout(timeoutId);
+        throw error;
+      }
+      // Timeout already fired, ignore error
+      throw new Error(`${operationName} was cancelled due to timeout`);
     }),
+    timeoutPromise
   ]);
 }
 
 const DB_OPERATION_TIMEOUT = 30 * 1000; // 30 seconds
+
+// Redis connection for checkpointing (reuse queue connection if available, otherwise create new)
+let redisClient: Redis | null = null;
+function getRedisClient(): Redis | null {
+  if (redisClient) return redisClient;
+
+  try {
+    const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379';
+    redisClient = new Redis(redisUrl, {
+      maxRetriesPerRequest: null,
+      retryStrategy: (times) => Math.min(times * 50, 2000),
+    });
+    return redisClient;
+  } catch (error) {
+    console.warn('[DungeonRun] Failed to create Redis client for checkpointing:', error);
+    return null;
+  }
+}
+
+// Checkpoint key prefix for Redis
+function getCheckpointKey(runId: string): string {
+  return `dungeon_run:checkpoint:${runId}`;
+}
 
 export interface DungeonRunResult {
   runId: string;
@@ -147,36 +154,8 @@ export async function executeDungeonRun(
   seed: string,
   walletAddress: string
 ): Promise<DungeonRunResult> {
-  // Log module-level constant for debugging
-  console.log(`[DungeonRun] Module-level HERO_CONTRACT_ADDRESS: ${HERO_CONTRACT_ADDRESS}`);
-  console.log(`[DungeonRun] Module-level HERO_CONTRACT_ADDRESS type: ${typeof HERO_CONTRACT_ADDRESS}`);
-  console.log(`[DungeonRun] Module-level HERO_CONTRACT_ADDRESS is undefined: ${typeof HERO_CONTRACT_ADDRESS === 'undefined'}`);
-
-  // Validate contract address immediately at function start
-  let heroContractAddress: string;
-  try {
-    console.log(`[DungeonRun] Calling getHeroContractAddress()...`);
-    heroContractAddress = getHeroContractAddress();
-    console.log(`[DungeonRun] getHeroContractAddress() returned: ${heroContractAddress}`);
-    console.log(`[DungeonRun] Returned address type: ${typeof heroContractAddress}`);
-
-    if (!heroContractAddress || heroContractAddress === '0x0000000000000000000000000000000000000000' || typeof heroContractAddress !== 'string') {
-      console.error(`[DungeonRun] HERO_CONTRACT_ADDRESS validation failed. Value: ${heroContractAddress}, Type: ${typeof heroContractAddress}`);
-      throw new Error(`HERO_CONTRACT_ADDRESS is not properly initialized. Got: ${heroContractAddress}`);
-    }
-    console.log(`[DungeonRun] HERO_CONTRACT_ADDRESS validation passed: ${heroContractAddress}`);
-  } catch (error) {
-    const errorMsg = error instanceof Error ? error.message : String(error);
-    console.error(`[DungeonRun] Failed to get HERO_CONTRACT_ADDRESS:`, errorMsg);
-    console.error(`[DungeonRun] Error details:`, error);
-    if (error instanceof Error) {
-      console.error(`[DungeonRun] Error name: ${error.name}`);
-      console.error(`[DungeonRun] Error stack: ${error.stack}`);
-    }
-    // Use hardcoded fallback as last resort
-    heroContractAddress = '0x4Fff2Ce5144989246186462337F0eE2C086F913E';
-    console.warn(`[DungeonRun] Using hardcoded fallback address: ${heroContractAddress}`);
-  }
+  // Use module-level validated address (single source of truth)
+  const heroContractAddress = HERO_CONTRACT_ADDRESS;
 
   const events: DungeonRunResult['events'] = [];
   const runStartTime = Date.now();
@@ -333,19 +312,63 @@ export async function executeDungeonRun(
         // Continue without equipment bonuses if loading fails
       }
 
+      // Reset HP to maxHealth for new run and persist immediately
+      adventurer.stats.health = adventurer.stats.maxHealth;
+      try {
+        await updateAdventurerStats({
+          heroId: adventurer.heroId,
+          updates: { health: adventurer.stats.maxHealth },
+          reason: 'run_start_reset'
+        });
+      } catch (error) {
+        console.error(`[DungeonRun] Failed to reset HP for hero ${tokenId}:`, error);
+        // Continue - HP is reset in memory, will be persisted at end
+      }
+
       partyMembers.push(adventurer);
     }
     console.log(`[DungeonRun] Party loaded in ${Date.now() - partyLoadStartTime}ms: ${partyMembers.map(p => `${p.name} (L${p.level})`).join(', ')}`);
 
-    // 4. Execute level-by-level (FAST MODE: Keep everything in memory, defer DB writes)
+    // 4. Execute level-by-level (HP in memory, checkpoints to Redis, final write to Supabase)
     let currentLevel = 1;
     let totalXP = 0;
     const maxLevel = Math.min(dungeon.depth, 100); // Cap at 100 levels for safety
-    console.log(`[DungeonRun] Starting level-by-level execution (max ${maxLevel} levels) - FAST MODE: Deferring DB writes`);
+    console.log(`[DungeonRun] Starting level-by-level execution (max ${maxLevel} levels) - HP in memory, Redis checkpoints, Supabase at end`);
 
-    // Accumulate all DB updates to batch at the end
+    // Accumulate all DB updates to batch at the end (for final Supabase write)
     const deferredStatUpdates: Array<{ heroId: HeroIdentifier; updates: Partial<AdventurerRecord['stats']>; reason: string }> = [];
     const deferredXPUpdates: Array<{ heroId: HeroIdentifier; xp: number }> = [];
+
+    // Helper to save checkpoint to Redis
+    async function saveCheckpoint() {
+      const client = getRedisClient();
+      if (!client) return; // Redis not available, skip checkpoint
+
+      try {
+        const checkpoint = {
+          runId,
+          level: currentLevel,
+          partyStats: partyMembers.map(m => ({
+            tokenId: m.heroId.tokenId,
+            health: m.stats.health,
+            maxHealth: m.stats.maxHealth,
+            mana: m.stats.mana,
+            maxMana: m.stats.maxMana,
+          })),
+          totalXP,
+          timestamp: Date.now(),
+        };
+
+        await client.setex(
+          getCheckpointKey(runId),
+          3600, // Expire after 1 hour
+          JSON.stringify(checkpoint)
+        );
+      } catch (error) {
+        console.warn(`[DungeonRun] Failed to save checkpoint:`, error);
+        // Non-fatal, continue
+      }
+    }
 
     while (currentLevel <= maxLevel) {
       const levelStartTime = Date.now();
@@ -471,9 +494,8 @@ export async function executeDungeonRun(
       // Clear level timeout
       clearTimeout(levelTimeoutId);
 
-      // FAST MODE: Update party stats in memory only (defer DB writes)
+      // Update party stats in memory (HP stays in memory, no Supabase write yet)
       if (roomResult.partyUpdates.length > 0) {
-        // Removed frequent log
         for (const update of roomResult.partyUpdates) {
           const member = partyMembers.find(m =>
             m.heroId.tokenId === update.heroId.tokenId
@@ -481,7 +503,7 @@ export async function executeDungeonRun(
           if (member) {
             // Update in memory
             member.stats = { ...member.stats, ...update.updates };
-            // Accumulate for batch DB write later
+            // Accumulate for final batch DB write at end
             deferredStatUpdates.push(update);
           }
         }
@@ -493,6 +515,9 @@ export async function executeDungeonRun(
           partyDefeated = true;
         }
       }
+
+      // Save checkpoint to Redis after each level (fast, temporary storage)
+      await saveCheckpoint();
 
       // Stop immediately if party was defeated - don't process more levels
       if (partyDefeated) {
@@ -552,23 +577,41 @@ export async function executeDungeonRun(
         }
       }
 
-      // Execute batched updates
-      const updatePromises = Array.from(updatesByHero.values()).map(update =>
-        withTimeout(
-          updateAdventurerStats({
-            heroId: update.heroId,
-            updates: update.updates,
-            reason: update.reason,
-          }),
-          DB_OPERATION_TIMEOUT,
-          `updateAdventurerStats(${update.heroId.tokenId})`
-        ).catch(error => {
-          console.error(`[DungeonRun] Error updating stats for hero ${update.heroId.tokenId}:`, error);
-          return null;
-        })
+      // Execute batched updates with proper error handling
+      const updateResults = await Promise.allSettled(
+        Array.from(updatesByHero.values()).map(update =>
+          withTimeout(
+            updateAdventurerStats({
+              heroId: update.heroId,
+              updates: update.updates,
+              reason: update.reason,
+            }),
+            DB_OPERATION_TIMEOUT,
+            `updateAdventurerStats(${update.heroId.tokenId})`
+          )
+        )
       );
-      await Promise.all(updatePromises);
+
+      // Check results and log errors (don't swallow them)
+      for (let i = 0; i < updateResults.length; i++) {
+        const result = updateResults[i];
+        if (result.status === 'rejected') {
+          const update = Array.from(updatesByHero.values())[i];
+          console.error(`[DungeonRun] Error updating stats for hero ${update.heroId.tokenId}:`, result.reason);
+          // Continue - other updates may have succeeded
+        }
+      }
       console.log(`[DungeonRun] Batch stat updates completed in ${Date.now() - updateStartTime}ms`);
+    }
+
+    // Clean up Redis checkpoint on successful completion
+    try {
+      const client = getRedisClient();
+      if (client) {
+        await client.del(getCheckpointKey(runId));
+      }
+    } catch (error) {
+      console.warn(`[DungeonRun] Failed to clean up checkpoint:`, error);
     }
 
     // Batch award all XP
@@ -587,18 +630,26 @@ export async function executeDungeonRun(
         }
       }
 
-      // Execute batched XP awards
-      const xpPromises = Array.from(xpByHero.values()).map(xpUpdate =>
-        withTimeout(
-          addXP(xpUpdate.heroId, xpUpdate.xp),
-          DB_OPERATION_TIMEOUT,
-          `addXP(${xpUpdate.heroId.tokenId})`
-        ).catch(error => {
-          console.error(`[DungeonRun] Error awarding XP to hero ${xpUpdate.heroId.tokenId}:`, error);
-          return null;
-        })
+      // Execute batched XP awards with proper error handling
+      const xpResults = await Promise.allSettled(
+        Array.from(xpByHero.values()).map(xpUpdate =>
+          withTimeout(
+            addXP(xpUpdate.heroId, xpUpdate.xp),
+            DB_OPERATION_TIMEOUT,
+            `addXP(${xpUpdate.heroId.tokenId})`
+          )
+        )
       );
-      await Promise.all(xpPromises);
+
+      // Check results and log errors (don't swallow them)
+      for (let i = 0; i < xpResults.length; i++) {
+        const result = xpResults[i];
+        if (result.status === 'rejected') {
+          const xpUpdate = Array.from(xpByHero.values())[i];
+          console.error(`[DungeonRun] Error awarding XP to hero ${xpUpdate.heroId.tokenId}:`, result.reason);
+          // Continue - other XP awards may have succeeded
+        }
+      }
       console.log(`[DungeonRun] Batch XP awards completed in ${Date.now() - xpStartTime}ms`);
     }
 

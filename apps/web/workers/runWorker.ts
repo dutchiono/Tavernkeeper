@@ -26,7 +26,7 @@ let HERO_CONTRACT_ADDRESS: string;
 try {
   // Try to get from env first
   const envAddress = process.env.NEXT_PUBLIC_HERO_CONTRACT_ADDRESS;
-  
+
   // Try to get from CONTRACT_ADDRESSES (may not be loaded yet)
   let contractAddressesValue: string | undefined;
   try {
@@ -34,10 +34,10 @@ try {
   } catch (e) {
     // CONTRACT_ADDRESSES might not be loaded yet, ignore
   }
-  
+
   // Use env, then CONTRACT_ADDRESSES, then testnet fallback
   HERO_CONTRACT_ADDRESS = envAddress || contractAddressesValue || '0x4Fff2Ce5144989246186462337F0eE2C086F913E';
-  
+
   // Final safety check - if somehow still undefined or zero address, use testnet address
   if (!HERO_CONTRACT_ADDRESS || HERO_CONTRACT_ADDRESS === '0x0000000000000000000000000000000000000000' || HERO_CONTRACT_ADDRESS === 'undefined') {
     console.warn('[Worker] HERO_CONTRACT_ADDRESS was invalid, using testnet fallback');
@@ -161,7 +161,7 @@ export const runWorker = new Worker<RunJobData>(
       console.log(`[Worker] Starting dungeon run execution (5 minute timeout)...`);
       const executionStartTime = Date.now();
       const DUNGEON_RUN_TIMEOUT = 5 * 60 * 1000; // 5 minutes
-      
+
       let result;
       try {
         console.log(`[Worker] About to call executeDungeonRun...`);
@@ -223,7 +223,7 @@ export const runWorker = new Worker<RunJobData>(
         })
         .eq('id', runId);
       console.log(`[Worker] Run status updated in ${Date.now() - updateStartTime}ms`);
-      
+
       if (updateResult.error) {
         console.error(`[Worker] Error updating run status:`, updateResult.error);
         console.error(`[Worker] Will still unlock heroes despite status update error`);
@@ -239,17 +239,17 @@ export const runWorker = new Worker<RunJobData>(
         contractAddress: HERO_CONTRACT_ADDRESS,
         tokenId: id
       }));
-      
+
       try {
         await dungeonStateService.unlockHeroes(checkingHeroes);
         console.log(`[Worker] Heroes unlocked in ${Date.now() - unlockStartTime}ms`);
-        
+
         // Verify heroes were actually unlocked
         const { data: verifyHeroes } = await supabase
           .from('hero_states')
           .select('token_id, status, locked_until')
           .in('token_id', party);
-        
+
         if (verifyHeroes) {
           const stillLocked = verifyHeroes.filter(h => h.status === 'dungeon' && h.locked_until && new Date(h.locked_until) > new Date());
           if (stillLocked.length > 0) {
@@ -288,6 +288,43 @@ export const runWorker = new Worker<RunJobData>(
         }
       } else {
         console.error(`[Worker] Non-Error object thrown:`, typeof error, error);
+      }
+
+      // Restore HP to maxHealth on failure (checkpoint restoration would be complex, simpler to just restore)
+      try {
+        const { restoreAdventurer } = await import('../contributions/adventurer-tracking/code/services/adventurerService');
+        const CHAIN_ID = parseInt(process.env.NEXT_PUBLIC_CHAIN_ID || '143', 10);
+
+        console.log(`[Worker] Restoring HP to maxHealth for ${party.length} heroes...`);
+        for (const tokenId of party) {
+          const heroId = {
+            tokenId,
+            contractAddress: HERO_CONTRACT_ADDRESS,
+            chainId: CHAIN_ID
+          };
+          try {
+            await restoreAdventurer(heroId, {
+              restoreHealth: true,
+              restoreMana: true
+            });
+          } catch (restoreError) {
+            console.error(`[Worker] Error restoring HP for hero ${tokenId}:`, restoreError);
+          }
+        }
+
+        // Clean up Redis checkpoint if it exists
+        try {
+          const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379';
+          const redis = new Redis(redisUrl, { maxRetriesPerRequest: null });
+          const checkpointKey = `dungeon_run:checkpoint:${runId}`;
+          await redis.del(checkpointKey);
+          await redis.quit();
+        } catch (redisError) {
+          // Non-fatal
+          console.warn('[Worker] Failed to clean up checkpoint:', redisError);
+        }
+      } catch (restoreError) {
+        console.error('[Worker] Error in HP restore:', restoreError);
       }
 
       // Unlock heroes on error
