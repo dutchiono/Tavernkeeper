@@ -3,6 +3,7 @@ import { useRunEvents } from '../../lib/hooks/useRunEvents';
 import { useRunStatus } from '../../lib/hooks/useRunStatus';
 import { useGameStore } from '../../lib/stores/gameStore';
 import { GameView } from '../../lib/types';
+import { useSound } from '../../lib/audio/SoundContext';
 import { PixelBox, PixelButton } from '../PixelComponents';
 
 interface BattleSceneProps {
@@ -1200,6 +1201,21 @@ export const BattleScene: React.FC<BattleSceneProps> = ({ onComplete }) => {
         const outcomeIndex = dungeonEvents.findIndex(e => e.id === outcomeEvent.id);
         return revealedEventCount > outcomeIndex;
     }, [outcomeEvent, revealedEventCount, dungeonEvents]);
+
+    const { playSFX } = useSound();
+
+    // Play Outcome Sound
+    useEffect(() => {
+        if (showOutcome && outcomeEvent) {
+            if (outcomeEvent.type === 'party_wipe' || outcomeEvent.type === 'combat_defeat') {
+                playSFX('DEFEAT');
+            } else if (outcomeEvent.type === 'dungeon_cleared' || (outcomeEvent.type === 'combat_victory' && outcomeEvent.level === dungeonInfo?.depth)) {
+                playSFX('VICTORY');
+            } else if (outcomeEvent.type === 'error') {
+                playSFX('DEFEAT'); // Use defeat sound for error
+            }
+        }
+    }, [showOutcome, outcomeEvent, playSFX, dungeonInfo]);
 
     return (
         <div className="w-full h-full bg-[#2a1d17] relative flex flex-col font-pixel overflow-hidden">

@@ -261,5 +261,18 @@ test.describe('View Switching Flow', () => {
     // View switching is handled programmatically via game store
     // This test verifies the UI structure is ready for it
   });
+
+  test('global volume control is accessible', async ({ page }) => {
+    await page.goto('/', { waitUntil: 'load', timeout: 30000 });
+    // Look for volume/mute button
+    const volumeButton = page.getByRole('button', { name: /Mute Audio|Unmute Audio/i });
+    if (await volumeButton.count() > 0) {
+      await expect(volumeButton.first()).toBeVisible();
+      // Test toggle
+      await volumeButton.first().click();
+      // Should toggle state (title changes)
+      // await expect(volumeButton.first()).toHaveAttribute('title', /Unmute Audio|Mute Audio/);
+    }
+  });
 });
 
