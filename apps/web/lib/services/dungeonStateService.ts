@@ -60,43 +60,8 @@ export const dungeonStateService = {
      * Check user's daily run count
      */
     async getUserDailyStats(walletAddress: string) {
-        // WHITELIST FOR UNLIMITED RUNS
-        // Addresses provided by user:
-        // 0x3ec3a92e44952bae7ea96fd9c1c3f6b65c9a1b6d
-        // 0x8DFBdEEC8c5d4970BB5F481C6ec7f73fa1C65be5
-        const WHITELIST = [
-            '0x3ec3a92e44952bae7ea96fd9c1c3f6b65c9a1b6d',
-            '0x8DFBdEEC8c5d4970BB5F481C6ec7f73fa1C65be5'
-        ].map(a => a.toLowerCase()); // Ensure case-insensitive comparison
-
-        if (WHITELIST.includes(walletAddress.toLowerCase())) {
-            // Return 0 usage so checks always pass
-            return { dailyRuns: 0, lastReset: new Date().toISOString(), needsReset: false };
-        }
-
-        const now = new Date();
-
-        const { data, error } = await supabase
-            .from('user_dungeon_stats')
-            .select('*')
-            .eq('wallet_address', walletAddress)
-            .single();
-
-        if (error || !data) {
-            // No record = first run
-            return { dailyRuns: 0, lastReset: now.toISOString(), needsReset: false };
-        }
-
-        // Check if reset is needed (more than 24 hours since last reset)
-        const lastReset = new Date(data.last_reset_time);
-        const timeDiff = now.getTime() - lastReset.getTime();
-        const hoursDiff = timeDiff / (1000 * 3600);
-
-        if (hoursDiff >= 24) {
-            return { dailyRuns: 0, lastReset: now.toISOString(), needsReset: true };
-        }
-
-        return { dailyRuns: data.daily_runs_count, lastReset: data.last_reset_time, needsReset: false };
+        // UNLIMITED FREE RUNS FOR TESTING
+        return { dailyRuns: 0, lastReset: new Date().toISOString(), needsReset: false };
     },
 
     /**
@@ -129,47 +94,16 @@ export const dungeonStateService = {
 
     /**
      * Unlock heroes after a run completes or fails
-     * @param heroes - Array of heroes to unlock
-     * @param restoreHp - Optional: If true, restore HP to maxHealth before unlocking (default: false)
      */
-    async unlockHeroes(heroes: { contractAddress: string; tokenId: string }[], restoreHp: boolean = false) {
+    async unlockHeroes(heroes: { contractAddress: string; tokenId: string }[]) {
         if (heroes.length === 0) {
             console.log('[DungeonStateService] No heroes to unlock');
             return;
         }
 
-        // Restore HP if requested (typically on failure)
-        if (restoreHp) {
-            try {
-                const { restoreAdventurer } = await import('../../contributions/adventurer-tracking/code/services/adventurerService');
-                const CHAIN_ID = parseInt(process.env.NEXT_PUBLIC_CHAIN_ID || '143', 10);
-
-                console.log(`[DungeonStateService] Restoring HP for ${heroes.length} heroes before unlock...`);
-                for (const hero of heroes) {
-                    const heroId = {
-                        tokenId: hero.tokenId,
-                        contractAddress: hero.contractAddress,
-                        chainId: CHAIN_ID
-                    };
-                    try {
-                        await restoreAdventurer(heroId, {
-                            restoreHealth: true,
-                            restoreMana: true
-                        });
-                    } catch (error) {
-                        console.error(`[DungeonStateService] Error restoring HP for ${hero.tokenId}:`, error);
-                        // Continue - try to restore others
-                    }
-                }
-            } catch (error) {
-                console.error('[DungeonStateService] Error importing restoreAdventurer:', error);
-                // Continue - still unlock heroes even if HP restore fails
-            }
-        }
-
         const now = new Date().toISOString();
         const tokenIds = heroes.map(h => h.tokenId);
-
+        
         console.log(`[DungeonStateService] Unlocking ${tokenIds.length} heroes:`, tokenIds);
 
         // Update hero states to idle
@@ -200,27 +134,16 @@ export const dungeonStateService = {
      * Increment user daily run count
      */
     async incrementUserDailyRun(walletAddress: string) {
-        // WHITELIST CHECK - Don't track runs for admins
-        const WHITELIST = [
-            '0x3ec3a92e44952bae7ea96fd9c1c3f6b65c9a1b6d',
-            '0x8DFBdEEC8c5d4970BB5F481C6ec7f73fa1C65be5'
-        ].map(a => a.toLowerCase()); // Ensure case-insensitive comparison
-
-        if (WHITELIST.includes(walletAddress.toLowerCase())) {
-            return;
-        }
-
-        const stats = await this.getUserDailyStats(walletAddress);
+        const stats = await this.getUserDailyStats(walletAddress); // Check logic again to get current state
 
         let newCount = stats.dailyRuns + 1;
         let newResetTime = stats.lastReset;
 
-        // If we needed a reset, we reset start time now and count starts at 1
         if (stats.needsReset) {
             newCount = 1;
             newResetTime = new Date().toISOString();
-        } else if (stats.dailyRuns === 0 && (!stats.lastReset || stats.lastReset === '')) {
-            // Handling edge case for first run
+        } else if (stats.dailyRuns === 0 && !stats.lastReset) {
+            // First run ever
             newResetTime = new Date().toISOString();
         }
 

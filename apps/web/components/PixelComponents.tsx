@@ -48,26 +48,7 @@ interface PixelButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement>
   size?: 'sm' | 'md' | 'lg';
 }
 
-import { useSound } from '../lib/audio/SoundContext';
-
 export const PixelButton: React.FC<PixelButtonProps> = ({ children, className = '', variant = 'primary', isActive = false, size = 'md', ...props }) => {
-  // Use sound context safely
-  let playSFX: ((sfx: any) => void) | undefined;
-  try {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    const sound = useSound();
-    playSFX = sound.playSFX;
-  } catch (e) {
-    // Ignore error if SoundProvider is missing (e.g. in tests)
-  }
-
-  const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
-    if (!props.disabled && playSFX) {
-      playSFX('CLICK');
-    }
-    props.onClick?.(e);
-  };
-
   const getColors = () => {
     if (props.disabled) return 'bg-slate-700 border-slate-600 text-slate-500 cursor-not-allowed';
 
@@ -108,7 +89,6 @@ export const PixelButton: React.FC<PixelButtonProps> = ({ children, className = 
         ${className}
       `}
       {...props}
-      onClick={handleClick}
     >
       {children}
     </button>

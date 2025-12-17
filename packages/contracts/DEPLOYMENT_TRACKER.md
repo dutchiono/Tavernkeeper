@@ -4,23 +4,6 @@
 
 This file tracks all contract deployments. **ALWAYS** update this file when deploying contracts.
 
-## ⚠️ **ABI UPDATE REQUIRED AFTER EVERY UPGRADE**
-
-**EVERY TIME YOU UPGRADE A CONTRACT, YOU MUST ALSO UPDATE THE ABI IN `apps/web/lib/contracts/registry.ts`**
-
-See `ABI_UPDATE_REMINDER.md` for full checklist and instructions.
-
-**Common issues if ABI not updated:**
-- Custom errors show "Internal JSON-RPC error" instead of readable messages
-- New functions won't be callable from frontend
-- Type safety breaks
-
-**Always update:**
-- ✅ New functions
-- ✅ New events
-- ✅ **New custom errors** (most commonly forgotten!)
-- ✅ New public constants
-
 ## Current Status: ✅ DEPLOYED TO MONAD TESTNET
 
 **All contracts have been deployed to Monad Testnet as UUPS upgradeable proxies.**

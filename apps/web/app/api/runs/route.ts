@@ -117,31 +117,23 @@ export async function POST(request: NextRequest) {
       dungeonStateService.lockHeroes(run.id, checkingHeroes),
       dungeonStateService.incrementUserDailyRun(walletAddress)
     ]);
-
-    // Verify heroes were actually locked before enqueuing job (fix race condition)
-    const { data: verifyLocked, error: verifyError } = await supabase
+    
+    // Verify heroes were actually locked
+    const { data: verifyLocked } = await supabase
       .from('hero_states')
       .select('token_id, status, locked_until, current_run_id')
       .in('token_id', party);
-
-    if (verifyError) {
-      console.error(`[API] Error verifying hero locks:`, verifyError);
-      throw new Error(`Failed to verify hero locks: ${verifyError.message}`);
+    
+    if (verifyLocked) {
+      const notLocked = verifyLocked.filter(h => h.status !== 'dungeon' || h.current_run_id !== run.id);
+      if (notLocked.length > 0) {
+        console.warn(`[API] Warning: ${notLocked.length} heroes not properly locked:`, notLocked.map(h => h.token_id));
+      } else {
+        console.log(`[API] Verified: All ${party.length} heroes successfully locked for run ${run.id}`);
+      }
     }
 
-    if (!verifyLocked || verifyLocked.length !== party.length) {
-      throw new Error(`Failed to lock heroes: Expected ${party.length} heroes, but only ${verifyLocked?.length || 0} found in hero_states`);
-    }
-
-    const notLocked = verifyLocked.filter(h => h.status !== 'dungeon' || h.current_run_id !== run.id);
-    if (notLocked.length > 0) {
-      const notLockedIds = notLocked.map(h => h.token_id);
-      throw new Error(`Failed to lock ${notLocked.length} heroes: ${notLockedIds.join(', ')}`);
-    }
-
-    console.log(`[API] Verified: All ${party.length} heroes successfully locked for run ${run.id}`);
-
-    // 6. Enqueue simulation job (only after locks verified)
+    // 5. Enqueue simulation job
     // Sending resolved UUID (finalDungeonId) to worker
     console.log(`[API] Enqueuing job for run ${run.id} with dungeon ${finalDungeonId}`);
     const job = await runQueue.add('run-simulation', {

@@ -42,7 +42,7 @@ contract TavernKeeperSetMinPrice is TavernKeeperV3 {
     /**
      * @notice Override _getPriceFromCache to use 100 MON minimum
      */
-    function _getPriceFromCache(Slot0 memory slot0Cache) internal view virtual override returns (uint256) {
+    function _getPriceFromCache(Slot0 memory slot0Cache) internal view override returns (uint256) {
         uint256 timePassed = block.timestamp - slot0Cache.startTime;
 
         if (timePassed > EPOCH_PERIOD) {

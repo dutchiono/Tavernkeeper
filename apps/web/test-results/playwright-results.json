@@ -1,0 +1,611 @@
+{
+  "config": {
+    "configFile": "C:\\Users\\epj33\\Desktop\\InnKeeper\\apps\\web\\playwright.config.ts",
+    "rootDir": "C:/Users/epj33/Desktop/InnKeeper/apps/web/e2e",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": "C:\\Users\\epj33\\Desktop\\InnKeeper\\apps\\web\\e2e\\global-setup.ts",
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 4
+    },
+    "preserveOutput": "never",
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "html",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "test-results/playwright-results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "C:/Users/epj33/Desktop/InnKeeper/apps/web/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 4
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "C:/Users/epj33/Desktop/InnKeeper/apps/web/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "C:/Users/epj33/Desktop/InnKeeper/apps/web/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 4
+        },
+        "id": "firefox",
+        "name": "firefox",
+        "testDir": "C:/Users/epj33/Desktop/InnKeeper/apps/web/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "C:/Users/epj33/Desktop/InnKeeper/apps/web/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 4
+        },
+        "id": "webkit",
+        "name": "webkit",
+        "testDir": "C:/Users/epj33/Desktop/InnKeeper/apps/web/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "C:/Users/epj33/Desktop/InnKeeper/apps/web/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 4
+        },
+        "id": "Mobile Chrome",
+        "name": "Mobile Chrome",
+        "testDir": "C:/Users/epj33/Desktop/InnKeeper/apps/web/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "C:/Users/epj33/Desktop/InnKeeper/apps/web/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 4
+        },
+        "id": "Mobile Safari",
+        "name": "Mobile Safari",
+        "testDir": "C:/Users/epj33/Desktop/InnKeeper/apps/web/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.57.0",
+    "workers": 4,
+    "webServer": {
+      "command": "pnpm dev",
+      "url": "http://localhost:3000",
+      "reuseExistingServer": true,
+      "timeout": 120000
+    }
+  },
+  "suites": [
+    {
+      "title": "blockchain-interaction.spec.ts",
+      "file": "blockchain-interaction.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Multi-User Blockchain Competition",
+          "file": "blockchain-interaction.spec.ts",
+          "line": 59,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Alice and Bob compete for The Office",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 6820,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: 'Connect Wallet' }).first()\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: 'Connect Wallet' }).first()\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: 'Connect Wallet' }).first()\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: 'Connect Wallet' }).first()\u001b[22m\n\n    at C:\\Users\\epj33\\Desktop\\InnKeeper\\apps\\web\\e2e\\blockchain-interaction.spec.ts:87:38\n    at C:\\Users\\epj33\\Desktop\\InnKeeper\\apps\\web\\e2e\\blockchain-interaction.spec.ts:82:9",
+                        "location": {
+                          "file": "C:\\Users\\epj33\\Desktop\\InnKeeper\\apps\\web\\e2e\\blockchain-interaction.spec.ts",
+                          "column": 38,
+                          "line": 87
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 85 |\u001b[39m             \u001b[90m// Connect\u001b[39m\n \u001b[90m 86 |\u001b[39m             \u001b[36mconst\u001b[39m connectBtn \u001b[33m=\u001b[39m pageA\u001b[33m.\u001b[39mgetByRole(\u001b[32m'button'\u001b[39m\u001b[33m,\u001b[39m { name\u001b[33m:\u001b[39m \u001b[32m'Connect Wallet'\u001b[39m })\u001b[33m.\u001b[39mfirst()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 87 |\u001b[39m             \u001b[36mawait\u001b[39m expect(connectBtn)\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                      \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 88 |\u001b[39m             \u001b[36mawait\u001b[39m connectBtn\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n \u001b[90m 89 |\u001b[39m\n \u001b[90m 90 |\u001b[39m             \u001b[90m// Go to Cellar View\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\epj33\\Desktop\\InnKeeper\\apps\\web\\e2e\\blockchain-interaction.spec.ts",
+                            "column": 38,
+                            "line": 87
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: 'Connect Wallet' }).first()\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: 'Connect Wallet' }).first()\u001b[22m\n\n\n\u001b[0m \u001b[90m 85 |\u001b[39m             \u001b[90m// Connect\u001b[39m\n \u001b[90m 86 |\u001b[39m             \u001b[36mconst\u001b[39m connectBtn \u001b[33m=\u001b[39m pageA\u001b[33m.\u001b[39mgetByRole(\u001b[32m'button'\u001b[39m\u001b[33m,\u001b[39m { name\u001b[33m:\u001b[39m \u001b[32m'Connect Wallet'\u001b[39m })\u001b[33m.\u001b[39mfirst()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 87 |\u001b[39m             \u001b[36mawait\u001b[39m expect(connectBtn)\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                      \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 88 |\u001b[39m             \u001b[36mawait\u001b[39m connectBtn\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n \u001b[90m 89 |\u001b[39m\n \u001b[90m 90 |\u001b[39m             \u001b[90m// Go to Cellar View\u001b[39m\u001b[0m\n\u001b[2m    at C:\\Users\\epj33\\Desktop\\InnKeeper\\apps\\web\\e2e\\blockchain-interaction.spec.ts:87:38\u001b[22m\n\u001b[2m    at C:\\Users\\epj33\\Desktop\\InnKeeper\\apps\\web\\e2e\\blockchain-interaction.spec.ts:82:9\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Alice connects and Zaps LP",
+                          "duration": 6163,
+                          "error": {
+                            "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: 'Connect Wallet' }).first()\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: 'Connect Wallet' }).first()\u001b[22m\n",
+                            "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: 'Connect Wallet' }).first()\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: 'Connect Wallet' }).first()\u001b[22m\n\n    at C:\\Users\\epj33\\Desktop\\InnKeeper\\apps\\web\\e2e\\blockchain-interaction.spec.ts:87:38\n    at C:\\Users\\epj33\\Desktop\\InnKeeper\\apps\\web\\e2e\\blockchain-interaction.spec.ts:82:9",
+                            "location": {
+                              "file": "C:\\Users\\epj33\\Desktop\\InnKeeper\\apps\\web\\e2e\\blockchain-interaction.spec.ts",
+                              "column": 38,
+                              "line": 87
+                            },
+                            "snippet": "\u001b[0m \u001b[90m 85 |\u001b[39m             \u001b[90m// Connect\u001b[39m\n \u001b[90m 86 |\u001b[39m             \u001b[36mconst\u001b[39m connectBtn \u001b[33m=\u001b[39m pageA\u001b[33m.\u001b[39mgetByRole(\u001b[32m'button'\u001b[39m\u001b[33m,\u001b[39m { name\u001b[33m:\u001b[39m \u001b[32m'Connect Wallet'\u001b[39m })\u001b[33m.\u001b[39mfirst()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 87 |\u001b[39m             \u001b[36mawait\u001b[39m expect(connectBtn)\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                      \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 88 |\u001b[39m             \u001b[36mawait\u001b[39m connectBtn\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n \u001b[90m 89 |\u001b[39m\n \u001b[90m 90 |\u001b[39m             \u001b[90m// Go to Cellar View\u001b[39m\u001b[0m"
+                          }
+                        }
+                      ],
+                      "startTime": "2025-12-02T13:09:27.740Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\epj33\\Desktop\\InnKeeper\\apps\\web\\test-results\\blockchain-interaction-Mul-20946--Bob-compete-for-The-Office-chromium\\test-failed-2.png"
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\epj33\\Desktop\\InnKeeper\\apps\\web\\test-results\\blockchain-interaction-Mul-20946--Bob-compete-for-The-Office-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\epj33\\Desktop\\InnKeeper\\apps\\web\\test-results\\blockchain-interaction-Mul-20946--Bob-compete-for-The-Office-chromium\\error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\epj33\\Desktop\\InnKeeper\\apps\\web\\e2e\\blockchain-interaction.spec.ts",
+                        "column": 38,
+                        "line": 87
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "a14adf7d0497c7171387-7ce26f8e1b9dc2268c5f",
+              "file": "blockchain-interaction.spec.ts",
+              "line": 60,
+              "column": 9
+            },
+            {
+              "title": "Alice and Bob compete for The Office",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "failed",
+                      "duration": 7761,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: 'Connect Wallet' }).first()\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: 'Connect Wallet' }).first()\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: 'Connect Wallet' }).first()\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: 'Connect Wallet' }).first()\u001b[22m\n\n    at C:\\Users\\epj33\\Desktop\\InnKeeper\\apps\\web\\e2e\\blockchain-interaction.spec.ts:87:38\n    at C:\\Users\\epj33\\Desktop\\InnKeeper\\apps\\web\\e2e\\blockchain-interaction.spec.ts:82:9",
+                        "location": {
+                          "file": "C:\\Users\\epj33\\Desktop\\InnKeeper\\apps\\web\\e2e\\blockchain-interaction.spec.ts",
+                          "column": 38,
+                          "line": 87
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 85 |\u001b[39m             \u001b[90m// Connect\u001b[39m\n \u001b[90m 86 |\u001b[39m             \u001b[36mconst\u001b[39m connectBtn \u001b[33m=\u001b[39m pageA\u001b[33m.\u001b[39mgetByRole(\u001b[32m'button'\u001b[39m\u001b[33m,\u001b[39m { name\u001b[33m:\u001b[39m \u001b[32m'Connect Wallet'\u001b[39m })\u001b[33m.\u001b[39mfirst()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 87 |\u001b[39m             \u001b[36mawait\u001b[39m expect(connectBtn)\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                      \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 88 |\u001b[39m             \u001b[36mawait\u001b[39m connectBtn\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n \u001b[90m 89 |\u001b[39m\n \u001b[90m 90 |\u001b[39m             \u001b[90m// Go to Cellar View\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\epj33\\Desktop\\InnKeeper\\apps\\web\\e2e\\blockchain-interaction.spec.ts",
+                            "column": 38,
+                            "line": 87
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: 'Connect Wallet' }).first()\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: 'Connect Wallet' }).first()\u001b[22m\n\n\n\u001b[0m \u001b[90m 85 |\u001b[39m             \u001b[90m// Connect\u001b[39m\n \u001b[90m 86 |\u001b[39m             \u001b[36mconst\u001b[39m connectBtn \u001b[33m=\u001b[39m pageA\u001b[33m.\u001b[39mgetByRole(\u001b[32m'button'\u001b[39m\u001b[33m,\u001b[39m { name\u001b[33m:\u001b[39m \u001b[32m'Connect Wallet'\u001b[39m })\u001b[33m.\u001b[39mfirst()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 87 |\u001b[39m             \u001b[36mawait\u001b[39m expect(connectBtn)\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                      \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 88 |\u001b[39m             \u001b[36mawait\u001b[39m connectBtn\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n \u001b[90m 89 |\u001b[39m\n \u001b[90m 90 |\u001b[39m             \u001b[90m// Go to Cellar View\u001b[39m\u001b[0m\n\u001b[2m    at C:\\Users\\epj33\\Desktop\\InnKeeper\\apps\\web\\e2e\\blockchain-interaction.spec.ts:87:38\u001b[22m\n\u001b[2m    at C:\\Users\\epj33\\Desktop\\InnKeeper\\apps\\web\\e2e\\blockchain-interaction.spec.ts:82:9\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Alice connects and Zaps LP",
+                          "duration": 6035,
+                          "error": {
+                            "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: 'Connect Wallet' }).first()\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: 'Connect Wallet' }).first()\u001b[22m\n",
+                            "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: 'Connect Wallet' }).first()\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: 'Connect Wallet' }).first()\u001b[22m\n\n    at C:\\Users\\epj33\\Desktop\\InnKeeper\\apps\\web\\e2e\\blockchain-interaction.spec.ts:87:38\n    at C:\\Users\\epj33\\Desktop\\InnKeeper\\apps\\web\\e2e\\blockchain-interaction.spec.ts:82:9",
+                            "location": {
+                              "file": "C:\\Users\\epj33\\Desktop\\InnKeeper\\apps\\web\\e2e\\blockchain-interaction.spec.ts",
+                              "column": 38,
+                              "line": 87
+                            },
+                            "snippet": "\u001b[0m \u001b[90m 85 |\u001b[39m             \u001b[90m// Connect\u001b[39m\n \u001b[90m 86 |\u001b[39m             \u001b[36mconst\u001b[39m connectBtn \u001b[33m=\u001b[39m pageA\u001b[33m.\u001b[39mgetByRole(\u001b[32m'button'\u001b[39m\u001b[33m,\u001b[39m { name\u001b[33m:\u001b[39m \u001b[32m'Connect Wallet'\u001b[39m })\u001b[33m.\u001b[39mfirst()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 87 |\u001b[39m             \u001b[36mawait\u001b[39m expect(connectBtn)\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                      \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 88 |\u001b[39m             \u001b[36mawait\u001b[39m connectBtn\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n \u001b[90m 89 |\u001b[39m\n \u001b[90m 90 |\u001b[39m             \u001b[90m// Go to Cellar View\u001b[39m\u001b[0m"
+                          }
+                        }
+                      ],
+                      "startTime": "2025-12-02T13:09:27.743Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\epj33\\Desktop\\InnKeeper\\apps\\web\\test-results\\blockchain-interaction-Mul-20946--Bob-compete-for-The-Office-firefox\\test-failed-2.png"
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\epj33\\Desktop\\InnKeeper\\apps\\web\\test-results\\blockchain-interaction-Mul-20946--Bob-compete-for-The-Office-firefox\\test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\epj33\\Desktop\\InnKeeper\\apps\\web\\test-results\\blockchain-interaction-Mul-20946--Bob-compete-for-The-Office-firefox\\error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\epj33\\Desktop\\InnKeeper\\apps\\web\\e2e\\blockchain-interaction.spec.ts",
+                        "column": 38,
+                        "line": 87
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "a14adf7d0497c7171387-13e652a76d4687a381c6",
+              "file": "blockchain-interaction.spec.ts",
+              "line": 60,
+              "column": 9
+            },
+            {
+              "title": "Alice and Bob compete for The Office",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 2,
+                      "status": "failed",
+                      "duration": 6954,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: 'Connect Wallet' }).first()\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: 'Connect Wallet' }).first()\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: 'Connect Wallet' }).first()\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: 'Connect Wallet' }).first()\u001b[22m\n\n    at C:\\Users\\epj33\\Desktop\\InnKeeper\\apps\\web\\e2e\\blockchain-interaction.spec.ts:87:38\n    at C:\\Users\\epj33\\Desktop\\InnKeeper\\apps\\web\\e2e\\blockchain-interaction.spec.ts:82:9",
+                        "location": {
+                          "file": "C:\\Users\\epj33\\Desktop\\InnKeeper\\apps\\web\\e2e\\blockchain-interaction.spec.ts",
+                          "column": 38,
+                          "line": 87
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 85 |\u001b[39m             \u001b[90m// Connect\u001b[39m\n \u001b[90m 86 |\u001b[39m             \u001b[36mconst\u001b[39m connectBtn \u001b[33m=\u001b[39m pageA\u001b[33m.\u001b[39mgetByRole(\u001b[32m'button'\u001b[39m\u001b[33m,\u001b[39m { name\u001b[33m:\u001b[39m \u001b[32m'Connect Wallet'\u001b[39m })\u001b[33m.\u001b[39mfirst()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 87 |\u001b[39m             \u001b[36mawait\u001b[39m expect(connectBtn)\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                      \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 88 |\u001b[39m             \u001b[36mawait\u001b[39m connectBtn\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n \u001b[90m 89 |\u001b[39m\n \u001b[90m 90 |\u001b[39m             \u001b[90m// Go to Cellar View\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\epj33\\Desktop\\InnKeeper\\apps\\web\\e2e\\blockchain-interaction.spec.ts",
+                            "column": 38,
+                            "line": 87
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: 'Connect Wallet' }).first()\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: 'Connect Wallet' }).first()\u001b[22m\n\n\n\u001b[0m \u001b[90m 85 |\u001b[39m             \u001b[90m// Connect\u001b[39m\n \u001b[90m 86 |\u001b[39m             \u001b[36mconst\u001b[39m connectBtn \u001b[33m=\u001b[39m pageA\u001b[33m.\u001b[39mgetByRole(\u001b[32m'button'\u001b[39m\u001b[33m,\u001b[39m { name\u001b[33m:\u001b[39m \u001b[32m'Connect Wallet'\u001b[39m })\u001b[33m.\u001b[39mfirst()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 87 |\u001b[39m             \u001b[36mawait\u001b[39m expect(connectBtn)\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                      \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 88 |\u001b[39m             \u001b[36mawait\u001b[39m connectBtn\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n \u001b[90m 89 |\u001b[39m\n \u001b[90m 90 |\u001b[39m             \u001b[90m// Go to Cellar View\u001b[39m\u001b[0m\n\u001b[2m    at C:\\Users\\epj33\\Desktop\\InnKeeper\\apps\\web\\e2e\\blockchain-interaction.spec.ts:87:38\u001b[22m\n\u001b[2m    at C:\\Users\\epj33\\Desktop\\InnKeeper\\apps\\web\\e2e\\blockchain-interaction.spec.ts:82:9\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Alice connects and Zaps LP",
+                          "duration": 5799,
+                          "error": {
+                            "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: 'Connect Wallet' }).first()\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: 'Connect Wallet' }).first()\u001b[22m\n",
+                            "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: 'Connect Wallet' }).first()\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: 'Connect Wallet' }).first()\u001b[22m\n\n    at C:\\Users\\epj33\\Desktop\\InnKeeper\\apps\\web\\e2e\\blockchain-interaction.spec.ts:87:38\n    at C:\\Users\\epj33\\Desktop\\InnKeeper\\apps\\web\\e2e\\blockchain-interaction.spec.ts:82:9",
+                            "location": {
+                              "file": "C:\\Users\\epj33\\Desktop\\InnKeeper\\apps\\web\\e2e\\blockchain-interaction.spec.ts",
+                              "column": 38,
+                              "line": 87
+                            },
+                            "snippet": "\u001b[0m \u001b[90m 85 |\u001b[39m             \u001b[90m// Connect\u001b[39m\n \u001b[90m 86 |\u001b[39m             \u001b[36mconst\u001b[39m connectBtn \u001b[33m=\u001b[39m pageA\u001b[33m.\u001b[39mgetByRole(\u001b[32m'button'\u001b[39m\u001b[33m,\u001b[39m { name\u001b[33m:\u001b[39m \u001b[32m'Connect Wallet'\u001b[39m })\u001b[33m.\u001b[39mfirst()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 87 |\u001b[39m             \u001b[36mawait\u001b[39m expect(connectBtn)\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                      \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 88 |\u001b[39m             \u001b[36mawait\u001b[39m connectBtn\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n \u001b[90m 89 |\u001b[39m\n \u001b[90m 90 |\u001b[39m             \u001b[90m// Go to Cellar View\u001b[39m\u001b[0m"
+                          }
+                        }
+                      ],
+                      "startTime": "2025-12-02T13:09:27.786Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\epj33\\Desktop\\InnKeeper\\apps\\web\\test-results\\blockchain-interaction-Mul-20946--Bob-compete-for-The-Office-webkit\\test-failed-2.png"
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\epj33\\Desktop\\InnKeeper\\apps\\web\\test-results\\blockchain-interaction-Mul-20946--Bob-compete-for-The-Office-webkit\\test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\epj33\\Desktop\\InnKeeper\\apps\\web\\test-results\\blockchain-interaction-Mul-20946--Bob-compete-for-The-Office-webkit\\error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\epj33\\Desktop\\InnKeeper\\apps\\web\\e2e\\blockchain-interaction.spec.ts",
+                        "column": 38,
+                        "line": 87
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "a14adf7d0497c7171387-5865c723e7fa231d4f00",
+              "file": "blockchain-interaction.spec.ts",
+              "line": 60,
+              "column": 9
+            },
+            {
+              "title": "Alice and Bob compete for The Office",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 3,
+                      "status": "failed",
+                      "duration": 7249,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: 'Connect Wallet' }).first()\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: 'Connect Wallet' }).first()\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: 'Connect Wallet' }).first()\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: 'Connect Wallet' }).first()\u001b[22m\n\n    at C:\\Users\\epj33\\Desktop\\InnKeeper\\apps\\web\\e2e\\blockchain-interaction.spec.ts:87:38\n    at C:\\Users\\epj33\\Desktop\\InnKeeper\\apps\\web\\e2e\\blockchain-interaction.spec.ts:82:9",
+                        "location": {
+                          "file": "C:\\Users\\epj33\\Desktop\\InnKeeper\\apps\\web\\e2e\\blockchain-interaction.spec.ts",
+                          "column": 38,
+                          "line": 87
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 85 |\u001b[39m             \u001b[90m// Connect\u001b[39m\n \u001b[90m 86 |\u001b[39m             \u001b[36mconst\u001b[39m connectBtn \u001b[33m=\u001b[39m pageA\u001b[33m.\u001b[39mgetByRole(\u001b[32m'button'\u001b[39m\u001b[33m,\u001b[39m { name\u001b[33m:\u001b[39m \u001b[32m'Connect Wallet'\u001b[39m })\u001b[33m.\u001b[39mfirst()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 87 |\u001b[39m             \u001b[36mawait\u001b[39m expect(connectBtn)\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                      \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 88 |\u001b[39m             \u001b[36mawait\u001b[39m connectBtn\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n \u001b[90m 89 |\u001b[39m\n \u001b[90m 90 |\u001b[39m             \u001b[90m// Go to Cellar View\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\epj33\\Desktop\\InnKeeper\\apps\\web\\e2e\\blockchain-interaction.spec.ts",
+                            "column": 38,
+                            "line": 87
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: 'Connect Wallet' }).first()\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: 'Connect Wallet' }).first()\u001b[22m\n\n\n\u001b[0m \u001b[90m 85 |\u001b[39m             \u001b[90m// Connect\u001b[39m\n \u001b[90m 86 |\u001b[39m             \u001b[36mconst\u001b[39m connectBtn \u001b[33m=\u001b[39m pageA\u001b[33m.\u001b[39mgetByRole(\u001b[32m'button'\u001b[39m\u001b[33m,\u001b[39m { name\u001b[33m:\u001b[39m \u001b[32m'Connect Wallet'\u001b[39m })\u001b[33m.\u001b[39mfirst()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 87 |\u001b[39m             \u001b[36mawait\u001b[39m expect(connectBtn)\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                      \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 88 |\u001b[39m             \u001b[36mawait\u001b[39m connectBtn\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n \u001b[90m 89 |\u001b[39m\n \u001b[90m 90 |\u001b[39m             \u001b[90m// Go to Cellar View\u001b[39m\u001b[0m\n\u001b[2m    at C:\\Users\\epj33\\Desktop\\InnKeeper\\apps\\web\\e2e\\blockchain-interaction.spec.ts:87:38\u001b[22m\n\u001b[2m    at C:\\Users\\epj33\\Desktop\\InnKeeper\\apps\\web\\e2e\\blockchain-interaction.spec.ts:82:9\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Alice connects and Zaps LP",
+                          "duration": 6167,
+                          "error": {
+                            "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: 'Connect Wallet' }).first()\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: 'Connect Wallet' }).first()\u001b[22m\n",
+                            "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: 'Connect Wallet' }).first()\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: 'Connect Wallet' }).first()\u001b[22m\n\n    at C:\\Users\\epj33\\Desktop\\InnKeeper\\apps\\web\\e2e\\blockchain-interaction.spec.ts:87:38\n    at C:\\Users\\epj33\\Desktop\\InnKeeper\\apps\\web\\e2e\\blockchain-interaction.spec.ts:82:9",
+                            "location": {
+                              "file": "C:\\Users\\epj33\\Desktop\\InnKeeper\\apps\\web\\e2e\\blockchain-interaction.spec.ts",
+                              "column": 38,
+                              "line": 87
+                            },
+                            "snippet": "\u001b[0m \u001b[90m 85 |\u001b[39m             \u001b[90m// Connect\u001b[39m\n \u001b[90m 86 |\u001b[39m             \u001b[36mconst\u001b[39m connectBtn \u001b[33m=\u001b[39m pageA\u001b[33m.\u001b[39mgetByRole(\u001b[32m'button'\u001b[39m\u001b[33m,\u001b[39m { name\u001b[33m:\u001b[39m \u001b[32m'Connect Wallet'\u001b[39m })\u001b[33m.\u001b[39mfirst()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 87 |\u001b[39m             \u001b[36mawait\u001b[39m expect(connectBtn)\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                      \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 88 |\u001b[39m             \u001b[36mawait\u001b[39m connectBtn\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n \u001b[90m 89 |\u001b[39m\n \u001b[90m 90 |\u001b[39m             \u001b[90m// Go to Cellar View\u001b[39m\u001b[0m"
+                          }
+                        }
+                      ],
+                      "startTime": "2025-12-02T13:09:27.696Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\epj33\\Desktop\\InnKeeper\\apps\\web\\test-results\\blockchain-interaction-Mul-20946--Bob-compete-for-The-Office-Mobile-Chrome\\test-failed-2.png"
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\epj33\\Desktop\\InnKeeper\\apps\\web\\test-results\\blockchain-interaction-Mul-20946--Bob-compete-for-The-Office-Mobile-Chrome\\test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\epj33\\Desktop\\InnKeeper\\apps\\web\\test-results\\blockchain-interaction-Mul-20946--Bob-compete-for-The-Office-Mobile-Chrome\\error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\epj33\\Desktop\\InnKeeper\\apps\\web\\e2e\\blockchain-interaction.spec.ts",
+                        "column": 38,
+                        "line": 87
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "a14adf7d0497c7171387-8214852eb82a1d8b5936",
+              "file": "blockchain-interaction.spec.ts",
+              "line": 60,
+              "column": 9
+            },
+            {
+              "title": "Alice and Bob compete for The Office",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Safari",
+                  "projectName": "Mobile Safari",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 6028,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: 'Connect Wallet' }).first()\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: 'Connect Wallet' }).first()\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: 'Connect Wallet' }).first()\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: 'Connect Wallet' }).first()\u001b[22m\n\n    at C:\\Users\\epj33\\Desktop\\InnKeeper\\apps\\web\\e2e\\blockchain-interaction.spec.ts:87:38\n    at C:\\Users\\epj33\\Desktop\\InnKeeper\\apps\\web\\e2e\\blockchain-interaction.spec.ts:82:9",
+                        "location": {
+                          "file": "C:\\Users\\epj33\\Desktop\\InnKeeper\\apps\\web\\e2e\\blockchain-interaction.spec.ts",
+                          "column": 38,
+                          "line": 87
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 85 |\u001b[39m             \u001b[90m// Connect\u001b[39m\n \u001b[90m 86 |\u001b[39m             \u001b[36mconst\u001b[39m connectBtn \u001b[33m=\u001b[39m pageA\u001b[33m.\u001b[39mgetByRole(\u001b[32m'button'\u001b[39m\u001b[33m,\u001b[39m { name\u001b[33m:\u001b[39m \u001b[32m'Connect Wallet'\u001b[39m })\u001b[33m.\u001b[39mfirst()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 87 |\u001b[39m             \u001b[36mawait\u001b[39m expect(connectBtn)\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                      \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 88 |\u001b[39m             \u001b[36mawait\u001b[39m connectBtn\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n \u001b[90m 89 |\u001b[39m\n \u001b[90m 90 |\u001b[39m             \u001b[90m// Go to Cellar View\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\epj33\\Desktop\\InnKeeper\\apps\\web\\e2e\\blockchain-interaction.spec.ts",
+                            "column": 38,
+                            "line": 87
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: 'Connect Wallet' }).first()\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: 'Connect Wallet' }).first()\u001b[22m\n\n\n\u001b[0m \u001b[90m 85 |\u001b[39m             \u001b[90m// Connect\u001b[39m\n \u001b[90m 86 |\u001b[39m             \u001b[36mconst\u001b[39m connectBtn \u001b[33m=\u001b[39m pageA\u001b[33m.\u001b[39mgetByRole(\u001b[32m'button'\u001b[39m\u001b[33m,\u001b[39m { name\u001b[33m:\u001b[39m \u001b[32m'Connect Wallet'\u001b[39m })\u001b[33m.\u001b[39mfirst()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 87 |\u001b[39m             \u001b[36mawait\u001b[39m expect(connectBtn)\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                      \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 88 |\u001b[39m             \u001b[36mawait\u001b[39m connectBtn\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n \u001b[90m 89 |\u001b[39m\n \u001b[90m 90 |\u001b[39m             \u001b[90m// Go to Cellar View\u001b[39m\u001b[0m\n\u001b[2m    at C:\\Users\\epj33\\Desktop\\InnKeeper\\apps\\web\\e2e\\blockchain-interaction.spec.ts:87:38\u001b[22m\n\u001b[2m    at C:\\Users\\epj33\\Desktop\\InnKeeper\\apps\\web\\e2e\\blockchain-interaction.spec.ts:82:9\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Alice connects and Zaps LP",
+                          "duration": 5429,
+                          "error": {
+                            "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: 'Connect Wallet' }).first()\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: 'Connect Wallet' }).first()\u001b[22m\n",
+                            "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: 'Connect Wallet' }).first()\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: 'Connect Wallet' }).first()\u001b[22m\n\n    at C:\\Users\\epj33\\Desktop\\InnKeeper\\apps\\web\\e2e\\blockchain-interaction.spec.ts:87:38\n    at C:\\Users\\epj33\\Desktop\\InnKeeper\\apps\\web\\e2e\\blockchain-interaction.spec.ts:82:9",
+                            "location": {
+                              "file": "C:\\Users\\epj33\\Desktop\\InnKeeper\\apps\\web\\e2e\\blockchain-interaction.spec.ts",
+                              "column": 38,
+                              "line": 87
+                            },
+                            "snippet": "\u001b[0m \u001b[90m 85 |\u001b[39m             \u001b[90m// Connect\u001b[39m\n \u001b[90m 86 |\u001b[39m             \u001b[36mconst\u001b[39m connectBtn \u001b[33m=\u001b[39m pageA\u001b[33m.\u001b[39mgetByRole(\u001b[32m'button'\u001b[39m\u001b[33m,\u001b[39m { name\u001b[33m:\u001b[39m \u001b[32m'Connect Wallet'\u001b[39m })\u001b[33m.\u001b[39mfirst()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 87 |\u001b[39m             \u001b[36mawait\u001b[39m expect(connectBtn)\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                      \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 88 |\u001b[39m             \u001b[36mawait\u001b[39m connectBtn\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n \u001b[90m 89 |\u001b[39m\n \u001b[90m 90 |\u001b[39m             \u001b[90m// Go to Cellar View\u001b[39m\u001b[0m"
+                          }
+                        }
+                      ],
+                      "startTime": "2025-12-02T13:09:37.447Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\epj33\\Desktop\\InnKeeper\\apps\\web\\test-results\\blockchain-interaction-Mul-20946--Bob-compete-for-The-Office-Mobile-Safari\\test-failed-2.png"
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\epj33\\Desktop\\InnKeeper\\apps\\web\\test-results\\blockchain-interaction-Mul-20946--Bob-compete-for-The-Office-Mobile-Safari\\test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\epj33\\Desktop\\InnKeeper\\apps\\web\\test-results\\blockchain-interaction-Mul-20946--Bob-compete-for-The-Office-Mobile-Safari\\error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\epj33\\Desktop\\InnKeeper\\apps\\web\\e2e\\blockchain-interaction.spec.ts",
+                        "column": 38,
+                        "line": 87
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "a14adf7d0497c7171387-4dc83c3e31610dddfa7a",
+              "file": "blockchain-interaction.spec.ts",
+              "line": 60,
+              "column": 9
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2025-12-02T13:09:09.106Z",
+    "duration": 34566.636,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 5,
+    "flaky": 0
+  }
+}

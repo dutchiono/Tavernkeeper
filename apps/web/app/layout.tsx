@@ -4,10 +4,6 @@ import { BottomNav } from '../components/BottomNav';
 import { AuthProvider } from '../components/providers/AuthProvider';
 import { UnifiedWeb3Provider } from '../components/providers/UnifiedWeb3Provider';
 import { MiniappLifecycle } from '../components/MiniappLifecycle';
-import { SoundProvider } from '../lib/audio/SoundContext';
-import { AudioController } from '../components/audio/AudioController';
-import { VolumeControl } from '../components/audio/VolumeControl';
-import '../lib/polyfills/ses-shim'; // Critical: must be imported before other libs to fix SES lockdown crash
 import '../lib/polyfills/indexeddb-ssr'; // Polyfill indexedDB for SSR
 import './globals.css';
 
@@ -17,9 +13,7 @@ const pressStart2P = Press_Start_2P({
   variable: '--font-press-start-2p',
 });
 
-const appUrl = (process.env.NEXT_PUBLIC_APP_URL && !process.env.NEXT_PUBLIC_APP_URL.includes('localhost'))
-  ? process.env.NEXT_PUBLIC_APP_URL
-  : 'https://tavernkeeper.xyz';
+const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://tavernkeeper.xyz';
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -69,13 +63,9 @@ export const metadata: Metadata = {
     description: 'Welcome back, traveler! The hearth is warm. A dungeon crawler game with AI agents, NFT heroes, and multiplayer parties.',
     images: [`${appUrl}/image.png`],
   },
-  icons: {
-    icon: '/icon.png',
-    shortcut: '/icon.png',
-    apple: '/icon.png',
-  },
   metadataBase: new URL(appUrl),
   other: {
+    "fc:miniapp": JSON.stringify(frame),
     "fc:frame": JSON.stringify(frame)
   },
 };
@@ -93,31 +83,23 @@ export default function RootLayout({
           {/* Handles Miniapp Lifecycle (Connect + Ready) */}
           <MiniappLifecycle />
 
-          <SoundProvider>
-            <AudioController />
-            <AuthProvider>
+          <AuthProvider>
 
-              {/* Mobile Container */}
-              <div className="w-full max-w-[480px] h-[100dvh] bg-slate-900 relative flex flex-col shadow-2xl overflow-hidden border-x border-slate-800">
+            {/* Mobile Container */}
+            <div className="w-full max-w-[480px] h-[100dvh] bg-slate-900 relative flex flex-col shadow-2xl overflow-hidden border-x border-slate-800">
 
-                {/* Main Content Area */}
-                <div className="flex-1 overflow-y-auto relative [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']">
-                  {children}
-                </div>
-
-                {/* Bottom Navigation Bar */}
-                <BottomNav />
-
-                {/* Global Volume Control (Top Right) */}
-                <div className="absolute top-14 right-2 z-50 pointer-events-auto">
-                  <VolumeControl />
-                </div>
-
-                {/* Scanline Overlay */}
-                <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] z-[100] bg-[length:100%_2px,3px_100%] opacity-20" />
+              {/* Main Content Area */}
+              <div className="flex-1 overflow-y-auto relative [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']">
+                {children}
               </div>
-            </AuthProvider>
-          </SoundProvider>
+
+              {/* Bottom Navigation Bar */}
+              <BottomNav />
+
+              {/* Scanline Overlay */}
+              <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] z-[100] bg-[length:100%_2px,3px_100%] opacity-20" />
+            </div>
+          </AuthProvider>
         </UnifiedWeb3Provider>
       </body>
     </html>

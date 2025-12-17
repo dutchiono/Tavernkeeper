@@ -3,16 +3,6 @@
  *
  * Tracks contract addresses, implementations, versions, and ABIs
  * to ensure game code stays aligned with deployed contracts.
- *
- * ⚠️ CRITICAL: EVERY TIME A CONTRACT IS UPGRADED, THIS ABI MUST BE UPDATED!
- *
- * When upgrading contracts, you MUST add:
- * - New functions
- * - New events
- * - New custom errors (type: 'error')
- * - New public constants (as view functions)
- *
- * See: packages/contracts/ABI_UPDATE_REMINDER.md for full checklist
  */
 
 import { type Address } from 'viem';
@@ -601,31 +591,6 @@ export const CONTRACT_REGISTRY: Record<string, ContractConfig> = {
         stateMutability: 'view',
         type: 'function',
       },
-      // Cooldown functions (v4.6.0+)
-      {
-        inputs: [{ internalType: 'address', name: 'wallet', type: 'address' }],
-        name: 'canClaimOffice',
-        outputs: [
-          { name: 'canClaim', type: 'bool' },
-          { name: 'timeRemaining', type: 'uint256' },
-        ],
-        stateMutability: 'view',
-        type: 'function',
-      },
-      {
-        inputs: [{ internalType: 'address', name: 'wallet', type: 'address' }],
-        name: 'getLastOfficeClaimTime',
-        outputs: [{ name: '', type: 'uint256' }],
-        stateMutability: 'view',
-        type: 'function',
-      },
-      {
-        inputs: [],
-        name: 'COOLDOWN_PERIOD',
-        outputs: [{ name: '', type: 'uint256' }],
-        stateMutability: 'view',
-        type: 'function',
-      },
       // Whitelist functions (from compiled artifact)
       {
         inputs: [
@@ -666,21 +631,6 @@ export const CONTRACT_REGISTRY: Record<string, ContractConfig> = {
         outputs: [{ internalType: 'bool', name: '', type: 'bool' }],
         stateMutability: 'view',
         type: 'function',
-      },
-      // Custom errors (v4.6.0+)
-      {
-        inputs: [{ internalType: 'uint256', name: 'timeRemaining', type: 'uint256' }],
-        name: 'CooldownActive',
-        type: 'error',
-      },
-      // Custom errors (v4.7.0+)
-      {
-        inputs: [
-          { internalType: 'uint256', name: 'timeHeld', type: 'uint256' },
-          { internalType: 'uint256', name: 'maxHoldTime', type: 'uint256' },
-        ],
-        name: 'MaxHoldTimeExceeded',
-        type: 'error',
       },
     ],
     requiredFunctions: ['ownerOf', 'safeMint', 'claimTokens', 'calculatePendingTokens', 'takeOffice', 'getSlot0', 'claimOfficeRewards', 'whitelist', 'whitelistMinted', 'mintTavernKeeperWhitelist'],

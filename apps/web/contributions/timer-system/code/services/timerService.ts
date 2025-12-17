@@ -14,10 +14,7 @@ import type {
 } from '../types/timer';
 
 const DEFAULT_CONFIG: TimerConfig = {
-  // Use env var or default to 2 seconds for faster gameplay (6s is too slow for UI)
-  eventIntervalSeconds: process.env.NEXT_PUBLIC_EVENT_INTERVAL_SECONDS
-    ? parseInt(process.env.NEXT_PUBLIC_EVENT_INTERVAL_SECONDS)
-    : 2,
+  eventIntervalSeconds: 6,
   batchSize: 100,
   checkIntervalMs: 1000, // Check every second
 };

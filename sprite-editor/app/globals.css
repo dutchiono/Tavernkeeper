@@ -1,0 +1,41 @@
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --inn-palette-primary: #8B4513;
+  --inn-palette-secondary: #FFD700;
+  --inn-palette-dark: #1a1a1a;
+}
+
+body {
+  font-family: 'Press Start 2P', monospace;
+  background-color: #1a120b;
+  color: #fcdfa6;
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
+}
+
+/* Custom Scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #2a1d17;
+  border: 2px solid #3e2b22;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #8c7b63;
+  border: 2px solid #2a1d17;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #eaddcf;
+}
+
