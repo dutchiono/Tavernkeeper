@@ -419,8 +419,6 @@ export default function TheCellarView({ onBackToOffice, monBalance = "0", keepBa
                 abi: contractConfig.abi,
                 functionName: 'raid',
                 args: [bid],
-                account: address as Address,
-                chainId: monad.id,
             });
         } catch (error: any) {
             console.error("Claim failed:", error);

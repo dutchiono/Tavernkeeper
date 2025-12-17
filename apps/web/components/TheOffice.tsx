@@ -534,8 +534,6 @@ export const TheOffice: React.FC<{
                 functionName: 'takeOffice',
                 value: safePrice,
                 args: [epochId, deadline, safePrice, ""], // maxPrice = safePrice
-                account: address as Address,
-                chainId: monad.id,
             });
 
             // Store previous manager address with the transaction hash for later retrieval
@@ -585,8 +583,6 @@ export const TheOffice: React.FC<{
                 abi: contractConfig.abi,
                 functionName: 'claimOfficeRewards',
                 args: [],
-                account: address as Address,
-                chainId: monad.id,
             });
 
             console.log('Claim transaction sent:', hash);
