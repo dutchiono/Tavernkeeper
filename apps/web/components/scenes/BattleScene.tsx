@@ -4,6 +4,11 @@ import { useRunStatus } from '../../lib/hooks/useRunStatus';
 import { useGameStore } from '../../lib/stores/gameStore';
 import { GameView } from '../../lib/types';
 import { PixelBox, PixelButton } from '../PixelComponents';
+import { SpritePreview } from '../heroes/SpritePreview';
+import { rpgService, HeroNFT } from '../../lib/services/rpgService';
+import { HeroMetadata } from '../../lib/services/heroMetadata';
+import { HeroClass, HeroColors } from '../../lib/services/spriteService';
+import { useAccount } from 'wagmi';
 
 interface BattleSceneProps {
     party: any[]; // Keep for compatibility, but we'll use token IDs from store
@@ -36,12 +41,16 @@ interface CombatTurn {
 }
 
 export const BattleScene: React.FC<BattleSceneProps> = ({ onComplete }) => {
+    const { address } = useAccount();
     const { currentRunId, selectedPartyTokenIds, switchView, setSelectedPartyTokenIds, setCurrentRunId } = useGameStore();
     const { events, loading: eventsLoading } = useRunEvents(currentRunId);
     const { status: runStatus } = useRunStatus(currentRunId);
     const [dungeonInfo, setDungeonInfo] = useState<{ name: string; depth: number; theme?: string } | null>(null);
     const [totalXP, setTotalXP] = useState(0);
     const [revealedEventCount, setRevealedEventCount] = useState(0);
+    const [partyHeroes, setPartyHeroes] = useState<HeroNFT[]>([]);
+    const [heroMetadata, setHeroMetadata] = useState<Record<string, HeroMetadata>>({});
+    const [loadingHeroMetadata, setLoadingHeroMetadata] = useState<Record<string, boolean>>({});
     const hasInitializedRef = useRef(false);
     const revealIntervalRef = useRef<NodeJS.Timeout | null>(null);
     const transitionInitiatedRef = useRef(false);
@@ -62,13 +71,13 @@ export const BattleScene: React.FC<BattleSceneProps> = ({ onComplete }) => {
         previousLevelRef.current = 1;
         revealedCountsByLevelRef.current.clear();
         setRevealedEventCount(0);
-        
+
         // Clear any running reveal interval
         if (revealIntervalRef.current) {
             clearInterval(revealIntervalRef.current);
             revealIntervalRef.current = null;
         }
-        
+
         // Clear any polling intervals
         if (pollingIntervalRef.current) {
             clearInterval(pollingIntervalRef.current);
@@ -183,7 +192,7 @@ export const BattleScene: React.FC<BattleSceneProps> = ({ onComplete }) => {
 
     // Track the current level in a ref to persist across renders
     const currentLevelRef = useRef<number>(1);
-    
+
     // Calculate current level - only advance when all events for current level are revealed
     // This prevents levels from advancing prematurely before events are shown
     const currentLevel = useMemo(() => {
@@ -191,37 +200,37 @@ export const BattleScene: React.FC<BattleSceneProps> = ({ onComplete }) => {
             currentLevelRef.current = 1;
             return 1;
         }
-        
+
         // Get the highest level with events
         const maxLevelWithEvents = Math.max(...dungeonEvents.map(e => e.level));
-        
+
         // Start with the current level from ref (don't go backwards)
         let levelToCheck = Math.max(currentLevelRef.current, 1);
-        
+
         // Only check the current level - don't look ahead to future levels
         const levelData = levelsProgress.find(l => l.level === levelToCheck);
         if (!levelData || levelData.events.length === 0) {
             // No events for current level yet, stay on this level
             return levelToCheck;
         }
-        
+
         // Calculate total items for current level
         const roomEnterCount = levelData.events.filter(e => e.type === 'room_enter').length;
         const combatEvents = levelData.events.filter(e => e.combatTurns && Array.isArray(e.combatTurns) && e.combatTurns.length > 0);
         const combatTurnsCount = combatEvents.reduce((sum, e) => sum + (e.combatTurns?.length || 0), 0);
-        const eventsWithoutCombatTurns = levelData.events.filter(e => 
+        const eventsWithoutCombatTurns = levelData.events.filter(e =>
             e.type !== 'room_enter' && (!e.combatTurns || !Array.isArray(e.combatTurns) || e.combatTurns.length === 0)
         );
         const combatResultEvents = combatEvents.length;
         const otherEventsCount = eventsWithoutCombatTurns.length + combatResultEvents;
         const totalItemsForLevel = roomEnterCount + combatTurnsCount + otherEventsCount;
-        
+
         // Get the revealed count for THIS level (use saved count if available, otherwise use current)
         const savedRevealedCount = revealedCountsByLevelRef.current.get(levelToCheck);
-        const actualRevealedCount = (savedRevealedCount !== undefined && savedRevealedCount > revealedEventCount) 
-            ? savedRevealedCount 
+        const actualRevealedCount = (savedRevealedCount !== undefined && savedRevealedCount > revealedEventCount)
+            ? savedRevealedCount
             : revealedEventCount;
-        
+
         // Check if we've revealed all events for the current level
         // Only advance if ALL events are revealed AND the reveal interval has stopped
         if (actualRevealedCount >= totalItemsForLevel && totalItemsForLevel > 0 && !revealIntervalRef.current) {
@@ -237,7 +246,7 @@ export const BattleScene: React.FC<BattleSceneProps> = ({ onComplete }) => {
                 }
             }
         }
-        
+
         // Still revealing events for current level, stay on this level
         return levelToCheck;
     }, [dungeonEvents, levelsProgress, revealedEventCount]);
@@ -250,14 +259,14 @@ export const BattleScene: React.FC<BattleSceneProps> = ({ onComplete }) => {
             if (previousLevelRef.current > 0 && revealedEventCount > 0) {
                 revealedCountsByLevelRef.current.set(previousLevelRef.current, revealedEventCount);
             }
-            
+
             // Restore revealed count for new level, or start at 0 if first time
             const savedCount = revealedCountsByLevelRef.current.get(currentLevel) || 0;
             setRevealedEventCount(savedCount);
-            
+
             // Update the currentLevelRef to match
             currentLevelRef.current = currentLevel;
-            
+
             // Only log level changes (not initial load from 1 to 1)
             if (previousLevelRef.current !== 1 || currentLevel !== 1) {
                 console.log(`[BattleScene] Level ${previousLevelRef.current} -> ${currentLevel} (restored ${savedCount} revealed, total for level: ${levelsProgress.find(l => l.level === currentLevel)?.events.length || 0})`);
@@ -266,7 +275,7 @@ export const BattleScene: React.FC<BattleSceneProps> = ({ onComplete }) => {
             // Reset logging refs on level change
             lastRevealedCountRef.current = -1;
             lastPendingCountRef.current = -1;
-            
+
             // Center map on current level
             setTimeout(() => {
                 if (mapScrollRef.current) {
@@ -278,7 +287,7 @@ export const BattleScene: React.FC<BattleSceneProps> = ({ onComplete }) => {
             }, 100);
         }
     }, [currentLevel, levelsProgress]);
-    
+
     // Save revealed count whenever it changes (for persistence across view switches)
     // This ensures progress is saved even if user switches views
     useEffect(() => {
@@ -339,24 +348,24 @@ export const BattleScene: React.FC<BattleSceneProps> = ({ onComplete }) => {
         let combatTurnsCount = 0;
         let otherEventsCount = 0;
         let combatEvents: DungeonEvent[] = [];
-        
+
         if (currentLevelData) {
             roomEnterCount = currentLevelData.events.filter(e => e.type === 'room_enter').length;
-            
+
             // Count combat turns from events that have combatTurns
             combatEvents = currentLevelData.events.filter(e => e.combatTurns && Array.isArray(e.combatTurns) && e.combatTurns.length > 0);
             combatTurnsCount = combatEvents.reduce((sum, e) => sum + (e.combatTurns?.length || 0), 0);
-            
+
             // Count other events (events WITHOUT combatTurns, plus combat result events AFTER their turns)
             // Events with combatTurns are counted separately: turns + result event
-            const eventsWithoutCombatTurns = currentLevelData.events.filter(e => 
+            const eventsWithoutCombatTurns = currentLevelData.events.filter(e =>
                 e.type !== 'room_enter' && (!e.combatTurns || !Array.isArray(e.combatTurns) || e.combatTurns.length === 0)
             );
             const combatResultEvents = combatEvents.length; // Each combat event gets 1 result event shown after turns
             otherEventsCount = eventsWithoutCombatTurns.length + combatResultEvents;
-            
+
             totalItems = roomEnterCount + combatTurnsCount + otherEventsCount;
-            
+
             // Log when level changes or total items changes significantly
             const logKey = `${currentLevel}-${totalItems}`;
             if (lastTransitionCheckRef.current !== logKey && totalItems > 0) {
@@ -387,7 +396,7 @@ export const BattleScene: React.FC<BattleSceneProps> = ({ onComplete }) => {
                 totalItems,
                 hasRevealInterval: !!revealIntervalRef.current
             });
-            
+
             // Start revealing events progressively
             revealIntervalRef.current = setInterval(() => {
                 setRevealedEventCount(prev => {
@@ -396,19 +405,19 @@ export const BattleScene: React.FC<BattleSceneProps> = ({ onComplete }) => {
                     let newTotalItems = 0;
                     if (currentLevelData) {
                         const roomEnterCount = currentLevelData.events.filter(e => e.type === 'room_enter').length;
-                        
+
                         // Count combat turns from events that have combatTurns
                         let combatTurnsCount = 0;
                         const combatEvents = currentLevelData.events.filter(e => e.combatTurns && Array.isArray(e.combatTurns) && e.combatTurns.length > 0);
                         combatTurnsCount = combatEvents.reduce((sum, e) => sum + (e.combatTurns?.length || 0), 0);
-                        
+
                         // Count other events (events WITHOUT combatTurns, plus combat result events AFTER their turns)
-                        const eventsWithoutCombatTurns = currentLevelData.events.filter(e => 
+                        const eventsWithoutCombatTurns = currentLevelData.events.filter(e =>
                             e.type !== 'room_enter' && (!e.combatTurns || !Array.isArray(e.combatTurns) || e.combatTurns.length === 0)
                         );
                         const combatResultEvents = combatEvents.length; // Each combat event gets 1 result event shown after turns
                         const otherEventsCount = eventsWithoutCombatTurns.length + combatResultEvents;
-                        
+
                         newTotalItems = roomEnterCount + combatTurnsCount + otherEventsCount;
                     }
 
@@ -456,7 +465,7 @@ export const BattleScene: React.FC<BattleSceneProps> = ({ onComplete }) => {
         if (runStatus.result !== 'victory' && runStatus.result !== 'defeat') {
             return;
         }
-        
+
         // Only log once when run status changes to victory/defeat
         const statusKey = `${runStatus.result}-${currentRunId}`;
         if (lastTransitionCheckRef.current !== statusKey) {
@@ -469,14 +478,14 @@ export const BattleScene: React.FC<BattleSceneProps> = ({ onComplete }) => {
             if (transitionInitiatedRef.current) {
                 return true; // Already transitioning
             }
-            
+
             // First check if there are any undelivered events for this run
             try {
                 const res = await fetch(`/api/runs/${currentRunId}/events/pending`);
                 if (res.ok) {
                     const data = await res.json();
                     const hasPendingEvents = data.pendingCount > 0;
-                    
+
                     // Only log when pending count changes and not transitioning
                     if (!transitionInitiatedRef.current && data.pendingCount !== lastPendingCountRef.current) {
                         if (hasPendingEvents) {
@@ -484,7 +493,7 @@ export const BattleScene: React.FC<BattleSceneProps> = ({ onComplete }) => {
                         }
                         lastPendingCountRef.current = data.pendingCount;
                     }
-                    
+
                     if (hasPendingEvents) {
                         return false; // Not ready to transition
                     }
@@ -510,18 +519,18 @@ export const BattleScene: React.FC<BattleSceneProps> = ({ onComplete }) => {
             if (!currentLevelData) {
                 return false; // No data for current level yet - wait silently
             }
-            
+
             // Calculate total items for current level
             const roomEnterCount = currentLevelData.events.filter(e => e.type === 'room_enter').length;
             const combatEvents = currentLevelData.events.filter(e => e.combatTurns && Array.isArray(e.combatTurns) && e.combatTurns.length > 0);
             const combatTurnsCount = combatEvents.reduce((sum, e) => sum + (e.combatTurns?.length || 0), 0);
-            const eventsWithoutCombatTurns = currentLevelData.events.filter(e => 
+            const eventsWithoutCombatTurns = currentLevelData.events.filter(e =>
                 e.type !== 'room_enter' && (!e.combatTurns || !Array.isArray(e.combatTurns) || e.combatTurns.length === 0)
             );
             const combatResultEvents = combatEvents.length;
             const otherEventsCount = eventsWithoutCombatTurns.length + combatResultEvents;
             const totalItemsForCurrentLevel = roomEnterCount + combatTurnsCount + otherEventsCount;
-            
+
             // Check if we're still revealing events for the current level
             if (revealedEventCount < totalItemsForCurrentLevel) {
                 // Only log when revealed count changes significantly (every 25% progress)
@@ -533,31 +542,31 @@ export const BattleScene: React.FC<BattleSceneProps> = ({ onComplete }) => {
                 lastRevealedCountRef.current = revealedEventCount;
                 return false; // Not ready to transition
             }
-            
+
             // Also check if the reveal interval is still running (means we're actively revealing)
             if (revealIntervalRef.current) {
                 return false; // Not ready to transition - still revealing (no log, happens frequently)
             }
-            
+
             // Check ALL levels to see if any haven't been fully revealed yet
             const levelsWithEvents = levelsProgress.filter(l => l.events.length > 0);
             for (const levelData of levelsWithEvents) {
                 const level = levelData.level;
-                
+
                 // Calculate total items for this level
                 const roomEnterCount = levelData.events.filter(e => e.type === 'room_enter').length;
                 const combatEvents = levelData.events.filter(e => e.combatTurns && Array.isArray(e.combatTurns) && e.combatTurns.length > 0);
                 const combatTurnsCount = combatEvents.reduce((sum, e) => sum + (e.combatTurns?.length || 0), 0);
-                const eventsWithoutCombatTurns = levelData.events.filter(e => 
+                const eventsWithoutCombatTurns = levelData.events.filter(e =>
                     e.type !== 'room_enter' && (!e.combatTurns || !Array.isArray(e.combatTurns) || e.combatTurns.length === 0)
                 );
                 const combatResultEvents = combatEvents.length;
                 const otherEventsCount = eventsWithoutCombatTurns.length + combatResultEvents;
                 const totalItemsForLevel = roomEnterCount + combatTurnsCount + otherEventsCount;
-                
+
                 // Get revealed count for this level
                 const revealedCountForLevel = revealedCountsByLevelRef.current.get(level) || 0;
-                
+
                 // If this level hasn't been fully revealed, don't transition
                 if (revealedCountForLevel < totalItemsForLevel && totalItemsForLevel > 0) {
                     // Only log once per level
@@ -568,12 +577,12 @@ export const BattleScene: React.FC<BattleSceneProps> = ({ onComplete }) => {
                     return false; // Not ready to transition - more levels to process
                 }
             }
-            
+
             // Final check: ensure we've revealed at least some events (safety check)
             if (revealedEventCount === 0 && totalItemsForCurrentLevel > 0) {
                 return false; // Not ready - events exist but none revealed yet (no log, happens at start)
             }
-            
+
             // Only log once when ready to transition
             if (lastRevealedCountRef.current !== totalItemsForCurrentLevel) {
                 console.log(`[BattleScene] All events revealed (${revealedEventCount}/${totalItemsForCurrentLevel}). Ready to transition.`);
@@ -583,7 +592,7 @@ export const BattleScene: React.FC<BattleSceneProps> = ({ onComplete }) => {
             // All events delivered AND revealed, proceed with transition
             transitionInitiatedRef.current = true;
             console.log(`[BattleScene] All events delivered and revealed. Transitioning to map...`);
-            
+
             // Redirect to map (not INN) after completion
             // Clear party selection and run ID when transitioning back to map
             setTimeout(() => {
@@ -597,7 +606,7 @@ export const BattleScene: React.FC<BattleSceneProps> = ({ onComplete }) => {
                     switchView(GameView.MAP);
                 }
             }, 2000);
-            
+
             return true; // Transition initiated
         };
 
@@ -608,7 +617,7 @@ export const BattleScene: React.FC<BattleSceneProps> = ({ onComplete }) => {
             if (transitionInitiatedRef.current || pollingIntervalRef.current) {
                 return;
             }
-            
+
             pollingIntervalRef.current = setInterval(async () => {
                 // Stop polling if transition was initiated
                 if (transitionInitiatedRef.current) {
@@ -618,7 +627,7 @@ export const BattleScene: React.FC<BattleSceneProps> = ({ onComplete }) => {
                     }
                     return;
                 }
-                
+
                 const transitioned = await checkAndTransition();
                 if (transitioned && pollingIntervalRef.current) {
                     clearInterval(pollingIntervalRef.current);
@@ -842,7 +851,7 @@ export const BattleScene: React.FC<BattleSceneProps> = ({ onComplete }) => {
                 : hit
                 ? 'text-red-700'
                 : 'text-amber-950';
-            
+
             events.push({
                 type: 'combat_turn',
                 isCombatTurn: true,
@@ -859,28 +868,28 @@ export const BattleScene: React.FC<BattleSceneProps> = ({ onComplete }) => {
         // Other events for this level (revealed after combat turns)
         // Process events in chronological order
         const remainingReveals = revealedEventCount - itemIndex;
-        
+
         // Calculate total combat turns shown so far
         const totalCombatTurnsShown = Math.max(0, itemIndex - roomEnterEvents.length);
-        
+
         // Get all non-room_enter events, sorted by timestamp
         const otherEvents = levelEvents
             .filter(e => e.type !== 'room_enter')
             .sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
-        
+
         // Track which combat events we've processed turns for
         let combatTurnsProcessed = 0;
-        
+
         // Show events in order
         for (const event of otherEvents) {
             if (itemIndex >= revealedEventCount) break;
-            
+
             // If event has combatTurns, check if we should show the result event
             if (event.combatTurns && Array.isArray(event.combatTurns) && event.combatTurns.length > 0) {
                 // Check if all turns for this combat event have been shown
                 const turnsForThisCombat = event.combatTurns.length;
                 const turnsShownForThisCombat = Math.min(turnsForThisCombat, Math.max(0, totalCombatTurnsShown - combatTurnsProcessed));
-                
+
                 if (turnsShownForThisCombat >= turnsForThisCombat) {
                     // All turns for this combat event have been shown, now show the result
                     const getEventColor = () => {
@@ -888,7 +897,7 @@ export const BattleScene: React.FC<BattleSceneProps> = ({ onComplete }) => {
                         if (event.type.includes('defeat') || event.type.includes('party_wipe')) return 'text-red-700';
                         return 'text-amber-950';
                     };
-                    
+
                     events.push({
                         type: event.type,
                         content: (

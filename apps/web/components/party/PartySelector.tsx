@@ -59,7 +59,10 @@ export const PartySelector: React.FC<PartySelectorProps> = ({ walletAddress, onC
 
     // Fetch metadata for a hero
     const fetchMetadata = async (hero: HeroNFT) => {
-        if (!hero.metadataUri) return;
+        if (!hero.metadataUri) {
+            console.warn(`[PartySelector] No metadataUri for hero ${hero.token_id}`);
+            return;
+        }
 
         try {
             let metadata = null;
@@ -68,13 +71,41 @@ export const PartySelector: React.FC<PartySelectorProps> = ({ walletAddress, onC
             if (uri.startsWith('data:application/json;base64,')) {
                 const base64 = uri.replace('data:application/json;base64,', '');
                 metadata = JSON.parse(atob(base64));
-            } else if (uri.startsWith('http')) {
+                console.log(`[PartySelector] Parsed data URI for hero ${hero.token_id}:`, {
+                    hasName: !!metadata?.name,
+                    hasHero: !!metadata?.hero,
+                    hasClass: !!metadata?.hero?.class,
+                    hasColorPalette: !!metadata?.hero?.colorPalette,
+                });
+            } else if (uri.startsWith('http://') || uri.startsWith('https://')) {
                 const res = await fetch(uri);
-                if (res.ok) metadata = await res.json();
+                if (res.ok) {
+                    metadata = await res.json();
+                    console.log(`[PartySelector] Fetched HTTP metadata for hero ${hero.token_id}:`, {
+                        hasName: !!metadata?.name,
+                        hasHero: !!metadata?.hero,
+                        hasClass: !!metadata?.hero?.class,
+                        hasColorPalette: !!metadata?.hero?.colorPalette,
+                    });
+                } else {
+                    console.warn(`[PartySelector] HTTP fetch failed for hero ${hero.token_id}: ${res.status} ${res.statusText}`);
+                }
             } else if (uri.startsWith('ipfs://')) {
                 const url = uri.replace('ipfs://', 'https://ipfs.io/ipfs/');
                 const res = await fetch(url);
-                if (res.ok) metadata = await res.json();
+                if (res.ok) {
+                    metadata = await res.json();
+                    console.log(`[PartySelector] Fetched IPFS metadata for hero ${hero.token_id}:`, {
+                        hasName: !!metadata?.name,
+                        hasHero: !!metadata?.hero,
+                        hasClass: !!metadata?.hero?.class,
+                        hasColorPalette: !!metadata?.hero?.colorPalette,
+                    });
+                } else {
+                    console.warn(`[PartySelector] IPFS fetch failed for hero ${hero.token_id}: ${res.status} ${res.statusText}`);
+                }
+            } else {
+                console.warn(`[PartySelector] Unknown URI format for hero ${hero.token_id}: ${uri.substring(0, 50)}...`);
             }
 
             if (metadata) {
@@ -83,14 +114,16 @@ export const PartySelector: React.FC<PartySelectorProps> = ({ walletAddress, onC
                         return {
                             ...h,
                             name: metadata.name || h.name,
-                            metadata: metadata,
+                            metadata: metadata, // Store full metadata object
                         };
                     }
                     return h;
                 }));
+            } else {
+                console.warn(`[PartySelector] No metadata returned for hero ${hero.token_id}`);
             }
         } catch (e) {
-            console.warn('Failed to fetch metadata for hero', hero.token_id, e);
+            console.error(`[PartySelector] Failed to fetch metadata for hero ${hero.token_id}:`, e);
         }
     };
 
@@ -123,14 +156,75 @@ export const PartySelector: React.FC<PartySelectorProps> = ({ walletAddress, onC
                 }
             }
 
-            // Trigger metadata fetch for all heroes
-            allHeroes.forEach(hero => {
-                if (hero.metadataUri) {
-                    fetchMetadata(hero);
-                }
-            });
+            // 3. Fetch metadata for all heroes BEFORE setting state
+            const heroesWithMetadata = await Promise.all(
+                allHeroes.map(async (hero) => {
+                    if (!hero.metadataUri) return hero;
 
-            // 3. Fetch status for all heroes
+                    try {
+                        let metadata = null;
+                        const uri = hero.metadataUri;
+
+                        if (uri.startsWith('data:application/json;base64,')) {
+                            const base64 = uri.replace('data:application/json;base64,', '');
+                            metadata = JSON.parse(atob(base64));
+                            console.log(`[PartySelector] Parsed data URI for hero ${hero.token_id}:`, {
+                                hasName: !!metadata?.name,
+                                hasHero: !!metadata?.hero,
+                                hasClass: !!metadata?.hero?.class,
+                                hasColorPalette: !!metadata?.hero?.colorPalette,
+                            });
+                        } else if (uri.startsWith('http://') || uri.startsWith('https://')) {
+                            const res = await fetch(uri);
+                            if (res.ok) {
+                                metadata = await res.json();
+                                console.log(`[PartySelector] Fetched HTTP metadata for hero ${hero.token_id}:`, {
+                                    hasName: !!metadata?.name,
+                                    hasHero: !!metadata?.hero,
+                                    hasClass: !!metadata?.hero?.class,
+                                    hasColorPalette: !!metadata?.hero?.colorPalette,
+                                });
+                            }
+                        } else if (uri.startsWith('ipfs://')) {
+                            const url = uri.replace('ipfs://', 'https://ipfs.io/ipfs/');
+                            const res = await fetch(url);
+                            if (res.ok) {
+                                metadata = await res.json();
+                                console.log(`[PartySelector] Fetched IPFS metadata for hero ${hero.token_id}:`, {
+                                    hasName: !!metadata?.name,
+                                    hasHero: !!metadata?.hero,
+                                    hasClass: !!metadata?.hero?.class,
+                                    hasColorPalette: !!metadata?.hero?.colorPalette,
+                                });
+                            }
+                        }
+
+                        if (metadata) {
+                            console.log(`[PartySelector] Successfully loaded metadata for hero ${hero.token_id}:`, {
+                                name: metadata.name,
+                                heroClass: metadata.hero?.class,
+                                hasColorPalette: !!metadata.hero?.colorPalette,
+                                colorPalette: metadata.hero?.colorPalette,
+                            });
+                            return {
+                                ...hero,
+                                name: metadata.name || hero.name,
+                                metadata: metadata, // Store full metadata object with hero.class and hero.colorPalette
+                            };
+                        } else {
+                            console.warn(`[PartySelector] No metadata returned for hero ${hero.token_id}`);
+                        }
+                    } catch (e) {
+                        console.error(`[PartySelector] Failed to fetch metadata for hero ${hero.token_id}:`, e);
+                    }
+
+                    // Return hero with default metadata if fetch fails
+                    console.warn(`[PartySelector] Using default metadata for hero ${hero.token_id}`);
+                    return hero;
+                })
+            );
+
+            // 4. Fetch status for all heroes
             const tokenIds = allHeroes.map(h => h.token_id);
             let heroStates: any[] = [];
 
@@ -150,22 +244,33 @@ export const PartySelector: React.FC<PartySelectorProps> = ({ walletAddress, onC
                 }
             }
 
-            // 4. Merge status
-            const heroesWithStatus = allHeroes.map(hero => {
+            // 5. Merge status with heroes (use heroesWithMetadata instead of allHeroes)
+            const heroesWithStatus = heroesWithMetadata.map(hero => {
                 const state = heroStates.find((s: any) => s.token_id === hero.token_id);
                 const now = new Date();
                 const lockedUntil = state?.locked_until ? new Date(state.locked_until) : null;
                 const isLocked = state?.status === 'dungeon' && lockedUntil && lockedUntil > now;
 
-                return {
+                const merged = {
                     ...hero,
                     status: isLocked ? 'dungeon' : 'idle',
-                    lockedUntil: isLocked ? state.locked_until : undefined
+                    lockedUntil: isLocked ? state.locked_until : undefined,
+                    // Explicitly preserve metadata to ensure it's not lost
+                    metadata: hero.metadata,
                 };
+
+                // Debug: Verify metadata is preserved
+                if (!merged.metadata?.hero?.colorPalette && hero.metadata?.hero?.colorPalette) {
+                    console.error(`[PartySelector] Metadata lost during status merge for hero ${hero.token_id}!`);
+                }
+
+                return merged;
             });
 
             console.log(`[PartySelector] Loaded ${heroesWithStatus.length} heroes from blockchain`);
             setAvailableHeroes(heroesWithStatus as any);
+
+            // Metadata is already loaded above, no need to fetch again
         } catch (e) {
             console.error('Error fetching owned heroes:', e);
             setError('Failed to load your heroes');
@@ -269,8 +374,20 @@ export const PartySelector: React.FC<PartySelectorProps> = ({ walletAddress, onC
                             const isLocked = hero.status === 'dungeon';
                             const canSelect = !isLocked && (isSelected || selectedTokenIds.length < (mode === 'solo' ? 1 : mode === 'own' ? 5 : 4));
 
+                            // Extract hero class and colors from metadata
                             const heroClass = (hero.metadata?.hero?.class || 'Warrior') as HeroClass;
-                            const colors = hero.metadata?.hero?.colorPalette || DEFAULT_COLORS;
+                            const colors = (hero.metadata?.hero?.colorPalette || DEFAULT_COLORS) as HeroColors;
+
+                            // Debug: Log what we're actually using for rendering
+                            console.log(`[PartySelector] Rendering hero ${hero.token_id}:`, {
+                                heroClass,
+                                hasColorPalette: !!hero.metadata?.hero?.colorPalette,
+                                colorsKeys: Object.keys(colors),
+                                metadataStructure: hero.metadata ? {
+                                    hasHero: !!hero.metadata.hero,
+                                    heroKeys: hero.metadata.hero ? Object.keys(hero.metadata.hero) : [],
+                                } : null,
+                            });
 
                             return (
                                 <button
