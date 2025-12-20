@@ -39,6 +39,10 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './'),
+      // Allow running tests without building workspace packages first
+      '@innkeeper/engine': path.resolve(__dirname, '../../packages/engine/src'),
+      '@innkeeper/agents': path.resolve(__dirname, '../../packages/agents/src'),
+      '@innkeeper/lib': path.resolve(__dirname, '../../packages/lib/src'),
     },
   },
   // Suppress esbuild CJS deprecation warning

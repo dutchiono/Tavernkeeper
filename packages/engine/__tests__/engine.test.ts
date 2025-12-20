@@ -3,7 +3,7 @@ import { createEngineState, executeAction, simulateRun } from '../src/engine';
 import { makeRng } from '../src/rng';
 import type { Entity, Action } from '@innkeeper/lib';
 
-const createEntity = (id: string, overrides?: Partial<Entity>): Entity => ({
+export const createEntity = (id: string, overrides?: Partial<Entity>): Entity => ({
   id,
   name: `Entity ${id}`,
   stats: {

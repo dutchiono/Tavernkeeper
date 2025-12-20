@@ -11,6 +11,10 @@ export interface ValidationResult {
   errors: ValidationError[];
 }
 
+function isFiniteNumber(value: unknown): value is number {
+  return typeof value === 'number' && Number.isFinite(value);
+}
+
 /**
  * Validate an action against the Action DSL
  */
@@ -31,7 +35,7 @@ export function validateAction(action: Action, entities: Map<string, Entity>): V
   // Type-specific validation
   switch (action.type) {
     case 'move':
-      if (!action.target || typeof action.target.x !== 'number' || typeof action.target.y !== 'number') {
+      if (!action.target || !isFiniteNumber(action.target.x) || !isFiniteNumber(action.target.y)) {
         errors.push({
           field: 'target',
           message: 'Move action requires valid target coordinates',
@@ -49,7 +53,7 @@ export function validateAction(action: Action, entities: Map<string, Entity>): V
       break;
 
     case 'skill_check':
-      if (!action.skill || typeof action.difficulty !== 'number') {
+      if (!action.skill || !isFiniteNumber(action.difficulty)) {
         errors.push({
           field: 'skill_check',
           message: 'Skill check requires skill name and difficulty number',
